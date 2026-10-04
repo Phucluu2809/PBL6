@@ -1,0 +1,174 @@
+{
+  "schema_version": "1.0",
+  "run_id": "4655b9fa7fda4da58514705fac3e8681",
+  "status": "COMPLETE",
+  "rows": 811,
+  "filter_rule": "status OK + fresh; BME gas additionally gas_valid + heater_stable + new_data",
+  "auc_rule": "signed trapezoids over adjacent valid samples, no bridge across invalid rows or gap > max_gap_s",
+  "signals": {
+    "gas_resistance_ohm": {
+      "baseline": {
+        "n": 60,
+        "mean": null,
+        "median": null,
+        "std": null,
+        "min": null,
+        "max": null,
+        "slope_per_s": null,
+        "drift": null,
+        "reason": "Log session/monitor: dùng thống kê từng lượt collect, không gộp nền nhiều lượt"
+      },
+      "exposure": null,
+      "recovery": null,
+      "reason": "Log session/monitor: dùng thống kê từng lượt collect, không gộp nền nhiều lượt",
+      "invalid_fraction": 0.0012330456226880004
+    },
+    "mq135_voltage_v": {
+      "baseline": {
+        "n": 60,
+        "mean": null,
+        "median": null,
+        "std": null,
+        "min": null,
+        "max": null,
+        "slope_per_s": null,
+        "drift": null,
+        "reason": "Log session/monitor: dùng thống kê từng lượt collect, không gộp nền nhiều lượt"
+      },
+      "exposure": null,
+      "recovery": null,
+      "reason": "Log session/monitor: dùng thống kê từng lượt collect, không gộp nền nhiều lượt",
+      "invalid_fraction": 0.0
+    },
+    "mq3_voltage_v": {
+      "baseline": {
+        "n": 60,
+        "mean": null,
+        "median": null,
+        "std": null,
+        "min": null,
+        "max": null,
+        "slope_per_s": null,
+        "drift": null,
+        "reason": "Log session/monitor: dùng thống kê từng lượt collect, không gộp nền nhiều lượt"
+      },
+      "exposure": null,
+      "recovery": null,
+      "reason": "Log session/monitor: dùng thống kê từng lượt collect, không gộp nền nhiều lượt",
+      "invalid_fraction": 0.0
+    }
+  },
+  "environment_baseline": {
+    "temperature_c": {
+      "n": 60,
+      "mean": null,
+      "median": null,
+      "std": null,
+      "min": null,
+      "max": null,
+      "slope_per_s": null,
+      "drift": null,
+      "reason": "Log session/monitor: dùng thống kê từng lượt collect, không gộp nền nhiều lượt"
+    },
+    "humidity_pct": {
+      "n": 60,
+      "mean": null,
+      "median": null,
+      "std": null,
+      "min": null,
+      "max": null,
+      "slope_per_s": null,
+      "drift": null,
+      "reason": "Log session/monitor: dùng thống kê từng lượt collect, không gộp nền nhiều lượt"
+    },
+    "pressure_hpa": {
+      "n": 60,
+      "mean": null,
+      "median": null,
+      "std": null,
+      "min": null,
+      "max": null,
+      "slope_per_s": null,
+      "drift": null,
+      "reason": "Log session/monitor: dùng thống kê từng lượt collect, không gộp nền nhiều lượt"
+    }
+  },
+  "warnings": [],
+  "external_pump": {
+    "initial_state": "unknown",
+    "latest_state": "on",
+    "source": "user_reported",
+    "physical_feedback": null,
+    "meaning": "User reports external power operation; no GPIO command and no measured feedback"
+  },
+  "measurement_quality": {
+    "pre_baseline": null,
+    "baseline": {
+      "stable": null,
+      "reasons": [
+        "BASELINE thiếu hoặc chưa hoàn thành"
+      ],
+      "advisories": [
+        "Nhiệt độ BME vượt 35.0 °C; kiểm tra ảnh hưởng nhiệt/vị trí cảm biến, không suy ra nhiệt độ môi trường đã bù"
+      ],
+      "signals": {
+        "gas_resistance_ohm": {
+          "n": 60,
+          "span_s": 58.99994964000007,
+          "mean": 127135.98971354167,
+          "slope_per_min": -74.98229854846983,
+          "range": 1041.125,
+          "slope_pct_per_min": -0.058978027163997616,
+          "range_pct": 0.818906591552735,
+          "invalid_fraction": 0.0,
+          "drifting": false,
+          "reasons": []
+        },
+        "temperature_c": {
+          "n": 60,
+          "span_s": 58.99994964000007,
+          "mean": 37.24470933278402,
+          "slope_per_min": -0.15865380216406136,
+          "range": 0.16524505615234375,
+          "slope_pct_per_min": null,
+          "range_pct": null,
+          "invalid_fraction": 0.0,
+          "drifting": false,
+          "reasons": []
+        },
+        "humidity_pct": {
+          "n": 60,
+          "span_s": 58.99994964000007,
+          "mean": 51.02125778198242,
+          "slope_per_min": 0.3460232636822364,
+          "range": 0.3292694091796875,
+          "slope_pct_per_min": null,
+          "range_pct": null,
+          "invalid_fraction": 0.0,
+          "drifting": false,
+          "reasons": []
+        }
+      },
+      "window_s": null,
+      "evaluated_at_elapsed_s": 540.1018668529998,
+      "criteria": {
+        "window_s": 30.0,
+        "min_samples": 5,
+        "min_window_fraction": 0.8,
+        "max_gap_s": 3.0,
+        "max_invalid_fraction": 0.2,
+        "gas_epsilon_ohm": 1e-09,
+        "gas_pct_per_min": 5.0,
+        "gas_range_pct": 5.0,
+        "temperature_per_min": 0.3,
+        "temperature_range": 0.2,
+        "humidity_per_min": 1.0,
+        "humidity_range": 1.0,
+        "temperature_warning_c": 35.0
+      }
+    },
+    "baseline_unstable": null,
+    "baseline_started_without_stability": null,
+    "interpretation": "Thay đổi tín hiệu khảo sát; không chứng minh phản ứng mùi. Nền đang trôi/chưa đánh giá làm đáp ứng tương đối thiếu tin cậy."
+  }
+}

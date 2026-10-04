@@ -1,0 +1,539 @@
+{
+  "schema_version": "1.0",
+  "program_version": "1.0.0",
+  "run_id": "22886fe15192489294e26e1d3ecf0593",
+  "backend": "hardware",
+  "kind": "session",
+  "started_at": "2026-10-03T15:49:17.166149+07:00",
+  "ended_at": "2026-10-03T16:31:05.276847+07:00",
+  "status": "COMPLETE",
+  "config": {
+    "sample_hz": 1.0,
+    "fsync_interval_s": 5.0,
+    "baseline_s": 60.0,
+    "exposure_s": 120.0,
+    "recovery_s": 60.0,
+    "seed": 688,
+    "hardware": {
+      "i2c_bus": 1,
+      "bme_address": 119,
+      "ads_address": 72,
+      "heater_c": 320,
+      "heater_ms": 150,
+      "temperature_oversampling": 8,
+      "humidity_oversampling": 2,
+      "pressure_oversampling": 4,
+      "ads_gain": 1.0,
+      "ads_data_rate": 128,
+      "mq135_channel": 0,
+      "mq3_channel": 1,
+      "mq135_divider_factor": null,
+      "mq3_divider_factor": null,
+      "mq135_divider_description": "Chưa xác nhận; dự kiến 10 kΩ/10 kΩ",
+      "mq3_divider_description": "Chưa xác nhận; dự kiến 10 kΩ/10 kΩ"
+    },
+    "pump": {
+      "enabled": false,
+      "confirmed": false,
+      "gpio_bcm": 17,
+      "active_high": null
+    },
+    "stability": {
+      "window_s": 30.0,
+      "min_samples": 5,
+      "min_window_fraction": 0.8,
+      "max_gap_s": 3.0,
+      "max_invalid_fraction": 0.2,
+      "gas_epsilon_ohm": 1e-09,
+      "gas_pct_per_min": 5.0,
+      "gas_range_pct": 5.0,
+      "temperature_per_min": 0.3,
+      "temperature_range": 0.2,
+      "humidity_per_min": 1.0,
+      "humidity_range": 1.0,
+      "temperature_warning_c": 35.0
+    },
+    "analysis": {
+      "min_baseline_samples": 3,
+      "baseline_epsilon": 1e-09,
+      "baseline_drift_pct": 5.0,
+      "recovery_tolerance_pct": 10.0,
+      "missing_fraction": 0.1,
+      "adc_limit_count": 32700,
+      "max_gap_s": 3.0
+    }
+  },
+  "applied": {
+    "backend": "hardware",
+    "bme": {
+      "driver": "Bosch BME68x SensorAPI v4.4.8",
+      "chip_id": 97,
+      "variant_id": 1,
+      "mode": "FORCED",
+      "filter": "OFF",
+      "odr": "NONE",
+      "ambient_temperature_for_heater_c": 25,
+      "temperature_oversampling": 8,
+      "humidity_oversampling": 2,
+      "pressure_oversampling": 4,
+      "heater_target_c": 320,
+      "heater_requested_ms": 150,
+      "heater_programmed_ms": 148,
+      "res_heat_register": 109,
+      "gas_wait_register": 101,
+      "conversion_wait_s": 0.181775,
+      "library_sha256": "5b94720bfb8507b93089c4891c29dcd2b636b83a230d57fe15ab2bc9e5c9a8ee"
+    },
+    "ads": {
+      "driver": "RoboNose ADS1115 register driver 1.0",
+      "smbus2": "0.6.1",
+      "mode": "single-shot",
+      "gain": 1.0,
+      "data_rate_sps": 128,
+      "configuration_readback": true
+    },
+    "hardware": {
+      "i2c_bus": 1,
+      "bme_address": 119,
+      "ads_address": 72,
+      "heater_c": 320,
+      "heater_ms": 150,
+      "temperature_oversampling": 8,
+      "humidity_oversampling": 2,
+      "pressure_oversampling": 4,
+      "ads_gain": 1.0,
+      "ads_data_rate": 128,
+      "mq135_channel": 0,
+      "mq3_channel": 1,
+      "mq135_divider_factor": null,
+      "mq3_divider_factor": null,
+      "mq135_divider_description": "Chưa xác nhận; dự kiến 10 kΩ/10 kΩ",
+      "mq3_divider_description": "Chưa xác nhận; dự kiến 10 kΩ/10 kΩ"
+    },
+    "pump": {
+      "enabled": false,
+      "initial_command": "DISABLED",
+      "feedback": "none; command only"
+    }
+  },
+  "sample": {
+    "sample_description": "Mau thu dau tien; chi tiet ghi trong notes",
+    "person_code": "",
+    "source": "",
+    "sampling_method": "Hut khi qua ong; buong dong; chuyen dau lay khi bang tay",
+    "purge_method": "Hut khi phong tai vi tri nen co dinh",
+    "lid_state": "dong",
+    "distance_cm": ""
+  },
+  "original_name": null,
+  "notes": "",
+  "phase_intervals": [
+    {
+      "phase": "MONITOR",
+      "start_s": 0.0,
+      "end_s": 764.3263547730003,
+      "actual_s": 764.3263547730003,
+      "planned_s": null
+    },
+    {
+      "phase": "BASELINE",
+      "start_s": 764.3263547730003,
+      "end_s": 824.3263547730003,
+      "actual_s": 60.0,
+      "planned_s": 60.0
+    },
+    {
+      "phase": "WAIT_EXPOSURE",
+      "start_s": 824.3263547730003,
+      "end_s": 829.4759308800003,
+      "actual_s": 5.14957610700003,
+      "planned_s": null
+    },
+    {
+      "phase": "EXPOSURE",
+      "start_s": 829.4759308800003,
+      "end_s": 949.4759308800003,
+      "actual_s": 120.0,
+      "planned_s": 120.0
+    },
+    {
+      "phase": "WAIT_RECOVERY",
+      "start_s": 949.4759308800003,
+      "end_s": 954.8469945490006,
+      "actual_s": 5.37106366900025,
+      "planned_s": null
+    },
+    {
+      "phase": "RECOVERY",
+      "start_s": 954.8469945490006,
+      "end_s": 1014.8469945490006,
+      "actual_s": 60.0,
+      "planned_s": 60.0
+    },
+    {
+      "phase": "WAIT_FINISH",
+      "start_s": 1014.8469945490006,
+      "end_s": 1076.089168261,
+      "actual_s": 61.242173711999385,
+      "planned_s": null
+    },
+    {
+      "phase": "WAIT_NAME",
+      "start_s": 1076.089168261,
+      "end_s": 1094.0408535080005,
+      "actual_s": 17.95168524700057,
+      "planned_s": null
+    },
+    {
+      "phase": "WAIT_NOTES",
+      "start_s": 1094.0408535080005,
+      "end_s": 1095.9222245770006,
+      "actual_s": 1.8813710690001244,
+      "planned_s": null
+    },
+    {
+      "phase": "BETWEEN_RUNS",
+      "start_s": 1095.9222245770006,
+      "end_s": 1102.4360555140001,
+      "actual_s": 6.513830936999511,
+      "planned_s": null
+    },
+    {
+      "phase": "MONITOR",
+      "start_s": 1102.4360555140001,
+      "end_s": 1120.842807391,
+      "actual_s": 18.406751876999806,
+      "planned_s": null
+    },
+    {
+      "phase": "BASELINE",
+      "start_s": 1120.842807391,
+      "end_s": 1180.842807391,
+      "actual_s": 60.0,
+      "planned_s": 60.0
+    },
+    {
+      "phase": "WAIT_EXPOSURE",
+      "start_s": 1180.842807391,
+      "end_s": 1191.506578603,
+      "actual_s": 10.663771212000029,
+      "planned_s": null
+    },
+    {
+      "phase": "EXPOSURE",
+      "start_s": 1191.506578603,
+      "end_s": 1311.506578603,
+      "actual_s": 120.0,
+      "planned_s": 120.0
+    },
+    {
+      "phase": "WAIT_RECOVERY",
+      "start_s": 1311.506578603,
+      "end_s": 1324.6748482270004,
+      "actual_s": 13.168269624000459,
+      "planned_s": null
+    },
+    {
+      "phase": "RECOVERY",
+      "start_s": 1324.6748482270004,
+      "end_s": 1384.6748482270004,
+      "actual_s": 60.0,
+      "planned_s": 60.0
+    },
+    {
+      "phase": "WAIT_FINISH",
+      "start_s": 1384.6748482270004,
+      "end_s": 1408.818492765,
+      "actual_s": 24.143644537999535,
+      "planned_s": null
+    },
+    {
+      "phase": "WAIT_NAME",
+      "start_s": 1408.818492765,
+      "end_s": 1421.0866749890001,
+      "actual_s": 12.268182224000157,
+      "planned_s": null
+    },
+    {
+      "phase": "WAIT_NOTES",
+      "start_s": 1421.0866749890001,
+      "end_s": 1423.2394083210002,
+      "actual_s": 2.1527333320000253,
+      "planned_s": null
+    },
+    {
+      "phase": "BETWEEN_RUNS",
+      "start_s": 1423.2394083210002,
+      "end_s": 1428.4783875210005,
+      "actual_s": 5.238979200000358,
+      "planned_s": null
+    },
+    {
+      "phase": "MONITOR",
+      "start_s": 1428.4783875210005,
+      "end_s": 1485.2088285990003,
+      "actual_s": 56.730441077999785,
+      "planned_s": null
+    },
+    {
+      "phase": "BASELINE",
+      "start_s": 1485.2088285990003,
+      "end_s": 1545.2088285990003,
+      "actual_s": 60.0,
+      "planned_s": 60.0
+    },
+    {
+      "phase": "WAIT_EXPOSURE",
+      "start_s": 1545.2088285990003,
+      "end_s": 1549.178234119,
+      "actual_s": 3.969405519999782,
+      "planned_s": null
+    },
+    {
+      "phase": "EXPOSURE",
+      "start_s": 1549.178234119,
+      "end_s": 1669.178234119,
+      "actual_s": 120.0,
+      "planned_s": 120.0
+    },
+    {
+      "phase": "WAIT_RECOVERY",
+      "start_s": 1669.178234119,
+      "end_s": 1678.2011609170004,
+      "actual_s": 9.022926798000299,
+      "planned_s": null
+    },
+    {
+      "phase": "RECOVERY",
+      "start_s": 1678.2011609170004,
+      "end_s": 1738.2011609170004,
+      "actual_s": 60.0,
+      "planned_s": 60.0
+    },
+    {
+      "phase": "WAIT_FINISH",
+      "start_s": 1738.2011609170004,
+      "end_s": 1743.022946784,
+      "actual_s": 4.821785866999562,
+      "planned_s": null
+    },
+    {
+      "phase": "WAIT_NAME",
+      "start_s": 1743.022946784,
+      "end_s": 1755.7720372460008,
+      "actual_s": 12.749090462000822,
+      "planned_s": null
+    },
+    {
+      "phase": "WAIT_NOTES",
+      "start_s": 1755.7720372460008,
+      "end_s": 1757.2688777050007,
+      "actual_s": 1.496840458999941,
+      "planned_s": null
+    },
+    {
+      "phase": "BETWEEN_RUNS",
+      "start_s": 1757.2688777050007,
+      "end_s": 1761.7913837610004,
+      "actual_s": 4.522506055999656,
+      "planned_s": null
+    },
+    {
+      "phase": "MONITOR",
+      "start_s": 1761.7913837610004,
+      "end_s": 1866.2734372800005,
+      "actual_s": 104.48205351900015,
+      "planned_s": null
+    },
+    {
+      "phase": "BASELINE",
+      "start_s": 1866.2734372800005,
+      "end_s": 1926.2734372800005,
+      "actual_s": 60.0,
+      "planned_s": 60.0
+    },
+    {
+      "phase": "WAIT_EXPOSURE",
+      "start_s": 1926.2734372800005,
+      "end_s": 1937.0120240040005,
+      "actual_s": 10.738586724000015,
+      "planned_s": null
+    },
+    {
+      "phase": "EXPOSURE",
+      "start_s": 1937.0120240040005,
+      "end_s": 2057.0120240040005,
+      "actual_s": 120.0,
+      "planned_s": 120.0
+    },
+    {
+      "phase": "WAIT_RECOVERY",
+      "start_s": 2057.0120240040005,
+      "end_s": 2064.3509268840007,
+      "actual_s": 7.338902880000205,
+      "planned_s": null
+    },
+    {
+      "phase": "RECOVERY",
+      "start_s": 2064.3509268840007,
+      "end_s": 2124.3509268840007,
+      "actual_s": 60.0,
+      "planned_s": 60.0
+    },
+    {
+      "phase": "WAIT_FINISH",
+      "start_s": 2124.3509268840007,
+      "end_s": 2130.1239907540003,
+      "actual_s": 5.7730638699995325,
+      "planned_s": null
+    },
+    {
+      "phase": "WAIT_NAME",
+      "start_s": 2130.1239907540003,
+      "end_s": 2141.523364566,
+      "actual_s": 11.399373811999794,
+      "planned_s": null
+    },
+    {
+      "phase": "WAIT_NOTES",
+      "start_s": 2141.523364566,
+      "end_s": 2143.5445073890005,
+      "actual_s": 2.021142823000446,
+      "planned_s": null
+    },
+    {
+      "phase": "BETWEEN_RUNS",
+      "start_s": 2143.5445073890005,
+      "end_s": 2147.1042855590003,
+      "actual_s": 3.559778169999845,
+      "planned_s": null
+    },
+    {
+      "phase": "MONITOR",
+      "start_s": 2147.1042855590003,
+      "end_s": 2193.3997728330005,
+      "actual_s": 46.29548727400015,
+      "planned_s": null
+    },
+    {
+      "phase": "BASELINE",
+      "start_s": 2193.3997728330005,
+      "end_s": 2253.3997728330005,
+      "actual_s": 60.0,
+      "planned_s": 60.0
+    },
+    {
+      "phase": "WAIT_EXPOSURE",
+      "start_s": 2253.3997728330005,
+      "end_s": 2261.895153247,
+      "actual_s": 8.495380413999555,
+      "planned_s": null
+    },
+    {
+      "phase": "EXPOSURE",
+      "start_s": 2261.895153247,
+      "end_s": 2381.895153247,
+      "actual_s": 120.0,
+      "planned_s": 120.0
+    },
+    {
+      "phase": "WAIT_RECOVERY",
+      "start_s": 2381.895153247,
+      "end_s": 2399.764854643,
+      "actual_s": 17.869701395999982,
+      "planned_s": null
+    },
+    {
+      "phase": "RECOVERY",
+      "start_s": 2399.764854643,
+      "end_s": 2459.764854643,
+      "actual_s": 60.0,
+      "planned_s": 60.0
+    },
+    {
+      "phase": "WAIT_FINISH",
+      "start_s": 2459.764854643,
+      "end_s": 2469.413109244,
+      "actual_s": 9.64825460100019,
+      "planned_s": null
+    },
+    {
+      "phase": "WAIT_NAME",
+      "start_s": 2469.413109244,
+      "end_s": 2487.158980579,
+      "actual_s": 17.74587133499972,
+      "planned_s": null
+    },
+    {
+      "phase": "WAIT_NOTES",
+      "start_s": 2487.158980579,
+      "end_s": 2488.5857358410003,
+      "actual_s": 1.4267552620003698,
+      "planned_s": null
+    },
+    {
+      "phase": "BETWEEN_RUNS",
+      "start_s": 2488.5857358410003,
+      "end_s": 2508.1118808540004,
+      "actual_s": 19.526145013000132,
+      "planned_s": null
+    }
+  ],
+  "extensions": [],
+  "rows": 2509,
+  "time_basis": "elapsed_s = monotonic - run_start; ISO Asia/Ho_Chi_Minh",
+  "pump_feedback": "command only; no physical feedback",
+  "adc_inputs": {
+    "mq135": {
+      "channel": 0,
+      "voltage_location": "ADS1115 input",
+      "divider_description": "Chưa xác nhận; dự kiến 10 kΩ/10 kΩ",
+      "divider_factor_confirmed": false,
+      "ao_estimate_factor": null,
+      "ao_estimate_rule": "AO estimate = ADS voltage * confirmed factor; null otherwise"
+    },
+    "mq3": {
+      "channel": 1,
+      "voltage_location": "ADS1115 input",
+      "divider_description": "Chưa xác nhận; dự kiến 10 kΩ/10 kΩ",
+      "divider_factor_confirmed": false,
+      "ao_estimate_factor": null,
+      "ao_estimate_rule": "AO estimate = ADS voltage * confirmed factor; null otherwise"
+    }
+  },
+  "software": {
+    "python": "3.11.2 (main, May 12 2026, 05:17:27) [GCC 12.2.0]",
+    "platform": "Linux-6.12.109+rpt-rpi-v8-aarch64-with-glibc2.36",
+    "dependencies": {
+      "numpy": "2.4.6",
+      "matplotlib": "3.11.2",
+      "prompt-toolkit": "3.0.53",
+      "smbus2": "0.6.1",
+      "gpiozero": "2.0.1.post3",
+      "lgpio": "0.2.2.0"
+    }
+  },
+  "external_pump": {
+    "initial_state": "unknown",
+    "latest_state": "on",
+    "source": "user_reported",
+    "physical_feedback": null,
+    "meaning": "User reports external power operation; no GPIO command and no measured feedback"
+  },
+  "elapsed_s": 2508.1118808540004,
+  "end_reason": "user quit",
+  "durations": {
+    "BASELINE": {
+      "planned_s": 60.0,
+      "actual_s": 300.0
+    },
+    "EXPOSURE": {
+      "planned_s": 120.0,
+      "actual_s": 600.0
+    },
+    "RECOVERY": {
+      "planned_s": 60.0,
+      "actual_s": 300.0
+    }
+  }
+}

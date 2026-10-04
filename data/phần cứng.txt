@@ -1,0 +1,164 @@
+1.Danh sách phần cứng chính
+BME688
+Cảm biến chính của hệ thống.
+Đo:
+Gas resistance
+Temperature
+Humidity
+Pressure
+Ngoài ra, BME688 có heater profile, cho phép đo response của cảm biến tại nhiều mức nhiệt khác nhau.
+Thay vì chỉ thu một giá trị, có thể tạo ra chuỗi:
+Gas response theo thời gian + heater profile
+giúp tạo fingerprint mùi giàu thông tin hơn.
+
+MQ135
+Đóng vai trò cảm biến bổ sung.
+Nhạy với nhiều loại khí/VOC và một số hợp chất như:
+NH₃
+alcohol
+benzene-related VOC
+smoke
+một số khí hữu cơ khác
+Không sử dụng MQ135 để xác định chính xác “đây là NH₃ bao nhiêu ppm”.
+Trong RoboNose, MQ135 chủ yếu được dùng như một kênh response bổ sung cho odor fingerprint.
+
+MQ3
+Nhạy mạnh với:
+alcohol
+ethanol
+một số hơi hữu cơ
+MQ3 có thể giúp tăng khả năng phân biệt trong trường hợp mẫu có:
+nước hoa
+mỹ phẩm
+alcohol
+chất hữu cơ dễ bay hơi
+Ở giai đoạn prototype vẫn giữ MQ3.
+Sau khi có dataset sẽ tiến hành ablation test để xác định MQ3 có thực sự đóng góp vào khả năng nhận dạng hay không.
+
+ADS1115 – ADC 16 bit
+Dùng để đọc tín hiệu analog từ:
+MQ135
+MQ3
+Kết nối:
+MQ135 → Voltage Divider → ADS1115
+MQ3 → Voltage Divider → ADS1115
+ADS1115 giúp tín hiệu ổn định và có độ phân giải cao hơn ADC tích hợp trên một số vi điều khiển.
+
+2. Sampling Cup – đầu lấy mẫu
+Sampling cup được đặt gần vùng cần lấy mùi như:
+sau tai
+cổ
+quần áo
+vùng nách
+Mục tiêu:
+giữ khoảng cách lấy mẫu ổn định;
+hạn chế ảnh hưởng của không khí xung quanh;
+tăng tính lặp lại giữa các lần đo;
+đưa lượng khí tương đối giống nhau vào hệ thống.
+Sampling cup nên:
+kích thước nhỏ;
+dễ tháo;
+dễ vệ sinh;
+hạn chế vật liệu hấp thụ VOC.
+Nếu có thể nên có đầu cup có thể tháo/thay giữa các người.
+
+3. Ống dẫn khí
+Ưu tiên:
+PTFE / FEP / PFA tubing
+thay vì sử dụng ống silicon dài.
+Lý do:
+Một số VOC có thể bị hấp thụ lên thành ống rồi giải phóng chậm.
+Điều này gây hiện tượng:
+Memory Effect
+Ví dụ:
+Người A
+ ↓
+một phần VOC bám vào ống
+
+Purge
+
+Người B
+ ↓
+VOC B + VOC A còn sót
+
+Do đó:
+Ống càng ngắn càng tốt.
+
+4. Sensor Chamber
+Buồng sensor chứa:
+BME688
+MQ135
+MQ3
+Luồng khí đi qua chamber để tất cả cảm biến tiếp xúc với cùng một mẫu khí.
+Thiết kế chamber cần:
+kín tương đối;
+thể tích nhỏ;
+ít góc chết;
+dễ purge;
+dòng khí đi qua đều;
+hạn chế VOC bám lại.
+Không nên làm chamber quá nhỏ vì MQ135 và MQ3 sử dụng heater và sinh nhiệt.
+Nên bố trí:
+Air inlet
+
+   ↓
+
+BME688
+
+   ↓
+
+MQ135
+
+   ↓
+
+MQ3
+
+   ↓
+
+Air outlet
+
+BME688 nên nằm gần inlet và không đặt sát heater của MQ135/MQ3.
+
+5. Bơm khí
+Bơm được đặt sau sensor chamber:
+Sampling Cup
+     ↓
+ Chamber
+     ↓
+   Pump
+     ↓
+ Exhaust
+
+Thay vì:
+Sampling Cup
+     ↓
+   Pump
+     ↓
+ Chamber
+
+Mục đích là tránh:
+mùi vật liệu bơm;
+hơi nhựa;
+dầu;
+nhiệt;
+contamination từ pump
+đi qua sensor trước khi đo.
+Pump chỉ thực hiện nhiệm vụ:
+kéo không khí xuyên qua sensor chamber.
+
+6. Purge system
+Sau mỗi mẫu cần purge chamber.
+Luồng:
+Clean Air
+   ↓
+Carbon Filter
+   ↓
+Chamber
+   ↓
+Pump
+   ↓
+Exhaust
+
+Activated carbon filter giúp giảm VOC tồn tại trong không khí phòng trước khi đưa vào chamber.
+Điều này giúp tạo baseline ổn định hơn so với chỉ sử dụng quạt thổi không khí phòng trực tiếp.
+

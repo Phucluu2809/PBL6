@@ -1,0 +1,18 @@
+trial01 với trial02 mới là chính nha, mấy cái còn lại là test để tối ưu chỉ số
+baseline: 60s   expose: 120s    recover:60s
+trial01: warm up 10 phút mà lúc đo thấy nhiệt độ độ ẩm chưa ổn định nên trial02 warm up 15p, giá trị 3 cảm biến thì đã ổn định
+thứ tự đo: không khí -> áo -> nách -> nước hoa -> mắm tôm
+
+
+trial02: warm up 15p thì đã thấy nhiệt độ độ ẩm trước khi đo đã ổn định hơn chút
+thứ tự đo: không khí -> mắm tôm -> áo -> nước hoa -> nách
+
+
+
+ở mỗi lần do có các khoảng wait giữa các pha thì hiện tại đang chưa đồng độ thời gian wait đó, có thể xét xem số liệu hoặc là bỏ đi
+sau khi recover có thấy giá trị chưa về lại giá trị cũ nên warmup thêm 1p đặc biệt là ở mắm tôm
+
+dữ liệu warmup giữa các lần thu giữa các mẫu ( chứ không phải là warmup đầu tiên ở khi thu mẫu không khí) có thể cân nhắc lấy hoặc bỏ qua do nó phụ thuộc nhiều vào mẫu vật mà mình thu ở lần đo trước, ví dụ sau khi thu nước hoa thì cần warmup lâu để thu mẫu vật tiếp theo do nồng độ cồn còn khá cao
+
+
+2 trial thu cách nhau 15p, xong trial 1 thì tắt hệ thống, chờ 15p sau rồi mới warm up rồi lại thu trial 02
