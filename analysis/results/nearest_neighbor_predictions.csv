@@ -1,0 +1,31 @@
+﻿feature_set,reference_trial,query_trial,true_label,true_label_vi,predicted_label,predicted_label_vi,distance,correct
+BME gas,1,2,khongkhi,Không khí,khongkhi,Không khí,0.024670706166302046,True
+BME gas,1,2,mamtom,Mắm tôm,mamtom,Mắm tôm,0.2732323925174586,True
+BME gas,1,2,ao,Áo,ao,Áo,0.0723625537549806,True
+BME gas,1,2,nuochoa,Nước hoa,nuochoa,Nước hoa,0.9288533054661829,True
+BME gas,1,2,nach,Nách,nach,Nách,0.35070959964412396,True
+BME gas,2,1,khongkhi,Không khí,khongkhi,Không khí,0.023462008482720013,True
+BME gas,2,1,ao,Áo,khongkhi,Không khí,0.05020202965196277,False
+BME gas,2,1,nach,Nách,khongkhi,Không khí,0.38005137609344436,False
+BME gas,2,1,nuochoa,Nước hoa,nuochoa,Nước hoa,1.0608293399956759,True
+BME gas,2,1,mamtom,Mắm tôm,mamtom,Mắm tôm,0.33279802459287605,True
+MQ135 + MQ3,1,2,khongkhi,Không khí,khongkhi,Không khí,1.7386819718260538,True
+MQ135 + MQ3,1,2,mamtom,Mắm tôm,nuochoa,Nước hoa,9.109595866081303,False
+MQ135 + MQ3,1,2,ao,Áo,mamtom,Mắm tôm,4.676367145222563,False
+MQ135 + MQ3,1,2,nuochoa,Nước hoa,nuochoa,Nước hoa,4.56772860367462,True
+MQ135 + MQ3,1,2,nach,Nách,mamtom,Mắm tôm,3.989571021693157,False
+MQ135 + MQ3,2,1,khongkhi,Không khí,khongkhi,Không khí,1.4345075256786417,True
+MQ135 + MQ3,2,1,ao,Áo,khongkhi,Không khí,1.8732687408290476,False
+MQ135 + MQ3,2,1,nach,Nách,nach,Nách,1.8427161661679634,True
+MQ135 + MQ3,2,1,nuochoa,Nước hoa,nuochoa,Nước hoa,2.7320364111379214,True
+MQ135 + MQ3,2,1,mamtom,Mắm tôm,ao,Áo,2.045644965078805,False
+Tất cả,1,2,khongkhi,Không khí,khongkhi,Không khí,1.7388569932273552,True
+Tất cả,1,2,mamtom,Mắm tôm,mamtom,Mắm tôm,9.22467371001311,True
+Tất cả,1,2,ao,Áo,mamtom,Mắm tôm,4.716640377142017,False
+Tất cả,1,2,nuochoa,Nước hoa,nuochoa,Nước hoa,4.661213689577291,True
+Tất cả,1,2,nach,Nách,nach,Nách,4.037526604918867,True
+Tất cả,2,1,khongkhi,Không khí,khongkhi,Không khí,1.434699378640244,True
+Tất cả,2,1,ao,Áo,khongkhi,Không khí,1.8739413062175727,False
+Tất cả,2,1,nach,Nách,nach,Nách,1.8948084661242546,True
+Tất cả,2,1,nuochoa,Nước hoa,nuochoa,Nước hoa,2.9307647193828155,True
+Tất cả,2,1,mamtom,Mắm tôm,ao,Áo,2.1724015924655933,False

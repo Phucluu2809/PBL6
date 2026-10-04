@@ -1,0 +1,23 @@
+{
+  "primary_runs": 10,
+  "primary_raw_rows": 5082,
+  "minimum_valid_pct": 99.90706319702602,
+  "unstable_baseline_runs": [
+    "T1-Nước hoa",
+    "T2-Nước hoa"
+  ],
+  "max_abs_recovery_end_pct": 17.784044307399995,
+  "pca_pc1_explained": 0.8089801032084439,
+  "pca_pc2_explained": 0.0927805601729223,
+  "median_within_distance": 2.31418742768714,
+  "median_between_distance": 4.194248806867172,
+  "separation_ratio": 1.8124067034012952,
+  "all_sensor_cross_trial_accuracy": 0.7,
+  "class_accuracy": {
+    "Không khí": 1.0,
+    "Áo": 0.0,
+    "Nách": 1.0,
+    "Nước hoa": 1.0,
+    "Mắm tôm": 0.5
+  }
+}
