@@ -1,0 +1,2 @@
+data ở mấy file được đặt tên bằng chữ, mấy folder bằng số là chạy warm-up
+cấu trúc đặt tên folder là tên người -> vị trí đo -> mặc áo hay không -> có cả giờ phút đo nữa, có 1 folder không có vị trí đo là do anh nớ mới tắm xong

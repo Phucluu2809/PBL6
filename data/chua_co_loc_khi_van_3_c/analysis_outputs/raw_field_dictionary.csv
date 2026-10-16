@@ -1,0 +1,51 @@
+﻿field,group,description,unit
+run_id,Định danh,Mã duy nhất của run,text
+seq,Định danh,Số thứ tự mẫu trong run,count
+timestamp,Thời gian,Mốc ISO 8601 có timezone +07:00,datetime
+elapsed_s,Thời gian,Số giây từ đầu collect/session,s
+phase_elapsed_s,Thời gian,Số giây từ đầu pha hiện tại,s
+phase,Thời gian,MONITOR/BASELINE/WAIT/EXPOSURE/RECOVERY,category
+sensor_uptime_s,Thời gian,Thời gian cảm biến/session đã chạy,s
+loop_interval_s,Hiệu năng,Khoảng cách giữa hai vòng lấy mẫu,s
+loop_duration_s,Hiệu năng,Thời gian hoàn thành một vòng đọc,s
+schedule_lag_s,Hiệu năng,Độ trễ so với lịch lấy mẫu,s
+pump_command,Bơm,Lệnh bơm do phần mềm gửi,category
+external_pump_state,Bơm,Trạng thái bơm ngoài do người dùng báo,category
+external_pump_source,Bơm,Nguồn thông tin trạng thái bơm ngoài,category
+temperature_c,BME68x,Nhiệt độ tại cảm biến BME,°C
+humidity_pct,BME68x,Độ ẩm tương đối,%RH
+pressure_hpa,BME68x,Áp suất khí quyển,hPa
+gas_resistance_ohm,BME68x,"Điện trở khí BME, tín hiệu không đặc hiệu",Ω
+gas_valid,BME68x,Cờ phép đo gas hợp lệ,bool
+heater_stable,BME68x,Cờ heater đã ổn định,bool
+new_data,BME68x,Cờ có dữ liệu mới,bool
+bme_status_bits,BME68x chẩn đoán,Bit trạng thái driver BME,register
+bme_meas_index,BME68x chẩn đoán,Chỉ số phép đo,count
+bme_gas_index,BME68x chẩn đoán,Chỉ số heater profile,count
+bme_res_heat,BME68x chẩn đoán,Giá trị thanh ghi heater resistance,register
+bme_idac,BME68x chẩn đoán,Giá trị IDAC heater,register
+bme_gas_wait,BME68x chẩn đoán,Giá trị thanh ghi gas wait,register
+bme_read_started_at,BME68x đọc,Thời điểm bắt đầu đọc BME,datetime
+bme_read_elapsed_s,BME68x đọc,Elapsed tại lúc bắt đầu đọc,s
+bme_read_duration_s,BME68x đọc,Thời gian đọc BME,s
+bme_status,BME68x đọc,Trạng thái đọc,category
+bme_error,BME68x đọc,Thông báo lỗi; trống nghĩa là không lỗi,text
+bme_fresh,BME68x đọc,Dữ liệu BME mới,bool
+mq135_read_started_at,MQ135,Thời điểm bắt đầu đọc ADS kênh MQ135,datetime
+mq135_read_elapsed_s,MQ135,Elapsed tại lúc đọc MQ135,s
+mq135_read_duration_s,MQ135,Thời gian đọc MQ135,s
+mq135_status,MQ135,Trạng thái đọc,category
+mq135_error,MQ135,Thông báo lỗi; trống nghĩa là không lỗi,text
+mq135_fresh,MQ135,Dữ liệu MQ135 mới,bool
+mq135_adc_count,MQ135,Mã ADC ADS1115,count
+mq135_voltage_v,MQ135,Điện áp tại đầu vào ADS1115,V
+mq135_ao_voltage_v,MQ135,Điện áp AO ước tính sau bù cầu chia,V
+mq3_read_started_at,MQ3,Thời điểm bắt đầu đọc ADS kênh MQ3,datetime
+mq3_read_elapsed_s,MQ3,Elapsed tại lúc đọc MQ3,s
+mq3_read_duration_s,MQ3,Thời gian đọc MQ3,s
+mq3_status,MQ3,Trạng thái đọc,category
+mq3_error,MQ3,Thông báo lỗi; trống nghĩa là không lỗi,text
+mq3_fresh,MQ3,Dữ liệu MQ3 mới,bool
+mq3_adc_count,MQ3,Mã ADC ADS1115,count
+mq3_voltage_v,MQ3,Điện áp tại đầu vào ADS1115,V
+mq3_ao_voltage_v,MQ3,Điện áp AO ước tính sau bù cầu chia,V

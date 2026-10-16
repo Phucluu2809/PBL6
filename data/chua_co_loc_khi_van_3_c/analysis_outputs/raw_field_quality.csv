@@ -1,0 +1,58 @@
+﻿field,rows,missing_n,missing_pct,unique_n,min,median,max,group,description,unit
+run_id,10478,0,0.0,16,,,,Định danh,Mã duy nhất của run,text
+seq,10478,0,0.0,1947,1.0,340.0,1947.0,Định danh,Số thứ tự mẫu trong run,count
+timestamp,10478,0,0.0,10478,1791899386962013.0,1791952881989295.0,1792075090470686.0,Thời gian,Mốc ISO 8601 có timezone +07:00,datetime
+elapsed_s,10478,0,0.0,10478,0.0427646150001237,339.461591127,1946.046074497,Thời gian,Số giây từ đầu collect/session,s
+phase_elapsed_s,10478,0,0.0,10478,0.0142572400000062,95.83414293100009,1614.046068884,Thời gian,Số giây từ đầu pha hiện tại,s
+phase,10478,0,0.0,7,,,,Thời gian,MONITOR/BASELINE/WAIT/EXPOSURE/RECOVERY,category
+sensor_uptime_s,10478,0,0.0,10478,0.1970558190000702,957.2029455665001,2774.197221627,Thời gian,Thời gian cảm biến/session đã chạy,s
+loop_interval_s,10478,6,0.057262836419163965,10116,0.9847677019999992,0.9999997195000105,1.0122721839999258,Hiệu năng,Khoảng cách giữa hai vòng lấy mẫu,s
+loop_duration_s,10478,0,0.0,10464,0.2512794179999673,0.252029681999943,0.2839766679999229,Hiệu năng,Thời gian hoàn thành một vòng đọc,s
+schedule_lag_s,10478,0,0.0,9986,2.187100000128339e-05,9.57215000312317e-05,0.0153297480001128,Hiệu năng,Độ trễ so với lịch lấy mẫu,s
+pump_command,10478,0,0.0,1,,,,Bơm,Lệnh bơm do phần mềm gửi,category
+external_pump_state,10478,0,0.0,1,,,,Bơm,Trạng thái bơm ngoài do người dùng báo,category
+external_pump_source,10478,0,0.0,1,,,,Bơm,Nguồn thông tin trạng thái bơm ngoài,category
+temperature_c,10478,0,0.0,3822,30.39468002319336,34.17892265319824,37.17024993896485,BME68x,Nhiệt độ tại cảm biến BME,°C
+humidity_pct,10478,0,0.0,10065,53.257022857666016,61.75720214843751,77.09632110595703,BME68x,Độ ẩm tương đối,%RH
+pressure_hpa,10478,0,0.0,7601,1010.724453125,1012.5841796875,1015.454609375,BME68x,Áp suất khí quyển,hPa
+gas_resistance_ohm,10478,0,0.0,1117,5684.84619140625,98461.5390625,108681.8046875,BME68x,"Điện trở khí BME, tín hiệu không đặc hiệu",Ω
+gas_valid,10478,0,0.0,1,1.0,1.0,1.0,BME68x,Cờ phép đo gas hợp lệ,bool
+heater_stable,10478,0,0.0,2,0.0,1.0,1.0,BME68x,Cờ heater đã ổn định,bool
+new_data,10478,0,0.0,1,1.0,1.0,1.0,BME68x,Cờ có dữ liệu mới,bool
+bme_status_bits,10478,0,0.0,2,160.0,176.0,176.0,BME68x chẩn đoán,Bit trạng thái driver BME,register
+bme_meas_index,10478,0,0.0,1,0.0,0.0,0.0,BME68x chẩn đoán,Chỉ số phép đo,count
+bme_gas_index,10478,0,0.0,1,0.0,0.0,0.0,BME68x chẩn đoán,Chỉ số heater profile,count
+bme_res_heat,10478,0,0.0,1,109.0,109.0,109.0,BME68x chẩn đoán,Giá trị thanh ghi heater resistance,register
+bme_idac,10478,0,0.0,6,158.0,179.0,181.0,BME68x chẩn đoán,Giá trị IDAC heater,register
+bme_gas_wait,10478,0,0.0,1,101.0,101.0,101.0,BME68x chẩn đoán,Giá trị thanh ghi gas wait,register
+bme_read_started_at,10478,0,0.0,10478,,,,BME68x đọc,Thời điểm bắt đầu đọc BME,datetime
+bme_read_elapsed_s,10478,0,0.0,10478,0.0428499100000863,339.4617022100001,1946.046172236,BME68x đọc,Elapsed tại lúc bắt đầu đọc,s
+bme_read_duration_s,10478,0,0.0,10207,0.1857724999999845,0.18582080749979463,0.200049722000017,BME68x đọc,Thời gian đọc BME,s
+bme_status,10478,0,0.0,1,,,,BME68x đọc,Trạng thái đọc,category
+bme_error,10478,10478,100.0,0,,,,BME68x đọc,Thông báo lỗi; trống nghĩa là không lỗi,text
+bme_fresh,10478,0,0.0,1,1.0,1.0,1.0,BME68x đọc,Dữ liệu BME mới,bool
+mq135_read_started_at,10478,0,0.0,10478,,,,MQ135,Thời điểm bắt đầu đọc ADS kênh MQ135,datetime
+mq135_read_elapsed_s,10478,0,0.0,10478,0.2288300090001485,339.65022446050034,1946.231989496,MQ135,Elapsed tại lúc đọc MQ135,s
+mq135_read_duration_s,10478,0,0.0,10402,0.0325481439999748,0.03309823299969135,0.0511135440001453,MQ135,Thời gian đọc MQ135,s
+mq135_status,10478,0,0.0,1,,,,MQ135,Trạng thái đọc,category
+mq135_error,10478,10478,100.0,0,,,,MQ135,Thông báo lỗi; trống nghĩa là không lỗi,text
+mq135_fresh,10478,0,0.0,1,1.0,1.0,1.0,MQ135,Dữ liệu MQ135 mới,bool
+mq135_adc_count,10478,0,0.0,1526,372.0,939.5,2293.0,MQ135,Mã ADC ADS1115,count
+mq135_voltage_v,10478,0,0.0,1526,0.0465,0.1174375,0.286625,MQ135,Điện áp tại đầu vào ADS1115,V
+mq135_ao_voltage_v,10478,10478,100.0,0,,,,MQ135,Điện áp AO ước tính sau bù cầu chia,V
+mq3_read_started_at,10478,0,0.0,10478,,,,MQ3,Thời điểm bắt đầu đọc ADS kênh MQ3,datetime
+mq3_read_elapsed_s,10478,0,0.0,10478,0.2648787260000063,339.684872519,1946.265168628,MQ3,Elapsed tại lúc đọc MQ3,s
+mq3_read_duration_s,10478,0,0.0,10393,0.0324693190000289,0.032901557499940254,0.0520953779999899,MQ3,Thời gian đọc MQ3,s
+mq3_status,10478,0,0.0,1,,,,MQ3,Trạng thái đọc,category
+mq3_error,10478,10478,100.0,0,,,,MQ3,Thông báo lỗi; trống nghĩa là không lỗi,text
+mq3_fresh,10478,0,0.0,1,1.0,1.0,1.0,MQ3,Dữ liệu MQ3 mới,bool
+mq3_adc_count,10478,0,0.0,658,2110.0,2637.0,3272.0,MQ3,Mã ADC ADS1115,count
+mq3_voltage_v,10478,0,0.0,658,0.26375,0.329625,0.409,MQ3,Điện áp tại đầu vào ADS1115,V
+mq3_ao_voltage_v,10478,10478,100.0,0,,,,MQ3,Điện áp AO ước tính sau bù cầu chia,V
+folder,10478,0,0.0,16,,,,,,
+date_folder,10478,0,0.0,3,,,,,,
+kind,10478,0,0.0,1,,,,,,
+person,10478,0,0.0,5,,,,,,
+body_location,10478,0,0.0,4,,,,,,
+clothing,10478,0,0.0,3,,,,,,
+condition,10478,0,0.0,3,,,,,,

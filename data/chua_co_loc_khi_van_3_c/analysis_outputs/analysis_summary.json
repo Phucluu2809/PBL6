@@ -1,0 +1,14 @@
+{
+  "dataset_root": "D:\\PBL6\\data\\chua_co_loc_khi_van_3_c",
+  "runs": 22,
+  "collect_trials": 16,
+  "sessions": 6,
+  "collect_rows": 10478,
+  "core_rows": 3840,
+  "all_collect_rows_repeated_in_sessions": true,
+  "warning_trials": 10,
+  "mq135_baseline_drift_trials": 8,
+  "prebaseline_elapsed_inconsistent_trials": 10,
+  "main_recommended_trials": 80,
+  "recommended_controls_approx": 30
+}

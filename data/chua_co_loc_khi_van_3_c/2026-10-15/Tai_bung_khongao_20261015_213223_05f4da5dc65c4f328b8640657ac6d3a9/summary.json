@@ -1,0 +1,355 @@
+{
+  "schema_version": "1.0",
+  "run_id": "05f4da5dc65c4f328b8640657ac6d3a9",
+  "status": "COMPLETE",
+  "rows": 347,
+  "filter_rule": "status OK + fresh; BME gas additionally gas_valid + heater_stable + new_data",
+  "auc_rule": "signed trapezoids over adjacent valid samples, no bridge across invalid rows or gap > max_gap_s",
+  "signals": {
+    "gas_resistance_ohm": {
+      "baseline": {
+        "n": 60,
+        "mean": 107532.56809895833,
+        "median": 107517.8515625,
+        "std": 357.7516079172352,
+        "min": 106777.890625,
+        "max": 108681.8046875,
+        "slope_per_s": -2.7031384656208686,
+        "drift": 0.0,
+        "reason": null,
+        "drift_pct": 0.0
+      },
+      "exposure": {
+        "metrics": {
+          "n": 120,
+          "maximum": 108199.4921875,
+          "minimum": 102543.5625,
+          "maximum_at_elapsed_s": 210.837174881,
+          "minimum_at_elapsed_s": 244.8371813519998,
+          "delta_max": 666.9240885416657,
+          "delta_min": -4989.005598958334,
+          "delta_max_pct": 0.6202066037592625,
+          "delta_min_pct": -4.63952985328792,
+          "slope_per_s": -24.112851653074642,
+          "auc_delta_signal_s": -122404.21843020372,
+          "auc_covered_s": 118.99995292099993,
+          "percent_reason": null
+        },
+        "reason": null
+      },
+      "recovery": {
+        "metrics": {
+          "n": 60,
+          "maximum": 106978.6875,
+          "minimum": 104489.796875,
+          "maximum_at_elapsed_s": 305.8371768000002,
+          "minimum_at_elapsed_s": 278.83718777600006,
+          "delta_max": -553.8805989583343,
+          "delta_min": -3042.7712239583343,
+          "delta_max_pct": -0.5150817177997814,
+          "delta_min_pct": -2.8296275981786114,
+          "slope_per_s": 10.383465807738114,
+          "auc_delta_signal_s": -104114.61713390009,
+          "auc_covered_s": 59.00000414500073,
+          "percent_reason": null,
+          "end_sample_elapsed_s": 332.83718054000065,
+          "end_sample_age_s": 0.9422529519993077,
+          "end_deviation": -1747.4430989583343,
+          "end_deviation_pct": -1.62503614472429,
+          "end_reason": null,
+          "trend_toward_baseline": true
+        },
+        "reason": null
+      },
+      "reason": null,
+      "invalid_fraction": 0.0
+    },
+    "mq135_voltage_v": {
+      "baseline": {
+        "n": 60,
+        "mean": 0.14748333333333336,
+        "median": 0.15181250000000002,
+        "std": 0.06772477666477597,
+        "min": 0.054625,
+        "max": 0.24,
+        "slope_per_s": -0.0002915027394409785,
+        "drift": 0.022749999999999992,
+        "reason": null,
+        "drift_pct": 15.425471804723692
+      },
+      "exposure": {
+        "metrics": {
+          "n": 120,
+          "maximum": 0.28175,
+          "minimum": 0.050375,
+          "maximum_at_elapsed_s": 166.83717491200014,
+          "minimum_at_elapsed_s": 252.8371813650001,
+          "delta_max": 0.13426666666666665,
+          "delta_min": -0.09710833333333335,
+          "delta_max_pct": 91.03853542773192,
+          "delta_min_pct": -65.84359814668325,
+          "slope_per_s": 3.334609861071785e-05,
+          "auc_delta_signal_s": 1.466014349541919,
+          "auc_covered_s": 118.99995292099993,
+          "percent_reason": null
+        },
+        "reason": null
+      },
+      "recovery": {
+        "metrics": {
+          "n": 60,
+          "maximum": 0.23975000000000002,
+          "minimum": 0.05225,
+          "maximum_at_elapsed_s": 290.8371923730001,
+          "minimum_at_elapsed_s": 323.8372774410004,
+          "delta_max": 0.09226666666666666,
+          "delta_min": -0.09523333333333336,
+          "delta_max_pct": 62.56074132670357,
+          "delta_min_pct": -64.57226805288735,
+          "slope_per_s": -0.0003099363559305185,
+          "auc_delta_signal_s": -0.8095498403163726,
+          "auc_covered_s": 59.00000414500073,
+          "percent_reason": null,
+          "end_sample_elapsed_s": 332.83718054000065,
+          "end_sample_age_s": 0.9422529519993077,
+          "end_deviation": -0.038983333333333356,
+          "end_deviation_pct": -26.43236523901007,
+          "end_reason": null,
+          "trend_toward_baseline": true
+        },
+        "reason": null
+      },
+      "reason": null,
+      "invalid_fraction": 0.0
+    },
+    "mq3_voltage_v": {
+      "baseline": {
+        "n": 60,
+        "mean": 0.4038020833333334,
+        "median": 0.404,
+        "std": 0.0009947669396015786,
+        "min": 0.401125,
+        "max": 0.405875,
+        "slope_per_s": 2.5989900172236943e-05,
+        "drift": 0.0007500000000000284,
+        "reason": null,
+        "drift_pct": 0.18573455436605887
+      },
+      "exposure": {
+        "metrics": {
+          "n": 120,
+          "maximum": 0.40575,
+          "minimum": 0.400875,
+          "maximum_at_elapsed_s": 267.83722162799995,
+          "minimum_at_elapsed_s": 217.83717760799982,
+          "delta_max": 0.0019479166666666048,
+          "delta_min": -0.0029270833333334134,
+          "delta_max_pct": 0.4823939120340359,
+          "delta_min_pct": -0.7248806913453054,
+          "slope_per_s": 7.3737785628457094e-06,
+          "auc_delta_signal_s": 0.0704897585792958,
+          "auc_covered_s": 118.99995292099993,
+          "percent_reason": null
+        },
+        "reason": null
+      },
+      "recovery": {
+        "metrics": {
+          "n": 60,
+          "maximum": 0.405,
+          "minimum": 0.39775,
+          "maximum_at_elapsed_s": 327.83722606400033,
+          "minimum_at_elapsed_s": 279.8389828640002,
+          "delta_max": 0.0011979166666666319,
+          "delta_min": -0.006052083333333402,
+          "delta_max_pct": 0.29665935766799084,
+          "delta_min_pct": -1.4987746678705185,
+          "slope_per_s": 1.0582265309442118e-05,
+          "auc_delta_signal_s": -0.02132385633743041,
+          "auc_covered_s": 59.00000414500073,
+          "percent_reason": null,
+          "end_sample_elapsed_s": 332.83718054000065,
+          "end_sample_age_s": 0.9422529519993077,
+          "end_deviation": -5.2083333333396986e-05,
+          "end_deviation_pct": -0.012898232942102695,
+          "end_reason": null,
+          "trend_toward_baseline": true
+        },
+        "reason": null
+      },
+      "reason": null,
+      "invalid_fraction": 0.0
+    }
+  },
+  "environment_baseline": {
+    "temperature_c": {
+      "n": 60,
+      "mean": 34.01125691731771,
+      "median": 34.0120849609375,
+      "std": 0.004867777309096131,
+      "min": 34.00060272216797,
+      "max": 34.01974105834961,
+      "slope_per_s": 4.642381185710219e-05,
+      "drift": 0.006381988525390625,
+      "reason": null
+    },
+    "humidity_pct": {
+      "n": 60,
+      "mean": 56.359720611572264,
+      "median": 56.37131881713867,
+      "std": 0.0745683171713086,
+      "min": 56.176937103271484,
+      "max": 56.46866226196289,
+      "slope_per_s": 0.001924455578078042,
+      "drift": 0.1999053955078125,
+      "reason": null
+    },
+    "pressure_hpa": {
+      "n": 60,
+      "mean": 1011.1453528645833,
+      "median": 1011.13890625,
+      "std": 0.04328410494045536,
+      "min": 1011.063359375,
+      "max": 1011.253671875,
+      "slope_per_s": -0.0003450785892139743,
+      "drift": 0.0581249999999045,
+      "reason": null
+    }
+  },
+  "warnings": [
+    "mq135_voltage_v: baseline drift vượt ngưỡng",
+    "mq135_voltage_v: chưa hồi phục về ngưỡng nền"
+  ],
+  "external_pump": {
+    "initial_state": "unknown",
+    "latest_state": "unknown",
+    "source": "not_reported",
+    "physical_feedback": null,
+    "meaning": "User reports external power operation; no GPIO command and no measured feedback"
+  },
+  "measurement_quality": {
+    "pre_baseline": {
+      "stable": true,
+      "reasons": [],
+      "advisories": [],
+      "signals": {
+        "gas_resistance_ohm": {
+          "n": 30,
+          "span_s": 28.99999948100003,
+          "mean": 107933.34739583333,
+          "slope_per_min": 818.8278959292786,
+          "range": 1092.03125,
+          "slope_pct_per_min": 0.75864217657062,
+          "range_pct": 1.0117644605194158,
+          "invalid_fraction": 0.0,
+          "drifting": false,
+          "reasons": []
+        },
+        "temperature_c": {
+          "n": 30,
+          "span_s": 28.99999948100003,
+          "mean": 33.99987932840983,
+          "slope_per_min": -0.019828908763861154,
+          "range": 0.01850128173828125,
+          "slope_pct_per_min": null,
+          "range_pct": null,
+          "invalid_fraction": 0.0,
+          "drifting": false,
+          "reasons": []
+        },
+        "humidity_pct": {
+          "n": 30,
+          "span_s": 28.99999948100003,
+          "mean": 56.20055898030599,
+          "slope_per_min": 0.07127531953327836,
+          "range": 0.06270980834960938,
+          "slope_pct_per_min": null,
+          "range_pct": null,
+          "invalid_fraction": 0.0,
+          "drifting": false,
+          "reasons": []
+        }
+      },
+      "window_s": 30.0,
+      "evaluated_at_elapsed_s": 1814.506578117,
+      "criteria": {
+        "window_s": 30.0,
+        "min_samples": 5,
+        "min_window_fraction": 0.8,
+        "max_gap_s": 3.0,
+        "max_invalid_fraction": 0.2,
+        "gas_epsilon_ohm": 1e-09,
+        "gas_pct_per_min": 5.0,
+        "gas_range_pct": 5.0,
+        "temperature_per_min": 0.3,
+        "temperature_range": 0.2,
+        "humidity_per_min": 1.0,
+        "humidity_range": 1.0,
+        "temperature_warning_c": 35.0
+      }
+    },
+    "baseline": {
+      "stable": true,
+      "reasons": [],
+      "advisories": [],
+      "signals": {
+        "gas_resistance_ohm": {
+          "n": 60,
+          "span_s": 59.00005423999983,
+          "mean": 107532.56809895833,
+          "slope_per_min": -162.18830793725212,
+          "range": 1903.9140625,
+          "slope_pct_per_min": -0.15082715014115175,
+          "range_pct": 1.7705464457501812,
+          "invalid_fraction": 0.0,
+          "drifting": false,
+          "reasons": []
+        },
+        "temperature_c": {
+          "n": 60,
+          "span_s": 59.00005423999983,
+          "mean": 34.01125691731771,
+          "slope_per_min": 0.0027854287114261337,
+          "range": 0.019138336181640625,
+          "slope_pct_per_min": null,
+          "range_pct": null,
+          "invalid_fraction": 0.0,
+          "drifting": false,
+          "reasons": []
+        },
+        "humidity_pct": {
+          "n": 60,
+          "span_s": 59.00005423999983,
+          "mean": 56.359720611572264,
+          "slope_per_min": 0.11546733468468254,
+          "range": 0.29172515869140625,
+          "slope_pct_per_min": null,
+          "range_pct": null,
+          "invalid_fraction": 0.0,
+          "drifting": false,
+          "reasons": []
+        }
+      },
+      "window_s": null,
+      "evaluated_at_elapsed_s": 123.83722830599982,
+      "criteria": {
+        "window_s": 30.0,
+        "min_samples": 5,
+        "min_window_fraction": 0.8,
+        "max_gap_s": 3.0,
+        "max_invalid_fraction": 0.2,
+        "gas_epsilon_ohm": 1e-09,
+        "gas_pct_per_min": 5.0,
+        "gas_range_pct": 5.0,
+        "temperature_per_min": 0.3,
+        "temperature_range": 0.2,
+        "humidity_per_min": 1.0,
+        "humidity_range": 1.0,
+        "temperature_warning_c": 35.0
+      }
+    },
+    "baseline_unstable": false,
+    "baseline_started_without_stability": false,
+    "interpretation": "Thay đổi tín hiệu khảo sát; không chứng minh phản ứng mùi. Nền đang trôi/chưa đánh giá làm đáp ứng tương đối thiếu tin cậy."
+  }
+}
