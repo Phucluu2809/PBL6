@@ -1,0 +1,51 @@
+{
+  "folders_total": 22,
+  "collect_runs": 16,
+  "warmup_session_folders": 6,
+  "all_files_valid": true,
+  "collect_rows": 10478,
+  "core_rows": 3840,
+  "minimum_sensor_valid_pct": 99.8046875,
+  "all_collect_rows_repeated_in_sessions": true,
+  "known_people": [
+    "Dũng",
+    "Minh",
+    "Quy",
+    "Tài"
+  ],
+  "person_counts": {
+    "Tài": 5,
+    "Minh": 4,
+    "Quy": 4,
+    "Dũng": 2,
+    "Không rõ": 1
+  },
+  "controlled_subset_runs": 8,
+  "controlled_person_counts": {
+    "Quy": 3,
+    "Tài": 3,
+    "Minh": 2
+  },
+  "warning_counts": {
+    "mq135_voltage_v: chưa hồi phục về ngưỡng nền": 10,
+    "mq135_voltage_v: baseline drift vượt ngưỡng": 8
+  },
+  "same_person_median_distance": 5.1169105712470575,
+  "different_person_median_distance": 5.7103066349846205,
+  "distance_separation_ratio": 1.1159676440452124,
+  "best_classifier": {
+    "feature_set": "Chỉ mean (3)",
+    "method": "Nearest centroid",
+    "accuracy": 0.625,
+    "balanced_accuracy": 0.611111111111111,
+    "macro_f1": 0.5857142857142857
+  },
+  "pca_all_explained": [
+    0.4573035791932242,
+    0.2567480433182706
+  ],
+  "pca_controlled_explained": [
+    0.3679429486943272,
+    0.3041664885554328
+  ]
+}
