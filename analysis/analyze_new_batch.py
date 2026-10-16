@@ -196,12 +196,30 @@ for run in runs.itertuples():
         qual[f"{prefix}__baseline_cv_pct"] = 100 * base_values.std(ddof=1) / abs(base_values.mean())
         qual[f"{prefix}__recovery_end"] = rec_end[pct].mean()
     for env in ["temperature_c", "humidity_pct", "pressure_hpa"]:
-        feat[f"baseline__{env}"] = baseline[env].mean()
+        base_mean = baseline[env].mean()
+        exp = exposure.dropna(subset=[env]).sort_values("phase_elapsed_s")
+        late = exp[exp["phase_elapsed_s"].ge(exp["phase_elapsed_s"].max() - 20)]
+        rec_end = recovery[recovery["phase_elapsed_s"].ge(recovery["phase_elapsed_s"].max() - 10)]
+        env_prefix = {"temperature_c": "temp", "humidity_pct": "humidity", "pressure_hpa": "pressure"}[env]
+        feat[f"baseline__{env}"] = base_mean
+        feat[f"{env_prefix}__mean_delta"] = (exp[env] - base_mean).mean()
+        feat[f"{env_prefix}__late20_delta"] = (late[env] - base_mean).mean()
+        feat[f"{env_prefix}__min_delta"] = exp[env].min() - base_mean
+        feat[f"{env_prefix}__max_delta"] = exp[env].max() - base_mean
+        feat[f"{env_prefix}__slope"] = 60 * slope(exp["phase_elapsed_s"], exp[env])
+        feat[f"{env_prefix}__recovery_end_delta"] = rec_end[env].mean() - base_mean
+        feat[f"{env_prefix}__baseline_std"] = baseline[env].std(ddof=1)
+        feat[f"{env_prefix}__baseline_slope"] = 60 * slope(baseline["phase_elapsed_s"], baseline[env])
     feature_rows.append(feat)
     quality_rows.append(qual)
 features = pd.DataFrame(feature_rows).sort_values("started_at").reset_index(drop=True)
 quality = pd.DataFrame(quality_rows).sort_values("started_at").reset_index(drop=True)
 dynamic_features = [c for c in features if c.split("__")[0] in {"bme", "mq135", "mq3"} and c.endswith(("__mean", "__late20", "__min", "__max", "__slope"))]
+environment_response_features = [
+    c for c in features
+    if c.split("__")[0] in {"temp", "humidity", "pressure"}
+    and c.endswith(("__mean_delta", "__late20_delta", "__min_delta", "__max_delta", "__slope"))
+]
 
 # Controlled identity subset.
 controlled = features[
@@ -231,10 +249,14 @@ def grouped_predict(columns: list[str], method: str) -> pd.DataFrame:
 
 
 feature_sets = {
-    "BME (5)": [c for c in dynamic_features if c.startswith("bme__")],
-    "MQ135+MQ3 (10)": [c for c in dynamic_features if c.startswith(("mq135__", "mq3__"))],
-    "Tất cả động học (15)": dynamic_features,
-    "Chỉ mean (3)": ["bme__mean", "mq135__mean", "mq3__mean"],
+    "BME gas (5)": [c for c in dynamic_features if c.startswith("bme__")],
+    "BME đầy đủ (20)": [c for c in dynamic_features if c.startswith("bme__")] + environment_response_features,
+    "MQ3 (5)": [c for c in dynamic_features if c.startswith("mq3__")],
+    "MQ135 (5)": [c for c in dynamic_features if c.startswith("mq135__")],
+    "BME + MQ3 (10)": [c for c in dynamic_features if c.startswith(("bme__", "mq3__"))],
+    "BME + MQ135 (10)": [c for c in dynamic_features if c.startswith(("bme__", "mq135__"))],
+    "Cả 3 cảm biến (15)": dynamic_features,
+    "Cả 3 mean (3)": ["bme__mean", "mq135__mean", "mq3__mean"],
 }
 prediction_frames, score_rows = [], []
 for feature_set, columns in feature_sets.items():
@@ -399,7 +421,7 @@ plt.tight_layout()
 savefig("09_controlled_distances.png")
 
 # Figure 10: classification scores.
-fig, ax = plt.subplots(figsize=(11, 6))
+fig, ax = plt.subplots(figsize=(15, 6.5))
 sns.barplot(data=scores, x="feature_set", y="balanced_accuracy", hue="method", ax=ax)
 ax.axhline(1 / 3, color="red", linestyle="--", linewidth=1, label="Ngẫu nhiên 3 lớp ≈ 33%")
 ax.set(ylim=(0, 1.05), title="Nhận diện người: leave-one-session-out trên 8 run kiểm soát", xlabel="Nhóm đặc trưng", ylabel="Balanced accuracy")
@@ -438,6 +460,211 @@ plt.xticks(rotation=25, ha="right")
 plt.tight_layout()
 savefig("12_special_runs.png")
 
+# Extended audit: all raw fields, metadata, timing and per-person/day changes.
+raw_columns = pd.read_csv(collect_dirs[0] / "raw.csv", nrows=0).columns.tolist()
+
+
+def field_group(column: str) -> str:
+    if column in {"run_id", "seq", "timestamp", "elapsed_s", "phase_elapsed_s", "phase", "sensor_uptime_s"}:
+        return "Định danh/thời gian"
+    if column in {"loop_interval_s", "loop_duration_s", "schedule_lag_s"} or "read_" in column:
+        return "Timing đọc"
+    if column.startswith("external_pump") or column == "pump_command":
+        return "Bơm"
+    if column in {"temperature_c", "humidity_pct", "pressure_hpa", "gas_resistance_ohm"} or column.startswith("bme_") or column in {"gas_valid", "heater_stable", "new_data"}:
+        return "BME688"
+    if column.startswith("mq135"):
+        return "MQ135"
+    if column.startswith("mq3"):
+        return "MQ3"
+    return "Khác"
+
+
+field_rows = []
+for column in raw_columns:
+    series = raw_all[column]
+    numeric = pd.to_numeric(series, errors="coerce")
+    non_null = int(series.notna().sum())
+    note = ""
+    if column in {"bme_error", "mq135_error", "mq3_error"}:
+        note = "Trống có chủ đích: mọi trạng thái đọc đều OK"
+    elif column in {"mq135_ao_voltage_v", "mq3_ao_voltage_v"}:
+        note = "Thiếu cấu hình: hệ số chia áp chưa được xác nhận"
+    elif column == "loop_interval_s":
+        note = "6 giá trị trống ở mẫu đầu của 6 phiên phần cứng"
+    elif column == "gas_resistance_ohm":
+        note = "6 mẫu MONITOR đầu phiên bị loại do heater_stable=False; không ảnh hưởng pha lõi"
+    elif column in {"pump_command", "external_pump_state", "external_pump_source"}:
+        note = "Không có phản hồi vật lý từ bơm/nguồn khí"
+    elif series.nunique(dropna=True) <= 1:
+        note = "Cột hằng trong lô này; dùng để kiểm tra cấu hình/trạng thái"
+    field_rows.append({
+        "field": column, "group": field_group(column), "dtype": str(series.dtype),
+        "rows": len(series), "non_null": non_null, "missing": int(series.isna().sum()),
+        "missing_pct": 100 * series.isna().mean(), "unique": int(series.nunique(dropna=True)),
+        "minimum": numeric.min() if numeric.notna().any() else np.nan,
+        "median": numeric.median() if numeric.notna().any() else np.nan,
+        "maximum": numeric.max() if numeric.notna().any() else np.nan,
+        "note": note,
+    })
+field_audit = pd.DataFrame(field_rows)
+
+metadata_rows = []
+phase_rows = []
+for directory in collect_dirs:
+    metadata = json.loads((directory / "metadata.json").read_text(encoding="utf-8"))
+    item = runs[runs["folder"].eq(directory.name)].iloc[0]
+    metadata_rows.append({
+        "folder": directory.name, "person": item["person"], "original_name": metadata.get("original_name"),
+        "notes": metadata.get("notes"), "person_code": metadata.get("sample", {}).get("person_code"),
+        "source": metadata.get("sample", {}).get("source"), "distance_cm": metadata.get("sample", {}).get("distance_cm"),
+        "sample_description": metadata.get("sample", {}).get("sample_description"),
+        "sampling_method": metadata.get("sample", {}).get("sampling_method"),
+        "purge_method": metadata.get("sample", {}).get("purge_method"), "lid_state": metadata.get("sample", {}).get("lid_state"),
+        "pump_enabled": metadata.get("config", {}).get("pump", {}).get("enabled"),
+        "pump_confirmed": metadata.get("config", {}).get("pump", {}).get("confirmed"),
+        "mq135_divider_confirmed": metadata.get("adc_inputs", {}).get("mq135", {}).get("divider_factor_confirmed"),
+        "mq3_divider_confirmed": metadata.get("adc_inputs", {}).get("mq3", {}).get("divider_factor_confirmed"),
+        "status": metadata.get("status"), "end_reason": metadata.get("end_reason"),
+    })
+    for phase_item in metadata.get("phase_intervals", []):
+        phase_rows.append({"folder": directory.name, "person": item["person"], **phase_item})
+metadata_audit = pd.DataFrame(metadata_rows)
+phase_durations = pd.DataFrame(phase_rows)
+
+run_audit_rows = []
+for run in runs.itertuples():
+    group = raw_all[raw_all["folder"].eq(run.folder)].sort_values("elapsed_s")
+    core = group[group["phase"].isin(["BASELINE", "EXPOSURE", "RECOVERY"])]
+    durations = phase_durations[phase_durations["folder"].eq(run.folder)].set_index("phase")["actual_s"].to_dict()
+    run_audit_rows.append({
+        "folder": run.folder, "person": run.person, "date": run.date, "time": run.time,
+        "location": run.location, "clothing": run.clothing, "condition": run.condition,
+        "rows": len(group), "core_rows": len(core), "duplicate_timestamp": int(group["timestamp"].duplicated().sum()),
+        "duplicate_run_seq": int(group.duplicated(["run_id", "seq"]).sum()),
+        "max_loop_interval_s": group["loop_interval_s"].max(), "p99_loop_interval_s": group["loop_interval_s"].quantile(.99),
+        "max_loop_duration_s": group["loop_duration_s"].max(), "max_schedule_lag_s": group["schedule_lag_s"].max(),
+        "heater_unstable_all": int((~group["heater_stable"].astype(bool)).sum()),
+        "heater_unstable_core": int((~core["heater_stable"].astype(bool)).sum()),
+        "mq135_adc_saturated": int((group["mq135_adc_count"].abs() >= 32700).sum()),
+        "mq3_adc_saturated": int((group["mq3_adc_count"].abs() >= 32700).sum()),
+        "monitor_s": durations.get("MONITOR"), "wait_exposure_s": durations.get("WAIT_EXPOSURE"),
+        "wait_recovery_s": durations.get("WAIT_RECOVERY"), "wait_finish_s": durations.get("WAIT_FINISH"),
+        "warning_count": run.warning_count, "warnings": run.warnings,
+    })
+run_audit = pd.DataFrame(run_audit_rows).sort_values(["date", "time"])
+
+person_day_columns = [
+    "folder", "person", "date", "time", "session_id", "location", "clothing", "condition",
+    "baseline__temperature_c", "baseline__humidity_pct", "baseline__pressure_hpa",
+    "temp__mean_delta", "humidity__mean_delta", "pressure__mean_delta",
+    "bme__mean", "bme__late20", "bme__slope", "bme__recovery_end",
+    "mq135__mean", "mq135__late20", "mq135__slope", "mq135__recovery_end",
+    "mq3__mean", "mq3__late20", "mq3__slope", "mq3__recovery_end",
+]
+person_day = features[person_day_columns].copy()
+
+# Figure 13: completeness and diversity of all 51 raw fields.
+audit_plot = field_audit.sort_values(["group", "field"], ascending=[True, False]).reset_index(drop=True)
+fig, axes = plt.subplots(1, 2, figsize=(16, 18), sharey=True)
+y = np.arange(len(audit_plot))
+colors = dict(zip(audit_plot["group"].unique(), sns.color_palette("tab10", audit_plot["group"].nunique())))
+bar_colors = [colors[g] for g in audit_plot["group"]]
+axes[0].barh(y, audit_plot["missing_pct"], color=bar_colors)
+axes[0].set(xlabel="Thiếu (%)", ylabel="Trường raw", title="Mức thiếu dữ liệu")
+axes[0].set_yticks(y, audit_plot["field"], fontsize=8)
+axes[0].set_xlim(0, 105)
+axes[1].barh(y, np.log10(audit_plot["unique"].clip(lower=1)), color=bar_colors)
+axes[1].set(xlabel="log10(số giá trị khác nhau)", title="Độ đa dạng của trường")
+axes[1].axvline(0, color="black", linewidth=.7)
+fig.suptitle("Kiểm toán toàn bộ 50 trường raw trên 10.478 dòng", fontsize=15, y=.995)
+plt.tight_layout()
+savefig("13_all_field_audit.png")
+
+# Figure 14: timing and manual transition variability.
+timing_label = run_audit.apply(lambda r: f"{r.person} {r.date[5:]} {r.time[:5]}", axis=1)
+fig, axes = plt.subplots(1, 2, figsize=(16, 8))
+wait_plot = run_audit.set_index(timing_label)[["wait_exposure_s", "wait_recovery_s", "wait_finish_s"]]
+wait_plot.plot(kind="barh", ax=axes[0], color=["#4c78a8", "#f58518", "#54a24b"])
+axes[0].set(title="Thời gian chờ thao tác thủ công", xlabel="Giây", ylabel="Run")
+loop_plot = run_audit.set_index(timing_label)[["p99_loop_interval_s", "max_loop_interval_s"]]
+loop_plot.plot(kind="barh", ax=axes[1], color=["#72b7b2", "#e45756"])
+axes[1].axvline(1, color="black", linestyle="--", linewidth=.8)
+axes[1].set(title="Nhịp lấy mẫu 1 Hz", xlabel="Loop interval (giây)", ylabel="")
+fig.suptitle("Kiểm tra timing và độ lặp lại của thao tác chuyển pha", fontsize=15, y=1.01)
+plt.tight_layout()
+savefig("14_timing_and_manual_steps.png")
+
+# Figures 15-16: per-person changes over collection days.
+known = features[features["person"].isin(["Dũng", "Minh", "Quy", "Tài"])].sort_values("started_at")
+people_order = ["Dũng", "Minh", "Quy", "Tài"]
+env_specs = [
+    ("baseline__temperature_c", "Nhiệt độ nền (°C)"),
+    ("baseline__humidity_pct", "Độ ẩm nền (%)"),
+    ("baseline__pressure_hpa", "Áp suất nền (hPa)"),
+]
+fig, axes = plt.subplots(4, 3, figsize=(16, 14), sharex=False)
+for row_index, person in enumerate(people_order):
+    subset = known[known["person"].eq(person)]
+    labels_x = subset.apply(lambda r: f"{r['date'][5:]}\n{r['time'][:5]}\n{r['location']}", axis=1)
+    for column_index, (column, title) in enumerate(env_specs):
+        ax = axes[row_index, column_index]
+        ax.plot(range(len(subset)), subset[column], "o-", color=PERSON_COLORS[person], linewidth=1.8)
+        ax.set_xticks(range(len(subset)), labels_x, rotation=20, fontsize=8)
+        ax.set_title(f"{person} – {title}")
+        ax.grid(alpha=.3)
+fig.suptitle("Biến đổi môi trường baseline của từng người theo ngày/run", fontsize=15, y=1.01)
+plt.tight_layout()
+savefig("15_person_day_environment.png")
+
+sensor_specs = [("bme__mean", "BME688 gas"), ("mq135__mean", "MQ135"), ("mq3__mean", "MQ3")]
+fig, axes = plt.subplots(4, 3, figsize=(16, 14), sharex=False)
+for row_index, person in enumerate(people_order):
+    subset = known[known["person"].eq(person)]
+    labels_x = subset.apply(lambda r: f"{r['date'][5:]}\n{r['time'][:5]}\n{r['location']}", axis=1)
+    for column_index, (column, title) in enumerate(sensor_specs):
+        ax = axes[row_index, column_index]
+        ax.plot(range(len(subset)), subset[column], "o-", color=PERSON_COLORS[person], linewidth=1.8)
+        ax.axhline(0, color="black", linewidth=.7)
+        ax.set_xticks(range(len(subset)), labels_x, rotation=20, fontsize=8)
+        ax.set_title(f"{person} – {title}")
+        ax.set_ylabel("Mean exposure (% baseline)")
+        ax.grid(alpha=.3)
+fig.suptitle("Biến đổi đáp ứng cảm biến của từng người theo ngày/run", fontsize=15, y=1.01)
+plt.tight_layout()
+savefig("16_person_day_sensor_response.png")
+
+# Figure 17: environment-response correlations; descriptive only.
+corr_columns = [
+    "baseline__temperature_c", "baseline__humidity_pct", "baseline__pressure_hpa",
+    "temp__mean_delta", "humidity__mean_delta", "pressure__mean_delta",
+    "bme__mean", "mq135__mean", "mq3__mean",
+]
+corr_labels = ["T nền", "RH nền", "P nền", "ΔT exp", "ΔRH exp", "ΔP exp", "BME gas", "MQ135", "MQ3"]
+corr = features[corr_columns].corr(method="spearman").set_axis(corr_labels, axis=0).set_axis(corr_labels, axis=1)
+plt.figure(figsize=(10, 8))
+sns.heatmap(corr, annot=True, fmt=".2f", cmap="vlag", center=0, vmin=-1, vmax=1, square=True)
+plt.title("Tương quan Spearman giữa môi trường và đáp ứng trên 16 run")
+plt.tight_layout()
+savefig("17_environment_sensor_correlation.png")
+
+# Figure 18: environmental changes during exposure and end of recovery.
+env_heat_columns = [
+    "temp__mean_delta", "humidity__mean_delta", "pressure__mean_delta",
+    "temp__recovery_end_delta", "humidity__recovery_end_delta", "pressure__recovery_end_delta",
+]
+env_heat = features.set_index(features.apply(lambda r: f"{r.person} | {r.location} | {r.date[5:]} {r.time[:5]}", axis=1))[env_heat_columns]
+env_scaled = env_heat.copy()
+env_scaled[["pressure__mean_delta", "pressure__recovery_end_delta"]] *= 10
+env_scaled.columns = ["ΔT exp (°C)", "ΔRH exp (điểm %)", "10×ΔP exp (hPa)", "ΔT rec", "ΔRH rec", "10×ΔP rec"]
+plt.figure(figsize=(12, 9))
+sns.heatmap(env_scaled, annot=True, fmt=".2f", cmap="vlag", center=0, linewidths=.3)
+plt.title("Biến đổi nhiệt độ, độ ẩm và áp suất so với baseline")
+plt.xlabel("Đại lượng (áp suất nhân 10 để dễ nhìn)")
+plt.ylabel("Run")
+plt.tight_layout()
+savefig("18_environment_phase_changes.png")
+
 # Tables and summary.
 runs.to_csv(TABLE / "run_manifest.csv", index=False, encoding="utf-8-sig")
 integrity.to_csv(TABLE / "integrity.csv", index=False, encoding="utf-8-sig")
@@ -447,6 +674,16 @@ controlled.to_csv(TABLE / "controlled_subset.csv", index=False, encoding="utf-8-
 pair_distances.to_csv(TABLE / "controlled_pair_distances.csv", index=False, encoding="utf-8-sig")
 predictions.to_csv(TABLE / "controlled_predictions.csv", index=False, encoding="utf-8-sig")
 scores.to_csv(TABLE / "controlled_scores.csv", index=False, encoding="utf-8-sig")
+field_audit.to_csv(TABLE / "field_audit_all_50_fields.csv", index=False, encoding="utf-8-sig")
+metadata_audit.to_csv(TABLE / "metadata_audit.csv", index=False, encoding="utf-8-sig")
+phase_durations.to_csv(TABLE / "phase_durations.csv", index=False, encoding="utf-8-sig")
+run_audit.to_csv(TABLE / "run_audit.csv", index=False, encoding="utf-8-sig")
+person_day.to_csv(TABLE / "person_day_changes.csv", index=False, encoding="utf-8-sig")
+scores[scores["feature_set"].str.startswith("BME")].to_csv(TABLE / "model_table_main_bme688.csv", index=False, encoding="utf-8-sig")
+scores[scores["feature_set"].str.startswith("Cả 3")].to_csv(TABLE / "model_table_all_3_sensors.csv", index=False, encoding="utf-8-sig")
+scores[scores["feature_set"].eq("BME + MQ3 (10)")].to_csv(TABLE / "model_table_bme688_mq3.csv", index=False, encoding="utf-8-sig")
+scores[scores["feature_set"].isin(["MQ3 (5)", "MQ135 (5)", "BME + MQ3 (10)", "BME + MQ135 (10)"])].to_csv(TABLE / "sensor_ablation_scores.csv", index=False, encoding="utf-8-sig")
+corr.to_csv(TABLE / "environment_sensor_spearman.csv", encoding="utf-8-sig")
 
 warning_counts = Counter()
 for warning_text in runs["warnings"].dropna():
@@ -470,6 +707,19 @@ summary = {
     "best_classifier": {key: (float(best[key]) if key in {"accuracy", "balanced_accuracy", "macro_f1"} else str(best[key])) for key in ["feature_set", "method", "accuracy", "balanced_accuracy", "macro_f1"]},
     "pca_all_explained": pca_all.explained_variance_ratio_.tolist(),
     "pca_controlled_explained": pca_ctrl.explained_variance_ratio_.tolist(),
+    "raw_field_count": len(raw_columns),
+    "all_null_fields": field_audit.loc[field_audit["missing_pct"].eq(100), "field"].tolist(),
+    "loop_interval_missing": int(raw_all["loop_interval_s"].isna().sum()),
+    "duplicate_timestamps": int(raw_all["timestamp"].duplicated().sum()),
+    "duplicate_run_seq": int(raw_all.duplicated(["run_id", "seq"]).sum()),
+    "heater_unstable_core_rows": int(run_audit["heater_unstable_core"].sum()),
+    "adc_saturation_rows": int(run_audit[["mq135_adc_saturated", "mq3_adc_saturated"]].sum().sum()),
+    "wait_exposure_range_s": [float(run_audit["wait_exposure_s"].min()), float(run_audit["wait_exposure_s"].max())],
+    "wait_recovery_range_s": [float(run_audit["wait_recovery_s"].min()), float(run_audit["wait_recovery_s"].max())],
+    "metadata_empty_core_labels": {
+        key: int(metadata_audit[key].fillna("").astype(str).str.strip().eq("").sum())
+        for key in ["notes", "person_code", "source", "distance_cm"]
+    },
 }
 (OUT / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
 print(json.dumps(summary, ensure_ascii=True, indent=2))

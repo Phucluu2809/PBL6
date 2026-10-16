@@ -1,308 +1,478 @@
-# Báo cáo phân tích lô dữ liệu `chua_co_loc_khi_van_3_c`
+# Báo cáo kiểm định toàn bộ lô dữ liệu `chua_co_loc_khi_van_3_c`
 
-## 1. Kết luận ngắn
+## 1. Mục tiêu của báo cáo
 
-Lô dữ liệu này cho thấy hệ thống **đã ghi nhận được sự thay đổi tín hiệu khi đo**, dữ liệu gần như đầy đủ và các pha đo được lưu đúng cấu trúc. Tuy nhiên, với số mẫu hiện tại, **chưa thể kết luận hệ thống nhận diện người ổn định chỉ dựa vào mùi**.
+Báo cáo này không chỉ thử phân loại người. Mục tiêu là tạo một bản kiểm định nền cho các đợt thu sau, gồm năm phần:
 
-Kết quả quan trọng nhất:
+1. Phân tích toàn bộ 50 trường trong `raw.csv`, từ nhiệt độ, độ ẩm, áp suất đến timing và trạng thái đọc cảm biến.
+2. Theo dõi sự biến đổi của từng người theo ngày, giờ, vị trí và điều kiện đo.
+3. Chỉ ra phần dữ liệu sạch, phần thiếu có chủ đích, phần thiếu do cấu hình và phần chưa sạch về mặt thí nghiệm.
+4. Đánh giá riêng BME688 là cảm biến chính và đánh giá khi kết hợp BME688, MQ135, MQ3.
+5. Đúc kết lại pipeline thu thập, kiểm tra và phân tích mùi để những kết quả về sau có thể so sánh được.
 
-- Có **22 thư mục**, gồm **16 lần đo chính** mang tên bằng chữ và **6 thư mục số** là phiên chạy/warm-up.
-- Các dòng trong 16 lần đo chính đã xuất hiện lại trong file `raw.csv` của thư mục phiên tương ứng. Vì vậy, 6 thư mục số **không được tính là mẫu độc lập**.
-- Có 4 người đã xác định: Dũng, Minh, Quy, Tài; ngoài ra có một mẫu `hihi` chưa rõ nhãn.
-- Tổng cộng có 10.478 dòng trong 16 thư mục đo chính. Phần chuẩn hóa giống nhau giữa các run gồm 60 mẫu baseline, 120 mẫu exposure và 60 mẫu recovery, tức **240 mẫu/run và 3.840 mẫu lõi**.
-- Tỷ lệ dữ liệu cảm biến hợp lệ thấp nhất vẫn đạt **99,80%**; không phát hiện file JSON/CSV/PNG bị thiếu hoặc hỏng.
-- Khi chỉ so sánh điều kiện tương đối đồng nhất `bụng – không áo – bình thường`, còn **8 run của Minh, Quy và Tài**. Mô hình tốt nhất đúng **5/8 run (62,5%)**, balanced accuracy **61,1%**, cao hơn mức ngẫu nhiên 3 lớp khoảng 33,3% nhưng tập kiểm tra quá nhỏ.
-- Khoảng cách fingerprint trung vị của các mẫu cùng người là **5,12**, khác người là **5,71**, chỉ cách nhau khoảng **11,6%** và còn chồng lấn nhiều.
-- Cảm biến **MQ135 là vấn đề chính**: 8/16 run có cảnh báo trôi baseline và 10/16 run chưa hồi phục về nền. Baseline CV của MQ135 có trung vị 25,87% và cao nhất 47,16%, trong khi BME688 và MQ3 ổn định hơn nhiều.
-
-**Đánh giá khả thi hiện tại:** có tín hiệu ban đầu cho bài toán phân biệt mùi/người, nhưng bằng chứng còn yếu và bị ảnh hưởng bởi phiên đo, thời gian, vị trí, áo và độ trôi cảm biến. Chưa nên công bố độ chính xác nhận diện người từ lô này.
+Phần cứng chỉ được dùng để hiểu ý nghĩa trường dữ liệu. Đối tượng chính của báo cáo vẫn là dữ liệu đã thu.
 
 ---
 
-## 2. Cách đọc và tổ chức dữ liệu
+## 2. Kết luận quan trọng nhất
 
-Theo quy ước của đợt thu:
+Lô dữ liệu **sạch về mặt file, timing và tính liên tục**, nhưng **chưa sạch về nhãn thí nghiệm và độ ổn định của một số cảm biến**.
 
-- Thư mục mang tên bằng chữ là một lần đo chính, ví dụ `Tai_bung_khongao_...`.
-- Thư mục chỉ có thời gian và mã UUID là phiên chạy/warm-up.
-- Tên thư mục chính được tách thành: **người → vị trí đo → có/không áo → thời gian đo**.
-- `aDung_moitamxonggg_...` là trường hợp vừa tắm xong nên không có vị trí đo.
-- `hihi_...` chưa chứa đủ thông tin để gán người, vị trí và tình trạng áo, do đó chỉ được giữ như một mẫu chưa rõ nhãn.
+- Có 22 thư mục: 16 lần đo chính mang tên bằng chữ và 6 thư mục số là warm-up/phiên chạy.
+- 100% dòng của 16 run chính đã xuất hiện trong file phiên tương ứng. Vì vậy, thư mục số không phải mẫu mới và không được đếm lần hai.
+- Tổng cộng có 10.478 dòng raw. Mỗi run đều có đúng 60 mẫu baseline, 120 mẫu exposure và 60 mẫu recovery, tức 240 mẫu lõi/run và 3.840 mẫu lõi.
+- Không có timestamp trùng, không có cặp `run_id + seq` trùng, không có ADC bão hòa và không có mẫu heater bất ổn trong ba pha lõi.
+- Nhịp lấy mẫu 1 Hz tốt: loop interval lớn nhất 1,012 giây, loop duration lớn nhất 0,284 giây và schedule lag lớn nhất 0,015 giây.
+- BME688 và MQ3 có baseline ổn định. MQ135 bị trôi mạnh: 8/16 run vượt ngưỡng drift và 10/16 run chưa hồi phục về nền.
+- Dữ liệu định danh chưa được lưu đúng chỗ: `person_code`, `source`, `distance_cm`, `notes` đều trống ở 16/16 run. Người, vị trí và áo hiện chỉ được suy ra từ tên thư mục.
+- Kết quả nhận diện theo phiên chưa thấy:
+  - BME688 riêng: balanced accuracy cao nhất chỉ 33,3%.
+  - Kết hợp cả ba cảm biến bằng 15 đặc trưng động học: cao nhất 33,3%.
+  - Kết hợp ba giá trị mean: 61,1%.
+  - Phân tích ablation cho thấy MQ3 riêng đạt 72,2% (6/8 run), nhưng số mẫu còn quá nhỏ và MQ3 có tương quan với môi trường nền.
 
-Phân bố 16 run chính:
+**Kết luận hiện tại:** đã có tín hiệu hứa hẹn, đặc biệt ở MQ3, nhưng chưa đủ chứng cứ để khẳng định nhận diện người ổn định. MQ135 không nên được tin ngang BME688/MQ3 cho đến khi xử lý được drift và recovery.
 
-| Người/nhãn | Số run | Điều kiện có trong dữ liệu |
+---
+
+## 3. Kiểm kê dữ liệu và thiết kế thí nghiệm
+
+### 3.1. Quy ước đọc thư mục
+
+- Thư mục mang tên chữ là lần đo chính, ví dụ `Tai_bung_khongao_...`.
+- Thư mục chỉ có timestamp và UUID là warm-up/phiên phần cứng.
+- Tên thư mục được tách thành người, vị trí, tình trạng áo và thời gian.
+- `aDung_moitamxonggg_...` là mẫu sau tắm, không có vị trí.
+- `hihi_...` không đủ thông tin để xác định người, vị trí và tình trạng áo.
+
+### 3.2. Phân bố mẫu
+
+| Người/nhãn | Số run | Điều kiện |
 |---|---:|---|
 | Tài | 5 | Ngực có áo, ngực không áo, bụng không áo × 3 |
 | Minh | 4 | Ngực không áo × 2, bụng không áo × 2 |
 | Quy | 4 | Ngực không áo, bụng không áo × 3 |
-| Dũng | 2 | Đầu gối, vừa tắm xong không ghi vị trí |
-| `hihi` | 1 | Chưa rõ người/vị trí/áo |
-
-### Biểu đồ 1 – Thiết kế và phân bố lần đo
+| Dũng | 2 | Đầu gối, sau tắm không ghi vị trí |
+| `hihi` | 1 | Không rõ người/vị trí/áo |
 
 ![Thiết kế thu dữ liệu](report_outputs/figures/01_dataset_design.png)
 
-**Phương pháp:** sắp xếp 16 run theo thời gian bắt đầu, sau đó đếm số run theo người, vị trí đo và tình trạng áo.
+**Cách đọc:** bên trái là thời điểm của từng run; bên phải là số mẫu theo người và điều kiện.
 
-**Kết quả:** dữ liệu không cân bằng. Tài có 5 run, Minh và Quy có 4 run, Dũng chỉ có 2 run với điều kiện khác hẳn. Dữ liệu bụng–không áo tập trung ở Minh, Quy và Tài; đây là nhóm duy nhất đủ gần nhau về điều kiện để thử phân tích nhận diện người.
-
-**Ý nghĩa:** không thể đưa toàn bộ 16 run vào một phép so sánh người với người rồi coi kết quả là do mùi cá nhân, vì mô hình có thể học nhầm vị trí đo, áo, ngày đo hoặc điều kiện vừa tắm.
+**Nhận xét:** thiết kế đang lệch. Chỉ nhóm Minh–Quy–Tài ở điều kiện bụng–không áo có đủ mẫu lặp để tạo subset tương đối kiểm soát. Dũng, `hihi`, mẫu có áo và mẫu sau tắm chỉ được dùng để mô tả, không dùng để kết luận nhận diện người.
 
 ---
 
-## 3. Phương pháp phân tích
+## 4. Phân tích toàn bộ 50 trường raw
 
-Quy trình sử dụng trong báo cáo:
+### 4.1. Cách sử dụng từng nhóm trường
 
-1. Kiểm tra đủ 6 file chuẩn trong từng thư mục: `metadata.json`, `summary.json`, `raw.csv`, `events.csv`, `signals.png`, `normalized.png`.
-2. Tách thư mục đo chính khỏi thư mục số dùng cho warm-up/phiên đo.
-3. Đối chiếu timestamp và phát hiện 100% dòng của mỗi run chính đã được lưu lặp trong thư mục phiên; loại phần lặp khỏi số mẫu độc lập.
-4. Chỉ giữ giá trị cảm biến có cờ trạng thái hợp lệ.
-5. Với từng run và từng cảm biến, lấy trung vị pha baseline làm mốc rồi chuẩn hóa:
+| Nhóm | Số trường | Vai trò trong phân tích | Kết quả kiểm tra |
+|---|---:|---|---|
+| Định danh/thời gian | 7 | Sắp thứ tự, tách pha, tìm trùng lặp | Đầy đủ; không trùng timestamp hay `run_id + seq` |
+| Timing đọc | 12 | Kiểm tra nhịp lấy mẫu và thời gian đọc | Ổn định; chỉ 6 `loop_interval_s` trống ở mẫu đầu phiên |
+| Bơm | 3 | Xác định trạng thái hút/chuyển nguồn khí | Có dữ liệu nhưng toàn bộ là `DISABLED/unknown/not_reported` |
+| BME688 | 16 | Gas, nhiệt độ, độ ẩm, áp suất và cờ chất lượng | Pha lõi hợp lệ; 6 mẫu MONITOR đầu phiên bị loại do heater chưa ổn định |
+| MQ135 | 6 | Kênh điện áp/ADC bổ sung | Đọc đủ nhưng drift lớn; AO voltage không tính được |
+| MQ3 | 6 | Kênh điện áp/ADC bổ sung | Đọc đủ, baseline ổn hơn MQ135; AO voltage không tính được |
 
-   `response (%) = 100 × (giá trị / baseline_median - 1)`
+Danh sách đầy đủ từng trường, kiểu dữ liệu, tỷ lệ thiếu, số giá trị khác nhau và khoảng giá trị nằm trong [`field_audit_all_50_fields.csv`](report_outputs/tables/field_audit_all_50_fields.csv).
 
-6. Trích xuất 5 đặc trưng động học cho mỗi cảm biến: trung bình exposure, trung bình 20 giây cuối exposure, cực tiểu, cực đại và hệ số dốc. Ba cảm biến tạo thành 15 đặc trưng.
-7. Dùng PCA để quan sát cấu trúc dữ liệu; dùng khoảng cách Euclid sau chuẩn hóa z-score để so sánh fingerprint cùng người/khác người.
-8. Thử nhận diện người bằng 1-NN và nearest centroid. Đánh giá theo **leave-one-session-out**: giữ toàn bộ một phiên làm test và chỉ huấn luyện bằng các phiên còn lại, tránh việc các mẫu cùng phiên xuất hiện ở cả train lẫn test.
+![Kiểm toán trường dữ liệu](report_outputs/figures/13_all_field_audit.png)
+
+**Phương pháp:** tính số dòng có dữ liệu, tỷ lệ thiếu và số giá trị khác nhau cho từng trường trên 10.478 dòng.
+
+**Kết quả:**
+
+- `bme_error`, `mq135_error`, `mq3_error` trống 100% là hợp lệ vì tất cả trạng thái đọc đều `OK`.
+- `mq135_ao_voltage_v`, `mq3_ao_voltage_v` trống 100% là thiếu thật về cấu hình: hệ số chia áp chưa được xác nhận.
+- `loop_interval_s` thiếu 6 dòng, tương ứng mẫu đầu của 6 phiên phần cứng; đây là thiếu có chủ đích vì chưa có mẫu trước để tính khoảng cách.
+- Sáu giá trị gas resistance ở mẫu MONITOR đầu phiên bị loại khỏi dữ liệu phân tích vì `heater_stable=False`. Không có trường hợp này trong baseline, exposure hoặc recovery.
+- ADC count và voltage của MQ là hai biểu diễn tuyến tính của cùng một phép đọc, không được coi là hai cảm biến độc lập.
+- Nhiều cột trạng thái/hardware là cột hằng. Chúng hữu ích cho audit nhưng không được dùng làm đặc trưng nhận diện.
+
+### 4.2. Khoảng giá trị quan sát được
+
+| Trường chính | Toàn bộ raw | Trong ba pha lõi | Nhận xét |
+|---|---:|---:|---|
+| Nhiệt độ | 30,39–37,17°C | 32,53–34,86°C | Giá trị cực trị nằm ở MONITOR/warm-up |
+| Độ ẩm | 53,26–77,10% | 54,84–68,09% | Thay đổi lớn giữa ngày/phiên |
+| Áp suất | 1.010,72–1.015,45 hPa | 1.010,73–1.013,58 hPa | Có xu hướng giảm qua các ngày |
+| BME gas resistance | 5.684–108.682 Ω | 78.769–108.682 Ω | Giá trị rất thấp chủ yếu ở lúc heater mới khởi động |
+| MQ135 voltage | 0,0465–0,2866 V | 0,0476–0,2818 V | Không bão hòa ADC nhưng drift mạnh |
+| MQ3 voltage | 0,2638–0,4090 V | 0,2638–0,4059 V | Không bão hòa ADC |
+
+### 4.3. Timing và thao tác chuyển pha
+
+![Timing và thao tác thủ công](report_outputs/figures/14_timing_and_manual_steps.png)
+
+**Phương pháp:** kiểm tra loop interval từng run và thời gian chờ giữa các lệnh `start`, `expose`, `recover`, `finish`.
+
+**Kết quả:** phần lấy mẫu tự động rất ổn định, nhưng thao tác thủ công chưa đồng nhất:
+
+- `WAIT_EXPOSURE`: 6,13–63,33 giây.
+- `WAIT_RECOVERY`: 2,40–43,08 giây.
+- `WAIT_FINISH`: 1,52–35,54 giây.
+- Trạng thái bơm luôn `DISABLED`, external pump luôn `unknown`, không có phản hồi vật lý.
+
+**Ý nghĩa:** dữ liệu phase có đủ 60–120–60 giây, nhưng thời điểm nguồn mùi thực sự được đưa vào hoặc lấy ra có thể lệch so với event được ghi. Đây là nguồn sai số thí nghiệm cần sửa, đặc biệt khi trích đặc trưng 10–20 giây đầu exposure.
 
 ---
 
-## 4. Phân tích toàn bộ 16 run
+## 5. Phân tích nhiệt độ, độ ẩm và áp suất
 
-### Biểu đồ 2 – Đường đáp ứng của ba cảm biến
+![Môi trường và tín hiệu theo thời gian](report_outputs/figures/05_temporal_drift.png)
 
-![Đường tín hiệu toàn bộ run](report_outputs/figures/02_all_signal_traces.png)
+Baseline giữa các run thay đổi trong các khoảng:
 
-**Phương pháp:** căn thẳng tất cả run theo thời gian; 0–120 giây là exposure, 120–180 giây là recovery. Mỗi đường đã được đưa về phần trăm thay đổi so với baseline riêng của run đó.
+- Nhiệt độ: 32,57–34,67°C.
+- Độ ẩm: 55,01–68,02%.
+- Áp suất: 1.010,83–1.013,49 hPa.
 
-**Kết quả:** BME688 và MQ3 có biên độ nhìn chung gọn hơn. MQ135 dao động rất lớn giữa các run, nhiều đường không quay về mức 0% sau recovery và có biên độ lớn hơn hẳn hai cảm biến còn lại.
+Trong exposure, so với baseline riêng từng run:
 
-**Ý nghĩa:** các run thật sự tạo ra đáp ứng động theo thời gian, nhưng riêng MQ135 đang mang nhiều thành phần trôi/nhiễu. Nếu dùng trực tiếp đường MQ135 để phân loại, mô hình rất dễ học trạng thái phiên đo thay vì mùi.
+- Nhiệt độ trung bình thay đổi từ -0,113 đến +0,255°C; trung vị +0,086°C.
+- Độ ẩm thay đổi từ -0,397 đến +0,939 điểm phần trăm; trung vị +0,210.
+- Áp suất thay đổi từ -0,054 đến +0,027 hPa; trung vị -0,012 hPa.
 
-### Biểu đồ 3 – Heatmap đáp ứng exposure và recovery
+![Biến đổi môi trường theo pha](report_outputs/figures/18_environment_phase_changes.png)
+
+**Ý nghĩa:** nguồn khí/mẫu không chỉ mang thành phần mùi mà còn làm thay đổi nhiệt độ và độ ẩm. Các biến này phải được theo dõi như biến gây nhiễu hoặc dùng để hiệu chỉnh, không nên đưa thẳng giá trị nền tuyệt đối vào mô hình nhận diện người.
+
+![Tương quan môi trường và cảm biến](report_outputs/figures/17_environment_sensor_correlation.png)
+
+Tương quan Spearman trên 16 run cho thấy:
+
+- MQ3 mean tương quan với độ ẩm nền khoảng **-0,72** và áp suất nền khoảng **-0,74**.
+- BME gas mean và MQ135 mean tương quan khoảng **+0,51**.
+- Độ ẩm và áp suất nền tương quan khoảng **+0,80**, phản ánh hiệu ứng ngày/phiên.
+
+Các hệ số này chỉ mang tính mô tả vì n=16. Tuy nhiên, chúng cảnh báo rằng kết quả tốt của MQ3 có thể chứa cả thông tin người lẫn thông tin môi trường/ngày đo.
+
+---
+
+## 6. Chất lượng tín hiệu của ba cảm biến
+
+### 6.1. Đường đáp ứng
+
+![Đường đáp ứng toàn bộ run](report_outputs/figures/02_all_signal_traces.png)
+
+Các đường được chuẩn hóa theo trung vị baseline riêng của run. BME688 và MQ3 có biên độ gọn hơn; MQ135 dao động lớn và nhiều run không về lại 0% sau recovery.
+
+### 6.2. Đáp ứng và recovery từng run
 
 ![Heatmap đáp ứng](report_outputs/figures/03_response_heatmap.png)
 
-**Phương pháp:** với mỗi run, tính đáp ứng trung bình trong 120 giây exposure và mức tín hiệu trung bình ở 10 giây cuối recovery cho BME688, MQ135 và MQ3.
-
-**Kết quả:**
-
-- Trung bình exposure của BME688 nằm trong khoảng **-2,98% đến +4,25%**, trung vị **-0,76%**.
-- MQ135 trải rất rộng, từ **-22,26% đến +16,82%**, trung vị chỉ **+0,09%**.
-- MQ3 nằm trong khoảng **-7,85% đến +3,20%**, trung vị **+0,26%**.
-- Màu của cùng một người chưa lặp lại thành mẫu ổn định giữa các phiên, rõ nhất ở MQ135.
-
-**Ý nghĩa:** dữ liệu có độ tương phản giữa các run, nhưng độ tương phản lớn chưa đồng nghĩa với đặc trưng người. Ví dụ MQ135 thay đổi rất mạnh nhưng phần lớn đi kèm độ trôi baseline và hồi phục kém.
-
-### Biểu đồ 4 – Chất lượng baseline và khả năng hồi phục
-
-![Kiểm soát chất lượng](report_outputs/figures/04_quality_control.png)
-
-**Phương pháp:** dùng hệ số biến thiên `CV = độ lệch chuẩn / giá trị trung bình` để đo độ ổn định baseline; đồng thời đo phần trăm lệch khỏi baseline ở cuối recovery.
-
-**Kết quả:**
-
-| Cảm biến | Baseline CV nhỏ nhất | Trung vị | Lớn nhất |
+| Tín hiệu | Min mean exposure | Trung vị | Max mean exposure |
 |---|---:|---:|---:|
-| BME688 | 0,21% | 0,33% | 0,86% |
-| MQ135 | 0,38% | 25,87% | 47,16% |
-| MQ3 | 0,10% | 0,19% | 0,35% |
+| BME688 gas | -2,98% | -0,76% | +4,25% |
+| MQ135 | -22,26% | +0,09% | +16,82% |
+| MQ3 | -7,85% | +0,26% | +3,20% |
 
-MQ135 có 8 run bị cảnh báo baseline drift và 10 run chưa hồi phục về nền. Một số run bụng ngày 14–15/10 có baseline CV của MQ135 khoảng 25–47%. Trong khi đó, BME688 và MQ3 ổn định hơn rõ rệt.
+Biên độ MQ135 lớn nhất nhưng không đồng nghĩa nhiều thông tin mùi nhất; phần lớn biên độ đi kèm baseline drift và recovery kém.
 
-**Ý nghĩa:** chỉ số `baseline_stable` chung trong metadata vẫn có thể là `true`, nhưng kiểm tra riêng từng cảm biến cho thấy MQ135 không ổn định. Cần kiểm tra tiêu chí tạo cờ ổn định trong code thu dữ liệu và không nên dựa hoàn toàn vào cờ chung này.
+### 6.3. Baseline và recovery
 
-### Biểu đồ 5 – Trôi theo thời gian và môi trường nền
+![Kiểm soát chất lượng cảm biến](report_outputs/figures/04_quality_control.png)
 
-![Trôi theo thời gian](report_outputs/figures/05_temporal_drift.png)
+| Cảm biến | Baseline CV nhỏ nhất | Trung vị | Lớn nhất | Đánh giá |
+|---|---:|---:|---:|---|
+| BME688 | 0,21% | 0,33% | 0,86% | Ổn định |
+| MQ135 | 0,38% | 25,87% | 47,16% | Không ổn định ở nhiều phiên |
+| MQ3 | 0,10% | 0,19% | 0,35% | Ổn định |
 
-**Phương pháp:** biểu diễn nhiệt độ, độ ẩm, áp suất baseline và đáp ứng trung bình của ba cảm biến theo thời điểm thu.
+Metadata báo baseline chung ổn định vì tiêu chí hiện chủ yếu kiểm tra BME gas, nhiệt độ và độ ẩm. Điều đó không đảm bảo MQ135 ổn định. Quality gate phải được tính riêng cho từng cảm biến.
 
-**Kết quả:** điều kiện nền thay đổi đáng kể giữa các phiên:
-
-- Nhiệt độ baseline: **32,57–34,67°C**.
-- Độ ẩm baseline: **55,01–68,02%**.
-- Áp suất baseline: **1.010,83–1.013,49 hPa**.
-
-Đáp ứng MQ135 cũng đổi mạnh theo thời gian, đặc biệt ở các phiên muộn. Các lần đo của cùng người ở hai buổi khác nhau chưa giữ được cùng một mức đáp ứng.
-
-**Ý nghĩa:** ngày/giờ và trạng thái cảm biến là biến gây nhiễu đáng kể. Chuẩn hóa theo baseline từng run giúp giảm độ lệch mức DC nhưng chưa loại được sự thay đổi hình dạng đáp ứng và độ trôi theo phiên.
-
-### Biểu đồ 6 – PCA trên toàn bộ run
+### 6.4. PCA toàn bộ 16 run
 
 ![PCA toàn bộ run](report_outputs/figures/06_pca_all_runs.png)
 
-**Phương pháp:** chuẩn hóa z-score 15 đặc trưng động học rồi giảm còn 2 chiều bằng PCA. PC1 giải thích **45,7%**, PC2 giải thích **25,7%**, tổng cộng **71,4%** phương sai.
-
-**Kết quả:** các điểm không tạo thành cụm riêng rõ ràng theo người. Mẫu `hihi` và một số run khác điều kiện nằm xa phần còn lại; vị trí đo và phiên đo có ảnh hưởng trực quan lớn.
-
-**Ý nghĩa:** PCA toàn bộ dữ liệu chỉ dùng để mô tả. Không thể xem khoảng cách trên biểu đồ này là bằng chứng nhận diện người vì các điều kiện thu chưa được kiểm soát đồng đều.
+PC1 và PC2 giải thích 71,4% phương sai, nhưng các điểm không gom thành cụm rõ theo người. Mẫu `hihi`, vị trí đo, ngày đo và các run có MQ135 bất thường ảnh hưởng mạnh đến cấu trúc PCA. PCA toàn bộ chỉ dùng để phát hiện outlier, không dùng làm bằng chứng nhận diện người.
 
 ---
 
-## 5. Phân tích subset kiểm soát để thử nhận diện người
+## 7. Biến đổi của từng người theo ngày
 
-Subset được chọn gồm các run thỏa cả ba điều kiện:
+### 7.1. Môi trường nền của từng người
 
-- Đo ở bụng.
-- Không áo.
-- Điều kiện bình thường, không phải vừa tắm.
+![Môi trường từng người theo ngày](report_outputs/figures/15_person_day_environment.png)
 
-Subset có 8 run: Quy 3, Tài 3 và Minh 2, thuộc 3 phiên S4, S5 và S6.
+Biểu đồ tách từng người thành một hàng, theo đúng thứ tự ngày–giờ–vị trí. Có thể thấy giá trị của các người trong cùng phiên gần nhau hơn so với cùng một người ở hai ngày khác nhau. Đây là dấu hiệu rõ của hiệu ứng phiên/ngày.
 
-### Biểu đồ 7 – Đáp ứng trung bình trong subset kiểm soát
+### 7.2. Đáp ứng cảm biến của từng người
 
-![Đáp ứng subset kiểm soát](report_outputs/figures/07_controlled_mean_responses.png)
+![Đáp ứng từng người theo ngày](report_outputs/figures/16_person_day_sensor_response.png)
 
-**Phương pháp:** so sánh đáp ứng exposure trung bình của từng cảm biến, đồng thời giữ ký hiệu phiên đo để nhìn ảnh hưởng giữa các buổi.
+Các giá trị dưới đây là mean exposure sau khi chuẩn hóa baseline từng run:
 
-**Kết quả:**
+| Người | Ngày giờ | Vị trí/điều kiện | BME | MQ135 | MQ3 |
+|---|---|---|---:|---:|---:|
+| Dũng | 13/10 21:03 | Đầu gối | -2,13% | -0,35% | -0,11% |
+| Dũng | 15/10 21:03 | Sau tắm, không rõ vị trí | +0,73% | +16,82% | +0,65% |
+| Minh | 13/10 21:36 | Ngực, không áo | -1,14% | -0,04% | -0,08% |
+| Minh | 14/10 11:03 | Ngực, không áo | -2,98% | -22,26% | -7,85% |
+| Minh | 15/10 11:49 | Bụng, không áo | -0,56% | -4,65% | +3,20% |
+| Minh | 15/10 21:25 | Bụng, không áo | -0,17% | +12,90% | +2,37% |
+| Quy | 13/10 21:44 | Ngực, không áo | -0,76% | -0,14% | +0,05% |
+| Quy | 14/10 23:52 | Bụng, không áo | +0,78% | +10,48% | +0,28% |
+| Quy | 15/10 11:56 | Bụng, không áo | -0,68% | -1,77% | +0,69% |
+| Quy | 15/10 21:19 | Bụng, không áo | -1,10% | -0,32% | +0,48% |
+| Tài | 13/10 21:29 | Ngực, có áo | -1,18% | +0,17% | -0,05% |
+| Tài | 14/10 11:37 | Ngực, không áo | -1,09% | +0,13% | +0,38% |
+| Tài | 15/10 00:11 | Bụng, không áo | -0,62% | +6,44% | +0,27% |
+| Tài | 15/10 11:27 | Bụng, không áo | -0,76% | +1,50% | +0,25% |
+| Tài | 15/10 21:32 | Bụng, không áo | -0,95% | +5,04% | +0,10% |
 
-- BME688 của cả ba người chủ yếu nằm phía âm và khá gần nhau; không có ranh giới người rõ.
-- MQ3 của Minh cao hơn ở hai run bụng (**2,37% và 3,20%**) so với phần lớn run của Quy và Tài, tạo ra một dấu hiệu có thể nghiên cứu thêm.
-- MQ135 của cùng một người thay đổi rất mạnh theo phiên. Ví dụ Minh từ **-4,65%** ở S5 lên **+12,90%** ở S6; Quy từ **+10,48%** ở S4 xuống gần 0 hoặc âm ở S5–S6.
+### 7.3. Nhận xét theo từng người
 
-**Ý nghĩa:** MQ3 đang cho tín hiệu cá nhân đáng chú ý hơn trong subset này, nhưng mới chỉ có hai mẫu Minh. MQ135 thể hiện ảnh hưởng phiên lớn hơn ảnh hưởng người.
+**Dũng:** hai run khác cả vị trí lẫn trạng thái sau tắm, do đó không thể dùng để đo độ lặp lại cá nhân. MQ135 +16,82% ở mẫu sau tắm không đáng tin để kết luận vì baseline CV của MQ135 run đó là 47,16%.
 
-### Biểu đồ 8 – PCA của subset kiểm soát
+**Minh:** hai run ngực cùng trạng thái áo ở 13–14/10 khác nhau rất mạnh trên cả ba kênh, cho thấy hiệu ứng ngày/phiên hoặc trạng thái cảm biến lớn. Trong hai run bụng ngày 15/10, MQ3 vẫn duy trì cao 2,37–3,20%, BME tương đối gần nhau, còn MQ135 đổi dấu từ -4,65% sang +12,90%.
 
-![PCA subset kiểm soát](report_outputs/figures/08_controlled_pca.png)
+**Quy:** ba run bụng có MQ3 nằm trong khoảng 0,28–0,69%, tương đối lặp lại. BME thay đổi từ +0,78% xuống -1,10%; MQ135 đổi từ +10,48% xuống gần 0, tiếp tục cho thấy ảnh hưởng phiên.
 
-**Phương pháp:** PCA trên 15 đặc trưng của 8 run bụng–không áo. PC1 giải thích **36,8%**, PC2 giải thích **30,4%**, tổng cộng **67,2%** phương sai.
+**Tài:** ba run bụng lặp lại tốt nhất trên BME (-0,62 đến -0,95%) và MQ3 (+0,10 đến +0,27%). MQ135 luôn dương nhưng biên độ thay đổi 1,50–6,44%.
 
-**Kết quả:** các điểm cùng người chưa gom thành cụm kín; một số điểm khác người gần nhau hơn các điểm cùng người. Hình dạng marker theo phiên cũng cho thấy hiệu ứng phiên vẫn còn.
+**Nhận xét chung:** trong điều kiện bụng–không áo, MQ3 đang cho thứ tự khá nhất quán: Minh cao, Quy ở giữa, Tài thấp. Đây là tín hiệu hứa hẹn nhất của lô hiện tại, nhưng cần lặp lại qua nhiều ngày với môi trường cân bằng trước khi coi là fingerprint cá nhân.
 
-**Ý nghĩa:** chưa có fingerprint hình học tách biệt bền vững cho từng người. Nếu tăng dữ liệu mà các cụm vẫn phân theo phiên thay vì theo người, phải ưu tiên hiệu chỉnh cảm biến và quy trình thu trước khi tăng độ phức tạp mô hình.
+---
 
-### Biểu đồ 9 – Khoảng cách fingerprint cùng người và khác người
+## 8. Đánh giá trên subset kiểm soát
+
+Subset gồm 8 run bụng–không áo–điều kiện thường: Minh 2, Quy 3, Tài 3, thuộc ba phiên S4–S6.
+
+![Mean response subset](report_outputs/figures/07_controlled_mean_responses.png)
+
+![PCA subset](report_outputs/figures/08_controlled_pca.png)
+
+PCA subset giải thích 67,2% phương sai trên hai trục đầu nhưng các điểm cùng người chưa tạo cụm kín.
 
 ![Khoảng cách fingerprint](report_outputs/figures/09_controlled_distances.png)
 
-**Phương pháp:** chuẩn hóa 15 đặc trưng rồi tính khoảng cách Euclid cho mọi cặp run. Chia cặp thành cùng người và khác người; màu điểm cho biết hai run có cùng phiên hay không.
+- Trung vị khoảng cách cùng người: 5,12.
+- Trung vị khoảng cách khác người: 5,71.
+- Khác người chỉ xa hơn cùng người khoảng 11,6%; hai phân bố còn chồng lấn mạnh.
 
-**Kết quả:**
+Phép kiểm tra mô hình dùng leave-one-session-out: giữ toàn bộ một phiên làm test, chỉ fit scaler, median và tâm lớp trên các phiên còn lại. Cách này khó hơn nhưng đúng với mục tiêu dự đoán một phiên/ngày chưa từng thấy.
 
-- Trung vị khoảng cách cùng người: **5,12**.
-- Trung vị khoảng cách khác người: **5,71**.
-- Tỷ lệ tách biệt: **5,71 / 5,12 = 1,12**.
+### 8.1. Bảng A – Chỉ dùng cảm biến chính BME688
 
-Hai phân bố chồng lấn mạnh. Khoảng cách khác người chỉ lớn hơn cùng người khoảng 11,6% ở trung vị.
+`BME gas (5)` gồm mean, late-20-second mean, min, max và slope của gas resistance. `BME đầy đủ (20)` thêm năm đặc trưng biến đổi cho mỗi kênh nhiệt độ, độ ẩm và áp suất.
 
-**Ý nghĩa:** tồn tại một xu hướng đúng hướng nhưng còn yếu. Một fingerprint tốt cần các lần đo cùng người gần nhau rõ rệt và các người khác nhau xa nhau rõ rệt; lô này chưa đạt điều đó.
+| Bộ đặc trưng | Mô hình | Đúng | Accuracy | Balanced accuracy | Macro-F1 |
+|---|---|---:|---:|---:|---:|
+| BME gas (5) | 1-NN | 3/8 | 37,5% | 33,3% | 30,0% |
+| BME gas (5) | Nearest centroid | 2/8 | 25,0% | 22,2% | 22,2% |
+| BME đầy đủ (20) | 1-NN | 3/8 | 37,5% | 33,3% | 36,2% |
+| BME đầy đủ (20) | Nearest centroid | 3/8 | 37,5% | 33,3% | 37,8% |
 
-### Biểu đồ 10 – Kết quả nhận diện người theo phiên chưa thấy
+**Kết luận bảng A:** với dữ liệu hiện tại, BME688 riêng chưa tổng quát được danh tính sang phiên mới. Thêm nhiệt độ/độ ẩm/áp suất không tăng balanced accuracy, cho thấy các kênh môi trường chưa tạo được fingerprint người độc lập.
 
-![So sánh mô hình](report_outputs/figures/10_controlled_classification.png)
+### 8.2. Bảng B – Kết hợp cả ba cảm biến
 
-**Phương pháp:** thử hai mô hình đơn giản là 1-NN và nearest centroid trên bốn nhóm đặc trưng:
+| Bộ đặc trưng | Mô hình | Đúng | Accuracy | Balanced accuracy | Macro-F1 |
+|---|---|---:|---:|---:|---:|
+| 15 đặc trưng động học | 1-NN | 3/8 | 37,5% | 33,3% | 20,0% |
+| 15 đặc trưng động học | Nearest centroid | 2/8 | 25,0% | 22,2% | 16,7% |
+| Chỉ ba mean exposure | 1-NN | 3/8 | 37,5% | 33,3% | 30,2% |
+| **Chỉ ba mean exposure** | **Nearest centroid** | **5/8** | **62,5%** | **61,1%** | **58,6%** |
 
-- 5 đặc trưng BME688.
-- 10 đặc trưng MQ135 + MQ3.
-- Toàn bộ 15 đặc trưng động học.
-- Chỉ 3 giá trị mean exposure.
+**Kết luận bảng B:** ghép càng nhiều đặc trưng không làm kết quả tốt hơn. Bộ ba mean đơn giản tốt hơn 15 đặc trưng, cho thấy dữ liệu còn quá ít để học hình dạng động học phức tạp và các đặc trưng MQ135 đang đưa thêm nhiễu.
 
-Mỗi lượt giữ hẳn một phiên làm test; scaler, median điền thiếu và tâm lớp đều chỉ được học từ các phiên train.
+### 8.3. Ablation để đánh giá cảm biến yếu
 
-**Kết quả:**
+- MQ3 riêng + nearest centroid: **6/8**, balanced accuracy **72,2%**.
+- MQ135 riêng: **3/8**, balanced accuracy **33,3%**, ngang mức ngẫu nhiên ba lớp.
+- BME + MQ3: **4/8**, balanced accuracy **50,0%**.
+- BME + MQ135: chỉ **2/8**, balanced accuracy **22,2%**.
 
-| Đặc trưng | Mô hình | Đúng | Balanced accuracy |
-|---|---|---:|---:|
-| BME688 (5) | 1-NN | 3/8 | 33,3% |
-| BME688 (5) | Nearest centroid | 2/8 | 22,2% |
-| MQ135 + MQ3 (10) | 1-NN | 3/8 | 33,3% |
-| MQ135 + MQ3 (10) | Nearest centroid | 3/8 | 33,3% |
-| Tất cả động học (15) | 1-NN | 3/8 | 33,3% |
-| Tất cả động học (15) | Nearest centroid | 2/8 | 22,2% |
-| Chỉ mean (3) | 1-NN | 3/8 | 33,3% |
-| **Chỉ mean (3)** | **Nearest centroid** | **5/8** | **61,1%** |
+Kết quả này cho thấy MQ3 đóng góp rõ nhất trong lô hiện tại, còn MQ135 làm giảm độ ổn định khi dùng đặc trưng động học. Tuy nhiên, không được chọn MQ3 làm “mô hình thắng” chỉ từ 8 run; MQ3 còn tương quan với môi trường và Minh chỉ có hai mẫu.
 
-Mô hình tốt nhất có accuracy 62,5%, balanced accuracy 61,1% và macro-F1 58,6%.
+![So sánh mô hình và cảm biến](report_outputs/figures/10_controlled_classification.png)
 
-**Ý nghĩa:** kết quả 5/8 cho thấy tín hiệu có thể chứa thông tin về người, nhưng các đặc trưng động học nhiều hơn lại không cải thiện khả năng tổng quát. Điều này thường xảy ra khi số mẫu quá ít hoặc đặc trưng đang học nhiễu. Không nên chọn mô hình tốt nhất rồi coi 62,5% là độ chính xác thật của hệ thống.
+![Ma trận nhầm lẫn mô hình tốt nhất](report_outputs/figures/11_controlled_confusion.png)
 
-### Biểu đồ 11 – Ma trận nhầm lẫn của mô hình tốt nhất
-
-![Ma trận nhầm lẫn](report_outputs/figures/11_controlled_confusion.png)
-
-**Phương pháp:** tổng hợp dự đoán từ ba lượt leave-one-session-out của nearest centroid dùng ba mean exposure.
-
-**Kết quả:**
-
-- Tài: đúng 3/3 run.
-- Minh: đúng 1/2 run; một run bị nhầm thành Quy.
-- Quy: đúng 1/3 run; hai run bị nhầm lần lượt thành Minh và Tài.
-
-**Ý nghĩa:** phần lớn kết quả tốt hiện tại đến từ việc nhận đúng Tài. Dữ liệu chưa chứng minh mô hình nhận đồng đều cả ba người. Với Minh chỉ có hai lần đo, một lần sai đã làm thay đổi kết quả rất lớn.
+Mô hình MQ3 tốt nhất nhận đúng Tài 3/3, Quy 2/3 và Minh 1/2. Hai lỗi xảy ra ở Quy phiên S4 và Minh phiên S6. Đây là kết quả thăm dò, chưa phải độ chính xác cuối.
 
 ---
 
-## 6. Các run đặc biệt
-
-### Biểu đồ 12 – Mẫu chưa đủ điều kiện đối chứng
+## 9. Những mẫu không đủ điều kiện kết luận
 
 ![Các run đặc biệt](report_outputs/figures/12_special_runs.png)
 
-**Phương pháp:** tách riêng các run không cùng điều kiện với subset chính: `hihi`, Dũng–đầu gối, Tài–ngực–có áo và Dũng–vừa tắm xong.
-
-**Kết quả:**
-
-| Run | BME688 mean | MQ135 mean | MQ3 mean |
-|---|---:|---:|---:|
-| `hihi` chưa rõ nhãn | +4,25% | +0,04% | -0,35% |
-| Dũng – đầu gối | -2,13% | -0,35% | -0,11% |
-| Tài – ngực – có áo | -1,18% | +0,17% | -0,05% |
-| Dũng – vừa tắm xong | +0,73% | +16,82% | +0,65% |
-
-Mẫu vừa tắm có MQ135 tăng mạnh, nhưng baseline CV của MQ135 ở run này lên tới **47,16%**. Vì chỉ có một mẫu sau tắm và không có mẫu trước tắm cùng người, cùng vị trí, cùng phiên, chưa thể nói mức tăng đó là do vừa tắm.
-
-Tương tự, chỉ có một run Tài mặc áo và run đối chiếu không áo không được thu cặp ngay cùng phiên, nên chưa tách được ảnh hưởng của áo.
+- `hihi`: dùng để kiểm tra hệ thống và outlier, không dùng cho bài toán người vì thiếu nhãn.
+- Dũng–đầu gối và Dũng–sau tắm: không phải cặp đối chứng vì khác vị trí, ngày và trạng thái.
+- Tài–có áo: chỉ có một mẫu và không có mẫu không áo được thu cặp ngay cùng phiên.
+- Các run ngực và bụng không nên gộp để học người nếu mô hình chưa được kiểm soát vị trí.
 
 ---
 
-## 7. Trả lời câu hỏi nghiên cứu
+## 10. Dữ liệu đang chưa sạch hoặc thiếu ở đâu?
 
-### Có tìm được đặc trưng của người dựa vào mùi không?
+### 10.1. Phần đạt yêu cầu
 
-**Có dấu hiệu ban đầu nhưng chưa đủ mạnh để khẳng định.** Ba mean exposure cho kết quả 5/8 khi kiểm tra theo phiên chưa thấy, và khoảng cách khác người lớn hơn cùng người khoảng 11,6%. Tuy vậy, PCA chưa tạo cụm người rõ, phân bố khoảng cách còn chồng lấn và MQ135 bị trôi mạnh.
+- File đầy đủ, đọc được và đúng cấu trúc.
+- Mỗi run có đủ ba pha lõi.
+- Timestamp, sequence và timing tốt.
+- Trạng thái đọc của ba cảm biến đều `OK`; không bão hòa ADC.
+- BME688 và MQ3 có baseline ổn định.
 
-### Có phân biệt được mùi A với mùi B không?
+### 10.2. Thiếu có chủ đích, không phải lỗi
 
-Lô này chưa có nhãn A/B độc lập; tên người hiện đang đóng vai trò nhãn lớp. Vì vậy, báo cáo chỉ thử bài toán phân biệt Minh–Quy–Tài trong một điều kiện tương đối giống nhau. Muốn kết luận phân biệt mùi A/B, cần thu nhiều lần lặp cho A và B trong cùng quy trình, luân phiên thứ tự đo và có mẫu blank giữa các lần.
+- Ba cột `*_error` trống vì không có lỗi đọc.
+- Sáu `loop_interval_s` trống ở mẫu đầu phiên.
+- Sáu mẫu BME gas MONITOR đầu phiên bị loại vì heater chưa ổn định; pha lõi không bị ảnh hưởng.
 
-### Lô dữ liệu có dùng được không?
+### 10.3. Thiếu do cấu hình/hardware
 
-**Dùng được cho thăm dò, kiểm tra pipeline và phát hiện lỗi quy trình; chưa đủ để huấn luyện mô hình cuối.** BME688 và MQ3 có chất lượng baseline tốt. MQ135 cần được xử lý trước khi tin vào các đặc trưng của nó.
+- `mq135_ao_voltage_v` và `mq3_ao_voltage_v` trống vì chưa xác nhận voltage-divider factor.
+- Không thể chuyển điện áp ADS1115 thành điện áp AO thực hoặc nồng độ. Hiện chỉ nên dùng như tín hiệu tương đối.
+- Bơm GPIO bị tắt và không có feedback; không xác nhận được thời điểm dòng khí thực sự đổi nguồn.
+- BME688 đang dùng một heater setting cố định (`res_heat`, `gas_wait` hầu như hằng), chưa có heater profile nhiều mức như định hướng phần cứng.
+
+### 10.4. Thiếu về nhãn và quy trình thí nghiệm
+
+- `person_code`, `source`, `distance_cm`, `notes` trống 16/16 run.
+- Vị trí, áo và điều kiện sau tắm chỉ tồn tại trong tên thư mục, dễ sai chính tả và khó parse.
+- `hihi` không thể khôi phục nhãn từ metadata.
+- Số mẫu giữa người và điều kiện không cân bằng.
+- Chưa có blank/khí phòng được lưu thành một sample ID riêng trước và sau từng run.
+- Thứ tự người, thời gian từ lần tắm/vận động, mỹ phẩm và khoảng cách đầu lấy mẫu chưa được ghi có cấu trúc.
+- Recovery 60 giây là cố định dù MQ135 ở 10/16 run chưa về nền.
+
+### 10.5. Quy tắc sử dụng lô hiện tại
+
+- Toàn bộ 16 run: dùng cho QC, mô tả cảm biến và phát hiện lỗi pipeline.
+- `hihi`: loại khỏi mọi phân tích có nhãn.
+- Dũng, mẫu có áo, mẫu sau tắm: chỉ mô tả hoặc dùng khi đã có cặp đối chứng tương ứng.
+- Tám run bụng–không áo: chỉ dùng cho đánh giá nhận diện thăm dò.
+- Với MQ135: gắn cờ chất lượng theo từng run; không loại cả run nếu BME/MQ3 vẫn tốt, nhưng loại đặc trưng MQ135 khi baseline hoặc recovery không đạt.
 
 ---
 
-## 8. Đề xuất cho đợt thu tiếp theo
+## 11. Pipeline thu thập mùi đề xuất
 
-1. Chọn một cấu hình cố định, ví dụ `bụng – không áo – khoảng cách đầu dò cố định`, áp dụng cho mọi người.
-2. Thu tối thiểu **10–20 run/người**, trải trên ít nhất 5 ngày; mỗi ngày mỗi người nên có từ 2 run trở lên.
-3. Xáo trộn thứ tự người trong từng phiên để không làm nhãn người trùng với thời gian đo.
-4. Giữa hai run cần có blank/recovery cho đến khi cả ba cảm biến về gần baseline; đặt ngưỡng tự động, ví dụ lệch dưới 3–5% trong một khoảng liên tục.
-5. Theo dõi baseline CV riêng từng cảm biến. Nếu MQ135 vượt ngưỡng thì không bắt đầu run hoặc gắn cờ loại mẫu.
-6. Ghi rõ các biến phụ: vừa tắm, xà phòng/nước hoa, ăn uống, vận động, nhiệt độ/độ ẩm, khoảng cách và thời gian kể từ lần đo trước.
-7. Thu các cặp đối chứng riêng cho áo/không áo và trước/sau tắm; mỗi cặp phải cùng người, cùng vị trí và gần nhau về thời gian.
-8. Khi đánh giá mô hình, tiếp tục chia train/test theo **ngày hoặc phiên**, không chia ngẫu nhiên từng dòng tín hiệu.
+### Giai đoạn A – Tạo phiên và warm-up
+
+1. Tạo `session_id`, ghi người vận hành, ngày giờ, cấu hình phần cứng và phiên bản chương trình.
+2. Warm-up cả ba cảm biến; không dùng thời gian cố định làm tiêu chí duy nhất.
+3. Chỉ cho phép bắt đầu run khi từng cảm biến đạt quality gate baseline riêng.
+4. Ghi một run blank/khí phòng đầu phiên để theo dõi drift giữa các phiên.
+
+### Giai đoạn B – Ghi nhãn mẫu trước khi đo
+
+Không chỉ đặt tên thư mục. Các trường sau phải nằm trong `metadata.json` và không được để trống:
+
+- `person_code`, `sample_id`, `replicate_id`.
+- `location`, `clothing`, `condition`.
+- `distance_cm`, tư thế và thời lượng giữ đầu lấy mẫu.
+- Có/không vừa tắm, thời gian từ lúc tắm, loại xà phòng/nước hoa/mỹ phẩm.
+- Thời gian từ vận động, ăn uống hoặc uống rượu/bia nếu có liên quan.
+- `session_id`, thứ tự mẫu trong phiên và người vận hành.
+
+Tên thư mục chỉ là bản sao dễ đọc; metadata mới là nguồn nhãn chính.
+
+### Giai đoạn C – Chuẩn hóa điều kiện thu
+
+1. Chọn một vị trí chuẩn cho bài toán nhận diện người; không trộn ngực, bụng và đầu gối trong mô hình ban đầu.
+2. Giữ khoảng cách, buồng, nắp, ống và hướng khí giống nhau.
+3. Thu mỗi người nhiều lần trong cùng ngày và lặp lại qua nhiều ngày.
+4. Xáo trộn thứ tự người trong mỗi phiên để người không bị gắn với thời gian hoặc drift cảm biến.
+5. Với nghiên cứu áo/sau tắm, thiết kế cặp đối chứng cùng người–cùng vị trí–cùng phiên và chỉ thay một yếu tố.
+
+### Giai đoạn D – Baseline
+
+1. Thu baseline tối thiểu 60 giây.
+2. Kiểm tra riêng từng cảm biến:
+   - tỷ lệ giá trị hợp lệ;
+   - baseline CV;
+   - slope và range;
+   - heater/fresh/status;
+   - ADC saturation.
+3. Ngưỡng khởi đầu đề xuất từ lô hiện tại:
+   - BME688 CV ≤ 1%;
+   - MQ3 CV ≤ 1%;
+   - MQ135 CV hoặc drift ≤ 5%;
+   - dữ liệu hợp lệ ≥ 95%;
+   - không có gap > 3 giây.
+4. Nếu không đạt, tiếp tục warm-up/purge và không ghi run chính.
+
+Các ngưỡng trên là quality gate thực dụng ban đầu, cần hiệu chỉnh khi có nhiều dữ liệu hơn.
+
+### Giai đoạn E – Exposure
+
+1. Đồng bộ event `expose` với thời điểm nguồn khí thực sự đổi, tốt nhất bằng van/bơm có feedback.
+2. Nếu vẫn thao tác tay, bấm event ngay tại thời điểm đổi nguồn và ghi operator delay.
+3. Giữ exposure 120 giây cho các run so sánh trực tiếp.
+4. Không đổi khoảng cách hoặc vị trí đầu lấy mẫu trong khi đo.
+
+### Giai đoạn F – Recovery và blank
+
+1. Chuyển về khí phòng/blank và ghi event đúng thời điểm.
+2. Không dừng recovery chỉ vì đã đủ 60 giây. Tiếp tục cho tới khi từng cảm biến về trong ngưỡng, ví dụ ±5–10% baseline trong một cửa sổ liên tục.
+3. Nếu MQ135 không hồi phục, đánh dấu run MQ135 không đạt và tiếp tục purge trước mẫu sau.
+4. Thu blank giữa các người để phát hiện carry-over.
+
+### Giai đoạn G – Quy mô dữ liệu
+
+Cho giai đoạn khả thi tiếp theo:
+
+- Ít nhất 10–20 run/người.
+- Ít nhất 5 ngày khác nhau.
+- Mỗi ngày có tối thiểu 2 run/người ở cùng điều kiện chuẩn.
+- Mỗi phiên có đủ tất cả người cần so sánh và có blank đầu/cuối phiên.
 
 ---
 
-## 9. Tệp kết quả và khả năng tái tạo
+## 12. Pipeline làm sạch và phân tích sau khi thu
 
-- Script phân tích: [`../../analysis/analyze_new_batch.py`](../../analysis/analyze_new_batch.py)
-- Tóm tắt máy đọc: [`report_outputs/summary.json`](report_outputs/summary.json)
-- Danh sách 16 run: [`report_outputs/tables/run_manifest.csv`](report_outputs/tables/run_manifest.csv)
-- Chỉ số chất lượng: [`report_outputs/tables/run_quality.csv`](report_outputs/tables/run_quality.csv)
-- Đặc trưng từng run: [`report_outputs/tables/run_features.csv`](report_outputs/tables/run_features.csv)
-- Subset kiểm soát: [`report_outputs/tables/controlled_subset.csv`](report_outputs/tables/controlled_subset.csv)
-- Điểm các mô hình: [`report_outputs/tables/controlled_scores.csv`](report_outputs/tables/controlled_scores.csv)
+1. **Inventory:** kiểm tra đủ file, schema version và cấu hình.
+2. **Phân loại thư mục:** tách run chính khỏi warm-up/session.
+3. **Chống đếm trùng:** không coi raw của thư mục phiên và raw của run chính là hai mẫu.
+4. **Kiểm tra nhãn:** từ chối phân tích có giám sát nếu thiếu `person_code`, vị trí hoặc điều kiện.
+5. **Kiểm tra hàng:** status, fresh, heater, new-data, timing gap và ADC saturation.
+6. **Tách pha:** chỉ dùng baseline/exposure/recovery; MONITOR dùng cho warm-up QC.
+7. **Quality gate từng cảm biến:** một cảm biến lỗi không bắt buộc làm mất toàn bộ run.
+8. **Chuẩn hóa baseline:** dùng median baseline riêng của run và lưu cả giá trị tuyệt đối lẫn phần trăm thay đổi.
+9. **Trích đặc trưng:** mean, early/late response, min, max, slope, AUC, recovery; đồng thời lưu delta nhiệt độ/độ ẩm/áp suất.
+10. **Hai nhánh đánh giá:**
+    - nhánh A: BME688 chính;
+    - nhánh B: fusion BME688 + MQ135 + MQ3;
+    - luôn chạy ablation từng cảm biến để biết cảm biến nào thực sự đóng góp.
+11. **Chia dữ liệu:** chia theo ngày/phiên/người đo, không chia ngẫu nhiên từng dòng thời gian.
+12. **Báo cáo:** confusion matrix, balanced accuracy, macro-F1, khoảng cách cùng/khác người, số mẫu và khoảng tin cậy.
+
+Không được coi 240 dòng của một run là 240 mẫu độc lập. Đơn vị mẫu của bài toán nhận diện là **một run hoàn chỉnh**.
+
+---
+
+## 13. Kết luận dùng cho các bước tiếp theo
+
+1. Hệ thống thu dữ liệu ổn định về timing và cấu trúc; chưa cần ưu tiên sửa phần ghi file.
+2. Việc cần sửa ngay là metadata, đồng bộ chuyển nguồn khí, recovery thích ứng và quality gate riêng từng cảm biến.
+3. BME688 là cảm biến chính ổn định nhưng một mình chưa phân biệt được người trên phiên mới.
+4. MQ3 là cảm biến hứa hẹn nhất trong lô này, cần được kiểm chứng bằng nhiều ngày và môi trường cân bằng.
+5. MQ135 hiện là kênh thử nghiệm: baseline drift cao, recovery kém và làm giảm kết quả ở nhiều bộ đặc trưng. Chỉ sử dụng khi run đạt QC riêng.
+6. Không nên tăng độ phức tạp mô hình lúc này. Ưu tiên tăng số run lặp, cân bằng thiết kế và giảm confounding; sau đó mới đánh giá mô hình nâng cao.
+7. Mốc 62,5% hoặc 72,2% hiện tại chỉ là kết quả thăm dò trên 8 run, không phải độ chính xác vận hành.
+
+---
+
+## 14. Tệp kết quả
+
+- Script tái tạo: [`../../analysis/analyze_new_batch.py`](../../analysis/analyze_new_batch.py)
+- Tóm tắt: [`report_outputs/summary.json`](report_outputs/summary.json)
+- Audit toàn bộ trường: [`report_outputs/tables/field_audit_all_50_fields.csv`](report_outputs/tables/field_audit_all_50_fields.csv)
+- Audit metadata: [`report_outputs/tables/metadata_audit.csv`](report_outputs/tables/metadata_audit.csv)
+- Audit từng run: [`report_outputs/tables/run_audit.csv`](report_outputs/tables/run_audit.csv)
+- Biến đổi người/ngày: [`report_outputs/tables/person_day_changes.csv`](report_outputs/tables/person_day_changes.csv)
+- Bảng BME688: [`report_outputs/tables/model_table_main_bme688.csv`](report_outputs/tables/model_table_main_bme688.csv)
+- Bảng ba cảm biến: [`report_outputs/tables/model_table_all_3_sensors.csv`](report_outputs/tables/model_table_all_3_sensors.csv)
+- Ablation cảm biến: [`report_outputs/tables/sensor_ablation_scores.csv`](report_outputs/tables/sensor_ablation_scores.csv)
 - Dự đoán từng run: [`report_outputs/tables/controlled_predictions.csv`](report_outputs/tables/controlled_predictions.csv)
 
-Chạy lại toàn bộ phân tích từ thư mục gốc dự án:
+Chạy lại từ thư mục gốc dự án:
 
 ```powershell
-python analysis/analyze_new_batch.py
+& 'C:\Users\ADMIN\AppData\Local\Programs\Python\Python311\python.exe' 'analysis\analyze_new_batch.py'
 ```

@@ -1,0 +1,51 @@
+﻿field,group,dtype,rows,non_null,missing,missing_pct,unique,minimum,median,maximum,note
+run_id,Định danh/thời gian,str,10478,10478,0,0.0,16,,,,
+seq,Định danh/thời gian,int64,10478,10478,0,0.0,1947,1,340.0,1947,
+timestamp,Định danh/thời gian,str,10478,10478,0,0.0,10478,,,,
+elapsed_s,Định danh/thời gian,float64,10478,10478,0,0.0,10478,0.0427646150001237,339.461591127,1946.046074497,
+phase_elapsed_s,Định danh/thời gian,float64,10478,10478,0,0.0,10478,0.0142572400000062,95.83414293100009,1614.046068884,
+phase,Định danh/thời gian,str,10478,10478,0,0.0,7,,,,
+sensor_uptime_s,Định danh/thời gian,float64,10478,10478,0,0.0,10478,0.1970558190000702,957.2029455665001,2774.197221627,
+loop_interval_s,Timing đọc,float64,10478,10472,6,0.057262836419163965,10116,0.9847677019999992,0.9999997195000105,1.0122721839999258,6 giá trị trống ở mẫu đầu của 6 phiên phần cứng
+loop_duration_s,Timing đọc,float64,10478,10478,0,0.0,10464,0.2512794179999673,0.252029681999943,0.2839766679999229,
+schedule_lag_s,Timing đọc,float64,10478,10478,0,0.0,9986,2.187100000128339e-05,9.57215000312317e-05,0.0153297480001128,
+pump_command,Bơm,str,10478,10478,0,0.0,1,,,,Không có phản hồi vật lý từ bơm/nguồn khí
+external_pump_state,Bơm,str,10478,10478,0,0.0,1,,,,Không có phản hồi vật lý từ bơm/nguồn khí
+external_pump_source,Bơm,str,10478,10478,0,0.0,1,,,,Không có phản hồi vật lý từ bơm/nguồn khí
+temperature_c,BME688,float64,10478,10478,0,0.0,3822,30.39468002319336,34.17892265319824,37.17024993896485,
+humidity_pct,BME688,float64,10478,10478,0,0.0,10065,53.257022857666016,61.75720214843751,77.09632110595703,
+pressure_hpa,BME688,float64,10478,10478,0,0.0,7601,1010.724453125,1012.5841796875,1015.454609375,
+gas_resistance_ohm,BME688,float64,10478,10472,6,0.057262836419163965,1111,5684.84619140625,98461.5390625,108681.8046875,6 mẫu MONITOR đầu phiên bị loại do heater_stable=False; không ảnh hưởng pha lõi
+gas_valid,BME688,boolean,10478,10478,0,0.0,1,True,1.0,True,Cột hằng trong lô này; dùng để kiểm tra cấu hình/trạng thái
+heater_stable,BME688,boolean,10478,10478,0,0.0,2,False,1.0,True,
+new_data,BME688,boolean,10478,10478,0,0.0,1,True,1.0,True,Cột hằng trong lô này; dùng để kiểm tra cấu hình/trạng thái
+bme_status_bits,BME688,int64,10478,10478,0,0.0,2,160,176.0,176,
+bme_meas_index,BME688,int64,10478,10478,0,0.0,1,0,0.0,0,Cột hằng trong lô này; dùng để kiểm tra cấu hình/trạng thái
+bme_gas_index,BME688,int64,10478,10478,0,0.0,1,0,0.0,0,Cột hằng trong lô này; dùng để kiểm tra cấu hình/trạng thái
+bme_res_heat,BME688,int64,10478,10478,0,0.0,1,109,109.0,109,Cột hằng trong lô này; dùng để kiểm tra cấu hình/trạng thái
+bme_idac,BME688,int64,10478,10478,0,0.0,6,158,179.0,181,
+bme_gas_wait,BME688,int64,10478,10478,0,0.0,1,101,101.0,101,Cột hằng trong lô này; dùng để kiểm tra cấu hình/trạng thái
+bme_read_started_at,Timing đọc,str,10478,10478,0,0.0,10478,,,,
+bme_read_elapsed_s,Timing đọc,float64,10478,10478,0,0.0,10478,0.0428499100000863,339.4617022100001,1946.046172236,
+bme_read_duration_s,Timing đọc,float64,10478,10478,0,0.0,10207,0.1857724999999845,0.18582080749979463,0.200049722000017,
+bme_status,BME688,str,10478,10478,0,0.0,1,,,,Cột hằng trong lô này; dùng để kiểm tra cấu hình/trạng thái
+bme_error,BME688,float64,10478,0,10478,100.0,0,,,,Trống có chủ đích: mọi trạng thái đọc đều OK
+bme_fresh,BME688,boolean,10478,10478,0,0.0,1,True,1.0,True,Cột hằng trong lô này; dùng để kiểm tra cấu hình/trạng thái
+mq135_read_started_at,Timing đọc,str,10478,10478,0,0.0,10478,,,,
+mq135_read_elapsed_s,Timing đọc,float64,10478,10478,0,0.0,10478,0.2288300090001485,339.65022446050034,1946.231989496,
+mq135_read_duration_s,Timing đọc,float64,10478,10478,0,0.0,10402,0.0325481439999748,0.03309823299969135,0.0511135440001453,
+mq135_status,MQ135,str,10478,10478,0,0.0,1,,,,Cột hằng trong lô này; dùng để kiểm tra cấu hình/trạng thái
+mq135_error,MQ135,float64,10478,0,10478,100.0,0,,,,Trống có chủ đích: mọi trạng thái đọc đều OK
+mq135_fresh,MQ135,boolean,10478,10478,0,0.0,1,True,1.0,True,Cột hằng trong lô này; dùng để kiểm tra cấu hình/trạng thái
+mq135_adc_count,MQ135,int64,10478,10478,0,0.0,1526,372,939.5,2293,
+mq135_voltage_v,MQ135,float64,10478,10478,0,0.0,1526,0.0465,0.1174375,0.286625,
+mq135_ao_voltage_v,MQ135,float64,10478,0,10478,100.0,0,,,,Thiếu cấu hình: hệ số chia áp chưa được xác nhận
+mq3_read_started_at,Timing đọc,str,10478,10478,0,0.0,10478,,,,
+mq3_read_elapsed_s,Timing đọc,float64,10478,10478,0,0.0,10478,0.2648787260000063,339.684872519,1946.265168628,
+mq3_read_duration_s,Timing đọc,float64,10478,10478,0,0.0,10393,0.0324693190000289,0.032901557499940254,0.0520953779999899,
+mq3_status,MQ3,str,10478,10478,0,0.0,1,,,,Cột hằng trong lô này; dùng để kiểm tra cấu hình/trạng thái
+mq3_error,MQ3,float64,10478,0,10478,100.0,0,,,,Trống có chủ đích: mọi trạng thái đọc đều OK
+mq3_fresh,MQ3,boolean,10478,10478,0,0.0,1,True,1.0,True,Cột hằng trong lô này; dùng để kiểm tra cấu hình/trạng thái
+mq3_adc_count,MQ3,int64,10478,10478,0,0.0,658,2110,2637.0,3272,
+mq3_voltage_v,MQ3,float64,10478,10478,0,0.0,658,0.26375,0.329625,0.409,
+mq3_ao_voltage_v,MQ3,float64,10478,0,10478,100.0,0,,,,Thiếu cấu hình: hệ số chia áp chưa được xác nhận

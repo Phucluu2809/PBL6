@@ -34,11 +34,11 @@
   "different_person_median_distance": 5.7103066349846205,
   "distance_separation_ratio": 1.1159676440452124,
   "best_classifier": {
-    "feature_set": "Chỉ mean (3)",
+    "feature_set": "MQ3 (5)",
     "method": "Nearest centroid",
-    "accuracy": 0.625,
-    "balanced_accuracy": 0.611111111111111,
-    "macro_f1": 0.5857142857142857
+    "accuracy": 0.75,
+    "balanced_accuracy": 0.7222222222222222,
+    "macro_f1": 0.7301587301587301
   },
   "pca_all_explained": [
     0.4573035791932242,
@@ -47,5 +47,32 @@
   "pca_controlled_explained": [
     0.3679429486943272,
     0.3041664885554328
-  ]
+  ],
+  "raw_field_count": 50,
+  "all_null_fields": [
+    "bme_error",
+    "mq135_error",
+    "mq135_ao_voltage_v",
+    "mq3_error",
+    "mq3_ao_voltage_v"
+  ],
+  "loop_interval_missing": 6,
+  "duplicate_timestamps": 0,
+  "duplicate_run_seq": 0,
+  "heater_unstable_core_rows": 0,
+  "adc_saturation_rows": 0,
+  "wait_exposure_range_s": [
+    6.1270011719998365,
+    63.33341257500001
+  ],
+  "wait_recovery_range_s": [
+    2.4042059199999812,
+    43.07732259800014
+  ],
+  "metadata_empty_core_labels": {
+    "notes": 16,
+    "person_code": 16,
+    "source": 16,
+    "distance_cm": 16
+  }
 }
