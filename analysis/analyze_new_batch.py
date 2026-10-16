@@ -250,7 +250,6 @@ def grouped_predict(columns: list[str], method: str) -> pd.DataFrame:
 
 feature_sets = {
     "BME gas (5)": [c for c in dynamic_features if c.startswith("bme__")],
-    "BME đầy đủ (20)": [c for c in dynamic_features if c.startswith("bme__")] + environment_response_features,
     "MQ3 (5)": [c for c in dynamic_features if c.startswith("mq3__")],
     "MQ135 (5)": [c for c in dynamic_features if c.startswith("mq135__")],
     "BME + MQ3 (10)": [c for c in dynamic_features if c.startswith(("bme__", "mq3__"))],
@@ -665,6 +664,27 @@ plt.ylabel("Run")
 plt.tight_layout()
 savefig("18_environment_phase_changes.png")
 
+# Figures 19-21: sensor-specific controlled curves, matching the readable README style.
+session_palette = dict(zip(controlled["session_id"].unique(), sns.color_palette("colorblind", controlled["session_id"].nunique())))
+for figure_number, signal in zip([19, 20, 21], SIGNALS):
+    fig, axes = plt.subplots(1, 3, figsize=(17, 5.5), sharex=True, sharey=False)
+    for ax, person in zip(axes, ["Minh", "Quy", "Tài"]):
+        person_runs = controlled[controlled["person"].eq(person)]
+        for _, run in person_runs.iterrows():
+            trace = aligned[aligned["folder"].eq(run["folder"])].sort_values("aligned_s")
+            label = f"{run['date'][5:]} {run['time'][:5]}"
+            ax.plot(
+                trace["aligned_s"], trace[f"{signal}_pct"],
+                color=session_palette[run["session_id"]], linewidth=1.8, label=label,
+            )
+        ax.axvline(120, color="black", linestyle="--", linewidth=.8)
+        ax.axhline(0, color="grey", linewidth=.8)
+        ax.set(title=person, xlabel="Exposure 0–120 s | Recovery 120–180 s", ylabel="Δ baseline (%)")
+        ax.legend(fontsize=8, title="Ngày giờ")
+    fig.suptitle(f"{SIGNAL_LABEL[signal]} – độ lặp lại theo người trong subset bụng/không áo", fontsize=15, y=1.02)
+    plt.tight_layout()
+    savefig(f"{figure_number:02d}_{PREFIX[signal]}_controlled_curves.png")
+
 # Tables and summary.
 runs.to_csv(TABLE / "run_manifest.csv", index=False, encoding="utf-8-sig")
 integrity.to_csv(TABLE / "integrity.csv", index=False, encoding="utf-8-sig")
@@ -679,7 +699,7 @@ metadata_audit.to_csv(TABLE / "metadata_audit.csv", index=False, encoding="utf-8
 phase_durations.to_csv(TABLE / "phase_durations.csv", index=False, encoding="utf-8-sig")
 run_audit.to_csv(TABLE / "run_audit.csv", index=False, encoding="utf-8-sig")
 person_day.to_csv(TABLE / "person_day_changes.csv", index=False, encoding="utf-8-sig")
-scores[scores["feature_set"].str.startswith("BME")].to_csv(TABLE / "model_table_main_bme688.csv", index=False, encoding="utf-8-sig")
+scores[scores["feature_set"].eq("BME gas (5)")].to_csv(TABLE / "model_table_main_bme688.csv", index=False, encoding="utf-8-sig")
 scores[scores["feature_set"].str.startswith("Cả 3")].to_csv(TABLE / "model_table_all_3_sensors.csv", index=False, encoding="utf-8-sig")
 scores[scores["feature_set"].eq("BME + MQ3 (10)")].to_csv(TABLE / "model_table_bme688_mq3.csv", index=False, encoding="utf-8-sig")
 scores[scores["feature_set"].isin(["MQ3 (5)", "MQ135 (5)", "BME + MQ3 (10)", "BME + MQ135 (10)"])].to_csv(TABLE / "sensor_ablation_scores.csv", index=False, encoding="utf-8-sig")
