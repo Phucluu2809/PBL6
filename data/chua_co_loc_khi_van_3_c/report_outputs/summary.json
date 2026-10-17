@@ -1,11 +1,13 @@
 {
   "folders_total": 22,
-  "collect_runs": 16,
-  "warmup_session_folders": 6,
+  "collect_runs": 15,
+  "warmup_folders": 7,
+  "numeric_session_folders": 6,
+  "named_warmup_folders": 1,
   "all_files_valid": true,
-  "collect_rows": 10478,
-  "core_rows": 3840,
-  "minimum_sensor_valid_pct": 99.8046875,
+  "collect_rows": 9966,
+  "core_rows": 3600,
+  "minimum_sensor_valid_pct": 99.88864142538975,
   "all_collect_rows_repeated_in_sessions": true,
   "known_people": [
     "Dũng",
@@ -17,8 +19,7 @@
     "Tài": 5,
     "Minh": 4,
     "Quy": 4,
-    "Dũng": 2,
-    "Không rõ": 1
+    "Dũng": 2
   },
   "controlled_subset_runs": 8,
   "controlled_person_counts": {
@@ -41,8 +42,8 @@
     "macro_f1": 0.7301587301587301
   },
   "pca_all_explained": [
-    0.4573035791932242,
-    0.2567480433182706
+    0.5526599689049599,
+    0.1465308644444396
   ],
   "pca_controlled_explained": [
     0.3679429486943272,
@@ -56,7 +57,7 @@
     "mq3_error",
     "mq3_ao_voltage_v"
   ],
-  "loop_interval_missing": 6,
+  "loop_interval_missing": 5,
   "duplicate_timestamps": 0,
   "duplicate_run_seq": 0,
   "heater_unstable_core_rows": 0,
@@ -66,13 +67,13 @@
     63.33341257500001
   ],
   "wait_recovery_range_s": [
-    2.4042059199999812,
+    3.4772687780000524,
     43.07732259800014
   ],
   "metadata_empty_core_labels": {
-    "notes": 16,
-    "person_code": 16,
-    "source": 16,
-    "distance_cm": 16
+    "notes": 15,
+    "person_code": 15,
+    "source": 15,
+    "distance_cm": 15
   }
 }

@@ -122,6 +122,7 @@ save("17_person_model_comparison_simple.png")
 
 # 4. Data-usability funnel and experimental-design coverage.
 manifest = pd.read_csv(SOURCE / "run_manifest.csv")
+integrity = pd.read_csv(SOURCE / "integrity.csv")
 known = manifest[manifest["person"].ne("Không rõ")].copy()
 standard = known[
     known["location"].isin(["Ngực", "Bụng"])
@@ -129,8 +130,11 @@ standard = known[
     & known["condition"].eq("Thông thường")
 ]
 funnel = pd.DataFrame({
-    "Tầng dữ liệu": ["Tổng thư mục", "Run chính", "Biết người", "Ngực/bụng\nkhông áo", "Subset so sánh\nbụng–không áo"],
-    "Số lượng": [22, len(manifest), len(known), len(standard), len(controlled)],
+    "Tầng dữ liệu": [
+        "Thư mục trên đĩa", "Sau lọc toàn bộ\nwarm-up",
+        "Ngực/bụng\nkhông áo", "Subset so sánh\nbụng–không áo",
+    ],
+    "Số lượng": [len(integrity), len(manifest), len(standard), len(controlled)],
 })
 
 coverage = manifest.copy()
@@ -143,11 +147,11 @@ coverage["Điều kiện"] = coverage.apply(
 )
 coverage_order = [
     "Bụng / Không áo", "Ngực / Không áo", "Ngực / Có áo",
-    "Đầu gối / Không rõ", "Sau tắm / chưa rõ vị trí", "Chưa rõ nhãn/điều kiện",
+    "Đầu gối / Không rõ", "Sau tắm / chưa rõ vị trí",
 ]
 coverage_table = (
     coverage.pivot_table(index="person", columns="Điều kiện", values="folder", aggfunc="count", fill_value=0)
-    .reindex(index=["Minh", "Quy", "Tài", "Dũng", "Không rõ"], columns=coverage_order, fill_value=0)
+    .reindex(index=["Minh", "Quy", "Tài", "Dũng"], columns=coverage_order, fill_value=0)
 )
 
 fig, axes = plt.subplots(1, 2, figsize=(16, 6.5), gridspec_kw={"width_ratios": [1, 1.6]})

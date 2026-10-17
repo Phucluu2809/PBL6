@@ -81,7 +81,9 @@ def slope(t: pd.Series, y: pd.Series) -> float:
 # Inventory and integrity.
 run_dirs = sorted(p for p in DATA_ROOT.glob("2026-*/*") if p.is_dir())
 session_dirs = [p for p in run_dirs if SESSION_RE.match(p.name)]
-collect_dirs = [p for p in run_dirs if not SESSION_RE.match(p.name)]
+named_warmup_dirs = [p for p in run_dirs if p.name.lower().startswith("hihi_")]
+warmup_dirs = session_dirs + named_warmup_dirs
+collect_dirs = [p for p in run_dirs if p not in warmup_dirs]
 integrity_rows = []
 for directory in run_dirs:
     errors = []
@@ -101,7 +103,13 @@ for directory in run_dirs:
                         errors.append(f"invalid_png:{filename}")
         except Exception as exc:
             errors.append(f"{filename}:{type(exc).__name__}")
-    integrity_rows.append({"folder": directory.name, "kind": "warmup/session" if directory in session_dirs else "collect", "errors": " | ".join(errors), "valid": not errors})
+    if directory in session_dirs:
+        kind = "warmup/session-numbered"
+    elif directory in named_warmup_dirs:
+        kind = "warmup/named"
+    else:
+        kind = "collect"
+    integrity_rows.append({"folder": directory.name, "kind": kind, "errors": " | ".join(errors), "valid": not errors})
 integrity = pd.DataFrame(integrity_rows)
 
 # Load warm-up/session files. They are supersets containing repeated collect rows.
@@ -713,7 +721,9 @@ for warning_text in runs["warnings"].dropna():
 same = pair_distances[pair_distances["same_person"]]["distance"]
 different = pair_distances[~pair_distances["same_person"]]["distance"]
 summary = {
-    "folders_total": len(run_dirs), "collect_runs": len(collect_dirs), "warmup_session_folders": len(session_dirs),
+    "folders_total": len(run_dirs), "collect_runs": len(collect_dirs),
+    "warmup_folders": len(warmup_dirs), "numeric_session_folders": len(session_dirs),
+    "named_warmup_folders": len(named_warmup_dirs),
     "all_files_valid": bool(integrity["valid"].all()), "collect_rows": int(len(raw_all)),
     "core_rows": int(norm["phase"].isin(["BASELINE", "EXPOSURE", "RECOVERY"]).sum()),
     "minimum_sensor_valid_pct": float(quality[[c for c in quality if c.endswith("__valid_pct")]].min().min()),

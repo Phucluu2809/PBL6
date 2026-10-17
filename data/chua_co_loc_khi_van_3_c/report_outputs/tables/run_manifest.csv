@@ -1,5 +1,4 @@
 ﻿folder,run_id,person,location,clothing,condition,started_at,date,time,session_id,rows,status,baseline_stable,warning_count,warnings,rows_repeated_in_session,repeated_pct
-hihi_20261013_204946_06bec06c8e9644248819563d66f6ec6e,06bec06c8e9644248819563d66f6ec6e,Không rõ,Không rõ,Không rõ,Nhãn hihi,2026-10-13 20:49:46.916327+07:00,2026-10-13,20:49:46,S1: 13/10 20:49,512,COMPLETE,True,0,,512,100.0
 anhdung_daugoi_20261013_210342_9df3c0be58094f2f956cf6a3d1fc0769,9df3c0be58094f2f956cf6a3d1fc0769,Dũng,Đầu gối,Không rõ,Thông thường,2026-10-13 21:03:42.779495+07:00,2026-10-13,21:03:42,S2: 13/10 21:03,1497,COMPLETE,True,0,,1497,100.0
 tai_nguc_coao_20261013_212913_aba9f0d8158743e7b0c720f596b55a9b,aba9f0d8158743e7b0c720f596b55a9b,Tài,Ngực,Có áo,Thông thường,2026-10-13 21:29:13.736332+07:00,2026-10-13,21:29:13,S2: 13/10 21:03,410,COMPLETE,True,0,,410,100.0
 aMinh_nguc_khongao_20261013_213637_e5561f0c05504090a4bd76ae0d777e82,e5561f0c05504090a4bd76ae0d777e82,Minh,Ngực,Không áo,Thông thường,2026-10-13 21:36:37.164755+07:00,2026-10-13,21:36:37,S2: 13/10 21:03,323,COMPLETE,True,0,,323,100.0

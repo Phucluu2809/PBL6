@@ -16,8 +16,8 @@ README này là báo cáo phân tích đầy đủ cho lô dữ liệu [`data/ch
 ### 1.1. Điều đã chứng minh được từ lô dữ liệu
 
 - Hệ thống ghi dữ liệu 1 Hz ổn định, không có timestamp trùng, không bão hòa ADC và không có heater bất ổn trong ba pha phân tích.
-- BME688 và MQ3 có baseline ổn định trên cả 16 run chính.
-- MQ135 xuất hiện một chế độ lỗi rõ từ phiên S4 trở đi: baseline CV tăng lên 25–47%, 8/16 run bị cảnh báo drift và 10/16 run bị cảnh báo chưa hồi phục.
+- BME688 và MQ3 có baseline ổn định trên cả 15 run nghiên cứu hợp lệ.
+- MQ135 xuất hiện một chế độ lỗi rõ từ phiên S4 trở đi: baseline CV tăng lên 25–47%, 8/15 run bị cảnh báo drift và 10/15 run bị cảnh báo chưa hồi phục.
 - Trong 8 run bụng–không áo, MQ3 tạo ba khoảng mean không chồng lấn giữa Minh, Quy và Tài.
 - Trong hai phiên có đủ cả ba người, thứ tự MQ3 đều là `Minh > Quy > Tài` dù thứ tự đo người thay đổi.
 - Mô hình MQ3 nearest-centroid đạt accuracy 75,0%, balanced accuracy 72,2% và macro-F1 73,0% khi đánh giá leave-one-session-out.
@@ -27,7 +27,6 @@ README này là báo cáo phân tích đầy đủ cho lô dữ liệu [`data/ch
 - Chưa thể khẳng định MQ3 đang học đúng “mùi của người” thay vì hiệu ứng ngày, phiên, vị trí hoặc quy trình lấy mẫu.
 - Chưa thể đánh giá ảnh hưởng riêng của áo, vị trí ngực/bụng hoặc sau tắm vì các yếu tố này không được đo theo thiết kế đối chứng.
 - Chưa thể đánh giá Dũng trong bài toán nhận diện vì hai run của Dũng khác cả ngày, vị trí và trạng thái sau tắm.
-- Chưa thể dùng `hihi` cho supervised learning vì không có nhãn người và điều kiện.
 - Chưa thể đánh giá hiệu năng triển khai từ 8 run và 3 phiên.
 
 ### 1.3. Quyết định kỹ thuật đề xuất
@@ -47,13 +46,13 @@ README này là báo cáo phân tích đầy đủ cho lô dữ liệu [`data/ch
 
 ### 2.1. Có bao nhiêu mẫu thực sự?
 
-Thư mục có tên bằng chữ là run thu mẫu chính. Thư mục chỉ có timestamp và UUID là thư mục phiên/warm-up.
+Không thể chỉ dựa vào việc tên thư mục có chữ hay số để quyết định đó là mẫu nghiên cứu. Theo ghi chú thu thập, sáu thư mục tên số và thư mục bắt đầu bằng `hihi_` đều chỉ là dữ liệu warm-up. Pipeline đánh dấu bảy thư mục này là `warmup`, loại hoàn toàn khỏi thống kê, biểu đồ, PCA và mô hình.
 
 | Cấp dữ liệu | Số lượng | Vai trò |
 |---|---:|---|
-| Tổng thư mục | 22 | 16 run chính + 6 thư mục phiên |
-| Run chính | 16 | Đơn vị phân tích ban đầu |
-| Run biết người | 15 | Loại `hihi` chưa rõ nhãn |
+| Tổng thư mục trên đĩa | 22 | Kiểm tra toàn vẹn file |
+| Thư mục warm-up bị loại | 7 | 6 thư mục tên số + 1 thư mục `hihi_...` |
+| Run nghiên cứu hợp lệ | 15 | Đơn vị phân tích thực tế |
 | Run ngực/bụng, không áo, điều kiện thường | 12 | Có thể mô tả nhưng khác vị trí |
 | Run bụng–không áo dùng so sánh người | 8 | Subset kiểm soát chính |
 
@@ -61,9 +60,9 @@ Thư mục có tên bằng chữ là run thu mẫu chính. Thư mục chỉ có 
 
 Điểm quan trọng nhất của biểu đồ:
 
-- 22 thư mục không có nghĩa là 22 mẫu độc lập.
-- Toàn bộ 10.478 dòng của 16 run chính đã xuất hiện lại trong 6 file phiên.
-- Nếu đưa đồng thời run chính và thư mục phiên vào train/test, mô hình sẽ nhìn thấy lại cùng dữ liệu và tạo accuracy giả.
+- 22 thư mục không có nghĩa là 22 mẫu độc lập; chỉ 15 thư mục là run nghiên cứu.
+- Toàn bộ 9.966 dòng của 15 run hợp lệ đã xuất hiện lại trong sáu file phiên/warm-up tên số.
+- Nếu đưa các thư mục warm-up vào train/test, mô hình sẽ vừa nhận dữ liệu không có giá trị nghiên cứu, vừa nhìn thấy lại cùng chuỗi đo và tạo accuracy giả.
 - Chỉ 8 run cuối cùng đủ gần nhau về vị trí, áo và trạng thái để thử bài toán người.
 
 ### 2.2. Phân bố theo người
@@ -74,15 +73,13 @@ Thư mục có tên bằng chữ là run thu mẫu chính. Thư mục chỉ có 
 | Minh | 4 | 2 | Ngực không áo ×2, bụng không áo ×2 |
 | Quy | 4 | 3 | Ngực không áo, bụng không áo ×3 |
 | Dũng | 2 | 0 | Đầu gối; sau tắm không rõ vị trí |
-| Không rõ (`hihi`) | 1 | 0 | Không rõ người, vị trí và áo |
 
-Thiết kế đang mất cân bằng theo cả người lẫn điều kiện. Dữ liệu nhiều nhất không phải là 16 mẫu cho cùng một bài toán, mà là nhiều thí nghiệm nhỏ đang trộn trong một lô.
+Thiết kế đang mất cân bằng theo cả người lẫn điều kiện. Dữ liệu nhiều nhất không phải là 15 mẫu cho cùng một bài toán, mà là nhiều thí nghiệm nhỏ đang trộn trong một lô.
 
-### 2.3. Sáu phiên đo
+### 2.3. Năm phiên có mẫu nghiên cứu
 
 | Phiên | Thời điểm bắt đầu | Run trong phiên | Giá trị đối với bài toán người |
 |---|---|---|---|
-| S1 | 13/10 20:49 | `hihi` | Không có nhãn |
 | S2 | 13/10 21:03 | Dũng, Tài, Minh, Quy | Khác vị trí/áo; chỉ mô tả |
 | S3 | 14/10 11:03 | Minh, Tài | Cùng ngực–không áo nhưng thiếu Quy |
 | S4 | 14/10 23:52 | Quy, Tài | Cùng bụng–không áo nhưng thiếu Minh |
@@ -106,7 +103,7 @@ signals.png       # tín hiệu tuyệt đối
 normalized.png    # tín hiệu chuẩn hóa theo baseline
 ```
 
-Tất cả 22 thư mục đều có đủ file, JSON/CSV đọc được và PNG có header hợp lệ.
+Tất cả 22 thư mục trên đĩa đều có đủ file, JSON/CSV đọc được và PNG có header hợp lệ. Phân tích nội dung bên dưới chỉ dùng 15 run nghiên cứu; bảy thư mục warm-up chỉ được giữ trong bước kiểm kê để chứng minh việc lọc đúng.
 
 ### 3.1. Nhóm trường raw
 
@@ -128,8 +125,8 @@ Audit chi tiết từng trường nằm tại [`field_audit_all_50_fields.csv`](
 |---|---:|---|
 | `bme_error`, `mq135_error`, `mq3_error` | 100% | Trống có chủ đích vì mọi lượt đọc đều có status `OK` |
 | `mq135_ao_voltage_v`, `mq3_ao_voltage_v` | 100% | Hệ số chia áp chưa được xác nhận nên không thể suy ra điện áp AO |
-| `loop_interval_s` | 6 dòng | Dòng đầu của sáu phiên không có khoảng thời gian trước đó |
-| `gas_resistance_ohm` sau lọc hợp lệ | 6 dòng | Sáu dòng MONITOR đầu phiên có `heater_stable=False`; không nằm trong pha lõi |
+| `loop_interval_s` | 5 dòng | Dòng đầu của năm phiên có mẫu nghiên cứu không có khoảng thời gian trước đó |
+| `gas_resistance_ohm` sau lọc hợp lệ | 5 dòng | Năm dòng MONITOR đầu phiên có `heater_stable=False`; không nằm trong pha lõi |
 
 Không nên tự động xóa cột chỉ vì 100% null. Ba cột `*_error` trống là dấu hiệu không có lỗi đọc; hai cột AO trống lại là lỗi thiếu cấu hình cần sửa.
 
@@ -137,12 +134,12 @@ Không nên tự động xóa cột chỉ vì 100% null. Ba cột `*_error` tr�
 
 Phần vận hành được ghi tương đối đầy đủ và nhất quán:
 
-- 16/16 run có status `COMPLETE` và kết thúc bằng `user finish`.
-- 16/16 ghi buồng đóng, hút khí qua ống và đổi nguồn khí bằng tay.
-- 16/16 ghi purge bằng cách chuyển đầu lấy khí về vị trí khí phòng.
+- 15/15 run có status `COMPLETE` và kết thúc bằng `user finish`.
+- 15/15 ghi buồng đóng, hút khí qua ống và đổi nguồn khí bằng tay.
+- 15/15 ghi purge bằng cách chuyển đầu lấy khí về vị trí khí phòng.
 - Cấu hình chung: 1 Hz, baseline 60 giây, exposure 120 giây, recovery 60 giây.
 
-Nhưng bốn trường quan trọng cho nghiên cứu đều trống 16/16:
+Nhưng bốn trường quan trọng cho nghiên cứu đều trống 15/15:
 
 - `person_code`;
 - `source`;
@@ -151,29 +148,29 @@ Nhưng bốn trường quan trọng cho nghiên cứu đều trống 16/16:
 
 Nhãn hiện được suy ra từ tên folder. Đây là rủi ro lớn vì đổi tên folder có thể làm mất hoặc làm sai ground truth.
 
-### 3.4. Dải giá trị raw trên toàn bộ 10.478 dòng
+### 3.4. Dải giá trị raw trên toàn bộ 9.966 dòng hợp lệ
 
 Các khoảng dưới đây tính trên tất cả pha, kể cả MONITOR và các pha chờ. Chúng dùng để audit phần cứng, không dùng trực tiếp làm fingerprint người.
 
 | Trường | Min | Trung vị | Max | Nhận xét |
 |---|---:|---:|---:|---|
-| `temperature_c` | 30,395°C | 34,179°C | 37,170°C | Biên toàn log rộng hơn biên baseline pha lõi |
-| `humidity_pct` | 53,257% | 61,757% | 77,096% | Chịu ảnh hưởng warm-up và thời gian phiên |
-| `pressure_hpa` | 1.010,724 | 1.012,584 | 1.015,455 | Dùng kiểm soát môi trường |
-| `gas_resistance_ohm` | 5.685 Ω | 98.462 Ω | 108.682 Ω | Min nằm trong warm-up đầu phiên, không dùng phân tích lõi |
-| `mq135_adc_count` | 372 | 940 | 2.293 | Cách xa ngưỡng saturation 32.700 |
-| `mq135_voltage_v` | 0,0465 V | 0,1174 V | 0,2866 V | Điện áp tại đầu vào ADS1115 |
-| `mq3_adc_count` | 2.110 | 2.637 | 3.272 | Cách xa ngưỡng saturation 32.700 |
-| `mq3_voltage_v` | 0,2638 V | 0,3296 V | 0,4090 V | Điện áp tại đầu vào ADS1115 |
-| `sensor_uptime_s` | 0,20 s | 957,20 s | 2.774,20 s | Thời gian warm-up trước run không đồng nhất |
+| `temperature_c` | 30,395°C | 34,205°C | 37,170°C | Biên toàn log rộng hơn biên baseline pha lõi |
+| `humidity_pct` | 53,257% | 61,521% | 77,096% | Chịu ảnh hưởng thời gian trong phiên |
+| `pressure_hpa` | 1.010,724 | 1.012,537 | 1.015,455 | Dùng kiểm soát môi trường |
+| `gas_resistance_ohm` | 5.685 Ω | 98.689 Ω | 108.682 Ω | Min nằm ở MONITOR đầu phiên, không dùng phân tích lõi |
+| `mq135_adc_count` | 372 | 1.011,5 | 2.293 | Cách xa ngưỡng saturation 32.700 |
+| `mq135_voltage_v` | 0,0465 V | 0,1264 V | 0,2866 V | Điện áp tại đầu vào ADS1115 |
+| `mq3_adc_count` | 2.110 | 2.640 | 3.272 | Cách xa ngưỡng saturation 32.700 |
+| `mq3_voltage_v` | 0,2638 V | 0,3300 V | 0,4090 V | Điện áp tại đầu vào ADS1115 |
+| `sensor_uptime_s` | 0,20 s | 1.009,22 s | 2.774,20 s | Thời gian warm-up trước run không đồng nhất |
 
 ADC không bão hòa, nhưng việc chưa xác nhận divider factor khiến điện áp AO thật của MQ135/MQ3 chưa biết. So sánh tương đối trong cùng cấu hình vẫn dùng được; so sánh tuyệt đối với datasheet hoặc thiết bị khác thì chưa.
 
 ### 3.5. Các cột trạng thái và cấu hình
 
-- `bme_status`, `mq135_status`, `mq3_status` đều là `OK` trên 10.478 dòng.
+- `bme_status`, `mq135_status`, `mq3_status` đều là `OK` trên 9.966 dòng.
 - `gas_valid`, `new_data`, `bme_fresh`, `mq135_fresh`, `mq3_fresh` không có dòng `False`.
-- `heater_stable=False` xuất hiện đúng 6 dòng đầu MONITOR của 6 phiên; pha lõi không có dòng heater lỗi.
+- `heater_stable=False` xuất hiện đúng 5 dòng đầu MONITOR của 5 phiên có mẫu nghiên cứu; pha lõi không có dòng heater lỗi.
 - Các trường register như `bme_res_heat`, `bme_idac`, `bme_gas_wait`, status bits và gas index có giá trị audit cấu hình/driver, không phải đặc trưng mùi.
 - Các timestamp đọc riêng từng cảm biến và `*_read_duration_s` dùng kiểm tra thứ tự/timing, không được đưa vào mô hình để tránh mô hình học dấu phiên hoặc tải hệ thống.
 
@@ -189,19 +186,19 @@ ADC không bão hòa, nhưng việc chưa xác nhận divider factor khiến đi
 | `BASELINE` | 60 giây | Có | Nền riêng của từng run |
 | `WAIT_EXPOSURE` | 6,13–63,33 giây | Không | Chờ thao tác đưa nguồn mùi vào |
 | `EXPOSURE` | 120 giây | Có | Đo đáp ứng với mẫu |
-| `WAIT_RECOVERY` | 2,40–43,08 giây | Không | Chờ chuyển lại khí phòng |
+| `WAIT_RECOVERY` | 3,48–43,08 giây | Không | Chờ chuyển lại khí phòng |
 | `RECOVERY` | 60 giây | Có cho QC | Kiểm tra hồi phục |
 | `WAIT_FINISH` | 1,52–35,54 giây | Không | Chờ xác nhận kết thúc |
 
-Trong 10.478 dòng run chính:
+Trong 9.966 dòng của 15 run nghiên cứu:
 
-- `MONITOR`: 5.900 dòng;
-- `BASELINE`: 960 dòng;
-- `EXPOSURE`: 1.920 dòng;
-- `RECOVERY`: 960 dòng;
-- các pha chờ: 738 dòng.
+- `MONITOR`: 5.642 dòng;
+- `BASELINE`: 900 dòng;
+- `EXPOSURE`: 1.800 dòng;
+- `RECOVERY`: 900 dòng;
+- các pha chờ: 724 dòng.
 
-Ba pha lõi có 3.840 dòng, tương đương 36,6% dữ liệu run chính. Mỗi run có đúng 60 baseline + 120 exposure + 60 recovery = 240 dòng lõi.
+Ba pha lõi có 3.600 dòng, tương đương 36,1% dữ liệu hợp lệ. Mỗi run có đúng 60 baseline + 120 exposure + 60 recovery = 240 dòng lõi.
 
 ### 4.2. Lọc dữ liệu hợp lệ
 
@@ -247,13 +244,12 @@ Ba cảm biến tạo 15 đặc trưng. `early20`, AUC và recovery vẫn đư�
 
 ---
 
-## 5. Toàn bộ 16 run chính
+## 5. Toàn bộ 15 run nghiên cứu
 
 Bảng dưới đây dùng mean của toàn bộ exposure, theo phần trăm so với baseline của từng run.
 
 | Ngày giờ | Người | Vị trí / áo / trạng thái | BME688 | MQ135 | MQ3 |
 |---|---|---|---:|---:|---:|
-| 13/10 20:49 | Không rõ | Không rõ, nhãn `hihi` | +4,25% | +0,04% | -0,35% |
 | 13/10 21:03 | Dũng | Đầu gối | -2,13% | -0,35% | -0,11% |
 | 13/10 21:29 | Tài | Ngực, có áo | -1,18% | +0,17% | -0,05% |
 | 13/10 21:36 | Minh | Ngực, không áo | -1,14% | -0,04% | -0,08% |
@@ -280,7 +276,6 @@ Bảng dưới đây dùng mean của toàn bộ exposure, theo phần trăm so 
 
 Các outlier rõ nhất:
 
-- `hihi`: BME tăng +4,25% và còn +8,44% cuối recovery;
 - Minh ngực ngày 14/10: cả MQ135 và MQ3 giảm rất mạnh;
 - Dũng sau tắm: MQ135 +16,82%, nhưng chính run này có MQ135 baseline CV 47,16%;
 - Minh bụng: MQ3 nổi bật ở cả hai phiên kiểm soát.
@@ -297,7 +292,7 @@ Các outlier rõ nhất:
 | Cặp `run_id + seq` trùng | 0 |
 | Heater bất ổn trong pha lõi | 0 dòng |
 | ADC saturation MQ135/MQ3 | 0 dòng |
-| Tỷ lệ hợp lệ thấp nhất của một kênh/run | 99,80% |
+| Tỷ lệ hợp lệ thấp nhất của một kênh/run | 99,89% |
 | Loop interval lớn nhất | 1,012 giây |
 | Loop duration lớn nhất | 0,284 giây |
 | Schedule lag lớn nhất | 0,015 giây |
@@ -320,7 +315,7 @@ Nhịp 1 Hz lặp lại tốt. Ngược lại, thời gian chờ thao tác bằn
 
 ### 6.3. Trạng thái bơm
 
-Trên toàn bộ 10.478 dòng:
+Trên toàn bộ 9.966 dòng hợp lệ:
 
 - `pump_command = DISABLED`;
 - `external_pump_state = unknown`;
@@ -336,8 +331,8 @@ Metadata nói có hút khí qua ống nhưng hệ thống không có feedback v�
 
 | Cảm biến | Baseline CV trung vị | CV lớn nhất | Drift warning | Recovery warning | Đánh giá |
 |---|---:|---:|---:|---:|---|
-| BME688 | 0,33% | 0,86% | 0 | 0 | Nền tốt |
-| MQ135 | 25,87% | 47,16% | 8/16 | 10/16 | Không đạt ở nhiều run |
+| BME688 | 0,33% | 0,46% | 0 | 0 | Nền tốt |
+| MQ135 | 26,65% | 47,16% | 8/15 | 10/15 | Không đạt ở nhiều run |
 | MQ3 | 0,19% | 0,35% | 0 | 0 | Nền tốt |
 
 ![QC chi tiết từng run](data/chua_co_loc_khi_van_3_c/report_outputs/figures/04_quality_control.png)
@@ -499,10 +494,6 @@ Dũng có hai run:
 
 Khác biệt lớn nhưng bị confound bởi vị trí, ngày và lỗi MQ135. Run sau tắm có MQ135 baseline CV 47,16%, nên không thể dùng để nói tắm làm tín hiệu tăng.
 
-### 9.4. Mẫu `hihi`
-
-`hihi` không có nhãn người, vị trí hay áo. Nó chỉ có thể dùng để QC hoặc phát hiện outlier. Gán nhãn lại chỉ nên thực hiện nếu có sổ ghi chép bên ngoài đáng tin cậy; không nên đoán từ hình dạng tín hiệu.
-
 ---
 
 ## 10. Nhiệt độ, độ ẩm và áp suất
@@ -511,9 +502,9 @@ Khác biệt lớn nhưng bị confound bởi vị trí, ngày và lỗi MQ135. 
 
 | Biến | Min | Trung vị | Max |
 |---|---:|---:|---:|
-| Nhiệt độ nền | 32,57°C | 34,11°C | 34,67°C |
-| Độ ẩm nền | 55,01% | 60,12% | 68,02% |
-| Áp suất nền | 1.010,83 hPa | 1.012,36 hPa | 1.013,49 hPa |
+| Nhiệt độ nền | 32,57°C | 34,12°C | 34,67°C |
+| Độ ẩm nền | 55,01% | 60,06% | 66,12% |
+| Áp suất nền | 1.010,83 hPa | 1.012,35 hPa | 1.013,49 hPa |
 
 ![Môi trường theo người và ngày](data/chua_co_loc_khi_van_3_c/report_outputs/figures/15_person_day_environment.png)
 
@@ -523,9 +514,9 @@ Khác biệt lớn nhưng bị confound bởi vị trí, ngày và lỗi MQ135. 
 
 | Biến | Min | Trung vị | Max |
 |---|---:|---:|---:|
-| Δ nhiệt độ mean exposure | -0,113°C | +0,086°C | +0,255°C |
-| Δ RH mean exposure | -0,397 điểm | +0,210 điểm | +0,939 điểm |
-| Δ áp suất mean exposure | -0,054 hPa | -0,012 hPa | +0,027 hPa |
+| Δ nhiệt độ mean exposure | -0,113°C | +0,089°C | +0,255°C |
+| Δ RH mean exposure | -0,397 điểm | +0,238 điểm | +0,939 điểm |
+| Δ áp suất mean exposure | -0,054 hPa | -0,011 hPa | +0,027 hPa |
 
 ![Biến đổi môi trường theo pha](data/chua_co_loc_khi_van_3_c/report_outputs/figures/18_environment_phase_changes.png)
 
@@ -535,16 +526,16 @@ Trong một run, nhiệt độ/độ ẩm thường thay đổi ít hơn khác b
 
 ![Tương quan môi trường–cảm biến](data/chua_co_loc_khi_van_3_c/report_outputs/figures/17_environment_sensor_correlation.png)
 
-Spearman trên 16 run:
+Spearman trên 15 run:
 
-- MQ3 mean với RH nền: ρ = -0,72;
+- MQ3 mean với RH nền: ρ = -0,68;
 - MQ3 mean với áp suất nền: ρ = -0,74;
-- MQ3 mean với nhiệt độ nền: ρ = -0,14;
-- BME gas mean với nhiệt độ/RH/áp suất nền: khoảng -0,22 đến -0,39.
+- MQ3 mean với nhiệt độ nền: ρ = -0,21;
+- BME gas mean với nhiệt độ/RH/áp suất nền: từ -0,34 đến -0,56.
 
-Không được hiểu hai hệ số -0,72 và -0,74 là quan hệ nhân quả:
+Không được hiểu các hệ số tương quan này là quan hệ nhân quả:
 
-- RH nền và áp suất nền tương quan với nhau ρ = 0,80;
+- RH nền và áp suất nền tương quan với nhau ρ = 0,79;
 - người, vị trí và ngày không được random hóa;
 - từ S5 sang S6, RH giảm nhưng MQ3 của cả ba người cũng giảm, ngược chiều quan hệ toàn cục.
 
@@ -559,12 +550,12 @@ Recovery hiện cố định 60 giây.
 ### BME688
 
 - Cuối recovery đa số gần baseline.
-- `hihi` còn +8,44%, cao nhất nhưng vẫn trong ngưỡng cảnh báo ±10%.
+- Residual tuyệt đối lớn nhất là khoảng -4,72% ở run Minh ngực ngày 14/10; các run còn lại gần nền hơn.
 - Tài phiên tối còn -1,56%.
 
 ### MQ135
 
-- 10/16 run bị summary cảnh báo chưa hồi phục.
+- 10/15 run bị summary cảnh báo chưa hồi phục.
 - Các residual lớn gồm -29,52%, +23,94%, -21,69% và -33,75%.
 - Recovery cố định 60 giây không phù hợp với MQ135 ở chế độ hiện tại.
 
@@ -692,14 +683,21 @@ Với mô hình MQ3 nearest-centroid đã cố định:
 
 ## 15. Những nguồn sai lệch còn tồn tại
 
+Không phải mọi vấn đề đều nghiêm trọng như nhau. Có thể chia thành ba mức:
+
+- **Lỗi phải chặn trước khi phân tích:** đưa warm-up hoặc file phiên trùng lặp vào tập mẫu; chia các dòng của cùng một run sang cả train và test; thiếu nhãn người nhưng vẫn dùng supervised learning. Pipeline hiện tại đã chặn các trường hợp này.
+- **Lỗi chất lượng cảm biến:** MQ135 drift/dao động lớn, không có feedback bơm, không biết divider factor và không có blank để đo carry-over. Các lỗi này làm tín hiệu đo không chắc chắn dù file vẫn hợp lệ.
+- **Thiếu sót thiết kế thí nghiệm:** người, ngày, vị trí, áo và trạng thái sau tắm chưa cân bằng. Đây là trở ngại lớn nhất đối với kết luận “mùi nhận diện được người”, vì không thể tách riêng tác động của từng yếu tố.
+
 | Nguồn sai lệch | Bằng chứng trong dữ liệu | Hậu quả |
 |---|---|---|
-| Trùng dữ liệu run–session | 100% dòng run lặp trong file phiên | Rò rỉ train/test nếu không loại |
+| Warm-up lẫn với mẫu nghiên cứu | 7/22 thư mục chỉ dùng khởi động; một thư mục warm-up có tên chữ | Sai cỡ mẫu và tạo kết luận từ dữ liệu không có giá trị |
+| Trùng dữ liệu run–session | 100% dòng của 15 run lặp trong file phiên số | Rò rỉ train/test nếu không loại |
 | Ngày/phiên trộn với người | Chỉ S5, S6 đủ ba người | Mô hình có thể học phiên |
 | Vị trí trộn với ngày | Ngực chủ yếu ngày 13–14, bụng ngày 14–15 | Không tách được body site |
 | Áo không cân bằng | Chỉ một run Tài có áo | Không kết luận ảnh hưởng áo |
 | Sau tắm không đối chứng | Một run Dũng, vị trí không rõ | Không kết luận ảnh hưởng tắm |
-| Khoảng cách lấy mẫu trống | 16/16 thiếu | Biên độ có thể do khoảng cách |
+| Khoảng cách lấy mẫu trống | 15/15 thiếu | Biên độ có thể do khoảng cách |
 | Không đo lưu lượng khí | Bơm unknown, không feedback | Exposure timing và nồng độ không chắc chắn |
 | Không có blank giữa người | MQ3 Minh còn residual | Có nguy cơ carry-over |
 | MQ135 đổi chế độ theo phiên | CV tăng đồng loạt sau S4 | Fusion bị nhiễu hệ thống |
@@ -825,7 +823,7 @@ Nếu mở rộng số người, ưu tiên tăng số ngày và session trước
 ## 18. Pipeline phân tích cho dữ liệu mới
 
 1. Kiểm tra đủ sáu artifact và đúng schema.
-2. Phân loại folder run chính và folder phiên.
+2. Dùng quy tắc tường minh để loại cả thư mục tên số và `hihi_...` như warm-up; không suy đoán chỉ từ việc tên có chữ.
 3. Phát hiện và loại dữ liệu trùng bằng `run_id`, `seq`, timestamp hoặc hash.
 4. Kiểm tra metadata bắt buộc; run thiếu nhãn chỉ dùng QC.
 5. Kiểm tra timing, status, fresh, heater và ADC.
@@ -892,7 +890,7 @@ Các file chính:
 
 - [Script phân tích toàn bộ lô](analysis/analyze_new_batch.py)
 - [Script biểu đồ và thống kê README](analysis/generate_readme_summary_figures.py)
-- [Manifest 16 run](data/chua_co_loc_khi_van_3_c/report_outputs/tables/run_manifest.csv)
+- [Manifest 15 run hợp lệ](data/chua_co_loc_khi_van_3_c/report_outputs/tables/run_manifest.csv)
 - [Audit từng run](data/chua_co_loc_khi_van_3_c/report_outputs/tables/run_audit.csv)
 - [Đặc trưng từng run](data/chua_co_loc_khi_van_3_c/report_outputs/tables/run_features.csv)
 - [Subset kiểm soát](data/chua_co_loc_khi_van_3_c/report_outputs/tables/controlled_subset.csv)
