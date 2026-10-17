@@ -1,0 +1,12 @@
+{
+  "accuracy": 0.75,
+  "accuracy_wilson_95": [
+    0.40927543031016883,
+    0.9285207872478909
+  ],
+  "balanced_accuracy": 0.7222222222222222,
+  "permutation_assignments": 560,
+  "permutation_ge_observed": 6,
+  "permutation_p_exploratory": 0.010714285714285714,
+  "note": "Post-selection exploratory check; not a confirmatory p-value."
+}

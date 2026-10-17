@@ -1,0 +1,420 @@
+# Phân tích dữ liệu thử nghiệm RoboNose
+
+README này tổng hợp trực tiếp các phương pháp đã dùng để phân tích bộ dữ liệu, biểu đồ tạo ra và kết quả thu được. Phần mô tả phần cứng không nằm trong phạm vi báo cáo này.
+
+## 1. Kết luận nhanh
+
+Bộ dữ liệu chính có **10 run**, gồm 5 loại mẫu và 2 lần lặp:
+
+| Nhãn | Trial 01 | Trial 02 |
+|---|:---:|:---:|
+| Không khí | Có | Có |
+| Áo | Có | Có |
+| Nách | Có | Có |
+| Nước hoa | Có | Có |
+| Mắm tôm | Có | Có |
+
+Các kết quả chính:
+
+- 10 run chính chứa **5.082 dòng dữ liệu thô**.
+- Tỷ lệ dữ liệu hợp lệ thấp nhất vẫn đạt **99,91%**.
+- Nước hoa tạo đáp ứng mạnh nhất: BME688 giảm trung bình **76,58–82,90%**, MQ3 tăng **8,16–11,57%**.
+- Nách tạo đáp ứng BME688 khá lặp lại: giảm **5,79%** ở trial 01 và **5,48%** ở trial 02.
+- Áo có đáp ứng yếu và chưa phân biệt ổn định với không khí/mắm tôm.
+- Median khoảng cách fingerprint khác nhãn lớn gấp **1,81 lần** khoảng cách cùng nhãn.
+- Nearest-neighbour chéo trial dùng tất cả cảm biến đạt **7/10 = 70%**.
+- Hai run nước hoa có baseline không ổn định và recovery chưa đủ; BME688 cuối recovery trial 02 còn lệch **-17,78%**.
+- Dữ liệu cho thấy **có tín hiệu để tiếp tục nghiên cứu phân biệt loại mùi**, nhưng chưa đủ mẫu để kết luận hiệu năng mô hình và chưa thể đánh giá nhận diện người.
+
+## 2. Phạm vi dữ liệu được sử dụng
+
+Theo [`data/first_trial/note.txt`](data/first_trial/note.txt), chỉ các thư mục có tiền tố `trial01_` và `trial02_` là dữ liệu chính. Những thư mục còn lại là dữ liệu test/monitor dùng để tối ưu quá trình thu.
+
+Vì một số run test chạy cùng thời điểm và chứa tín hiệu trùng với run chính, chúng không được coi là mẫu độc lập. Đưa chúng vào train/test sẽ gây rò rỉ dữ liệu.
+
+Hai thứ tự đo là:
+
+```text
+Trial 01: Không khí → Áo → Nách → Nước hoa → Mắm tôm
+Trial 02: Không khí → Mắm tôm → Áo → Nước hoa → Nách
+```
+
+Ba pha phân tích chính trong mỗi run:
+
+| Pha | Thời gian | Vai trò |
+|---|---:|---|
+| Baseline | 60 giây | Ước lượng mức nền của từng cảm biến |
+| Exposure | 120 giây | Quan sát đáp ứng khi tiếp xúc mẫu |
+| Recovery | 60 giây | Kiểm tra khả năng quay về baseline |
+
+Các pha `MONITOR` và `WAIT_*` được giữ để kiểm tra quy trình, nhưng không được dùng để tạo fingerprint phân loại.
+
+## 3. Pipeline phân tích
+
+### 3.1. Lọc dữ liệu hợp lệ
+
+BME688 chỉ được giữ khi:
+
+```text
+bme_status == "OK"
+bme_fresh == True
+gas_valid == True
+heater_stable == True
+new_data == True
+```
+
+MQ135 và MQ3 chỉ được giữ khi trạng thái đọc là `OK` và dữ liệu được đánh dấu `fresh`.
+
+### 3.2. Chuẩn hóa theo baseline
+
+Mỗi run được chuẩn hóa độc lập bằng median của 60 giây baseline:
+
+```text
+response_pct = 100 × (signal / median_baseline - 1)
+```
+
+Cách làm này giúp so sánh các run có mức nền khác nhau và giữ được dấu của đáp ứng:
+
+- số âm: tín hiệu giảm so với baseline;
+- số dương: tín hiệu tăng so với baseline;
+- gần 0: thay đổi nhỏ hoặc không có đáp ứng rõ.
+
+### 3.3. Đặc trưng fingerprint
+
+Mỗi run được biểu diễn bởi 15 đặc trưng: 5 đặc trưng cho mỗi kênh BME gas, MQ135 và MQ3.
+
+| Đặc trưng | Ý nghĩa |
+|---|---|
+| `mean` | Đáp ứng trung bình trong toàn bộ exposure |
+| `late20` | Trung bình 20 giây cuối exposure |
+| `min` | Giá trị nhỏ nhất trong exposure |
+| `max` | Giá trị lớn nhất trong exposure |
+| `slope` | Tốc độ thay đổi tuyến tính trong exposure |
+
+Ngoài ra, AUC và giá trị cuối recovery được tính để phân tích động học và chất lượng, nhưng không đưa vào baseline nearest-neighbour 15 đặc trưng.
+
+### 3.4. Nguyên tắc đánh giá
+
+Một run hoàn chỉnh được xem là một mẫu độc lập. Không chia ngẫu nhiên từng dòng 1 Hz vào train/test vì các dòng trong cùng run có tương quan thời gian rất cao.
+
+Đánh giá chéo trial được thực hiện theo hai chiều:
+
+1. dùng trial 01 làm tập tham chiếu, dự đoán trial 02;
+2. dùng trial 02 làm tập tham chiếu, dự đoán trial 01.
+
+StandardScaler chỉ được fit trên trial tham chiếu ở mỗi chiều đánh giá.
+
+## 4. Thời lượng thực tế của các pha
+
+**Phương pháp:** đọc `phase_intervals` trong `metadata.json`, sau đó vẽ stacked bar cho toàn bộ thời gian run và một biểu đồ phóng to phần protocol sau monitor.
+
+![Thời lượng các pha](analysis/figures/01_phase_durations.png)
+
+**Kết quả:**
+
+- Baseline, exposure và recovery được giữ đúng khoảng 60–120–60 giây.
+- `MONITOR` biến thiên mạnh từ **18,41 đến 893,08 giây**, chủ yếu vì hai run không khí bao gồm thời gian warm-up dài.
+- `WAIT_EXPOSURE` biến thiên **3,97–14,52 giây**.
+- `WAIT_RECOVERY` biến thiên **5,37–30,73 giây**.
+- `WAIT_FINISH` biến thiên **2,81–61,24 giây**.
+
+Do thời gian chờ không đồng nhất và chịu ảnh hưởng thao tác thủ công, các pha `WAIT_*` không được dùng làm đặc trưng phân loại.
+
+## 5. Đường đáp ứng BME688
+
+**Phương pháp:** chuẩn hóa gas resistance theo baseline riêng của từng run, căn exposure về 0–120 giây và recovery về 120–180 giây. Đường liền là trial 01, đường đứt là trial 02. Mỗi ô có trục tung riêng để nhìn được cả mẫu mạnh và mẫu yếu.
+
+![Đường đáp ứng BME688](analysis/figures/02_bme_gas_curves.png)
+
+**Kết quả:**
+
+- Không khí thay đổi nhỏ, chủ yếu trong khoảng 0 đến -1,5%.
+- Áo phản ứng yếu, khoảng -0,8 đến -1,1% trung bình.
+- Nách giảm nhanh xuống khoảng -6 đến -8% rồi giữ tương đối ổn định trong exposure; hai trial có hình dạng gần nhau.
+- Nước hoa làm gas resistance giảm cực mạnh, nhiều thời điểm xuống gần -95%.
+- Mắm tôm có phản ứng transient: giảm mạnh lúc đầu, sau đó dần quay về khoảng -1 đến -3% ngay trong exposure.
+
+Đây là kênh cảm biến mang nhiều thông tin phân biệt nhất trong bộ dữ liệu hiện tại.
+
+## 6. Đường đáp ứng MQ135
+
+**Phương pháp:** giống BME688, dùng phần trăm thay đổi điện áp MQ135 so với median baseline của từng run.
+
+![Đường đáp ứng MQ135](analysis/figures/03_mq135_curves.png)
+
+**Kết quả:**
+
+- Đa số đáp ứng trung bình chỉ nằm trong khoảng -0,2 đến +1,1%.
+- Nước hoa tạo thay đổi dương rõ nhất, trung bình +0,87% và +1,07%.
+- Mắm tôm khác nhau giữa hai trial: -0,08% và +0,68%.
+- Áo và nách có giá trị nhỏ, đổi dấu giữa hai trial.
+
+MQ135 chưa cho thấy fingerprint độc lập ổn định. Đặc biệt, slope MQ135 có dấu hiệu phụ thuộc thứ tự thu, được kiểm tra thêm ở phần tương quan biến gây nhiễu.
+
+## 7. Đường đáp ứng MQ3
+
+**Phương pháp:** dùng phần trăm thay đổi điện áp MQ3 so với baseline, căn chỉnh exposure/recovery giống hai cảm biến trên.
+
+![Đường đáp ứng MQ3](analysis/figures/04_mq3_curves.png)
+
+**Kết quả:**
+
+- Nước hoa tạo phản ứng mạnh và lặp lại nhất: trung bình +8,16% và +11,57%, peak khoảng 21–24%.
+- Nách có phản ứng dương nhỏ: +0,71% và +0,31%.
+- Không khí và áo gần 0.
+- Mắm tôm không lặp lại về dấu: -0,88% ở trial 01 nhưng +0,37% ở trial 02.
+
+MQ3 có giá trị rõ ràng với mẫu chứa alcohol như nước hoa, nhưng chưa chứng minh được khả năng phân biệt ổn định đối với các mẫu còn lại.
+
+## 8. So sánh đáp ứng trung bình giữa các loại mẫu
+
+**Phương pháp:** tính trung bình của toàn bộ 120 giây exposure cho mỗi run. Hai điểm của cùng nhãn được nối lại để thấy độ lệch giữa trial 01 và trial 02.
+
+![Đáp ứng trung bình](analysis/figures/05_mean_exposure_response.png)
+
+Giá trị thu được:
+
+| Mẫu | BME T1 | BME T2 | MQ135 T1 | MQ135 T2 | MQ3 T1 | MQ3 T2 |
+|---|---:|---:|---:|---:|---:|---:|
+| Không khí | -0,53% | -0,21% | -0,03% | -0,15% | -0,05% | -0,08% |
+| Áo | -0,78% | -1,12% | +0,17% | -0,08% | +0,04% | -0,01% |
+| Nách | -5,79% | -5,48% | +0,08% | -0,07% | +0,71% | +0,31% |
+| Nước hoa | -76,58% | -82,90% | +0,87% | +1,07% | +8,16% | +11,57% |
+| Mắm tôm | -3,43% | -2,75% | -0,08% | +0,68% | -0,88% | +0,37% |
+
+**Diễn giải:**
+
+- Nước hoa tách rất xa các lớp còn lại trên BME688 và MQ3.
+- Nách có đáp ứng BME688 ổn định giữa hai trial.
+- Mắm tôm có BME tương đối nhất quán về trung bình, nhưng MQ135/MQ3 thiếu ổn định.
+- Áo quá gần không khí nếu chỉ dùng đáp ứng trung bình.
+
+## 9. Động học BME688: peak, cuối exposure và recovery
+
+**Phương pháp:** so sánh ba thời điểm/đặc trưng:
+
+1. minimum trong exposure;
+2. trung bình 20 giây cuối exposure;
+3. trung bình 10 giây cuối recovery.
+
+![Động học BME688](analysis/figures/06_bme_dynamics.png)
+
+**Kết quả:**
+
+- Mắm tôm có minimum khoảng -13,5% nhưng trung bình cuối exposure chỉ còn khoảng -1 đến -2,5%; đây là phản ứng transient rõ.
+- Nách giữ đáp ứng âm đến cuối exposure và recovery còn lệch khoảng -1,6 đến -2,0%.
+- Nước hoa vẫn còn lệch rất xa baseline sau 60 giây recovery.
+- Áo và không khí có peak nhỏ hơn nhưng dễ chồng lấp.
+
+Với mắm tôm, chỉ dùng mean sẽ làm mất thông tin. Các đặc trưng min, slope và AUC cần được giữ trong fingerprint.
+
+## 10. Kiểm tra chất lượng baseline và recovery
+
+**Phương pháp:**
+
+- Baseline noise được đo bằng hệ số biến thiên `CV = std / |mean| × 100%`.
+- Recovery được đo bằng trung bình 10 giây cuối recovery sau khi chuẩn hóa baseline.
+
+![Kiểm tra chất lượng](analysis/figures/07_quality_control.png)
+
+**Kết quả baseline:**
+
+- CV BME688 của đa số run nằm trong khoảng 0,23–0,39%.
+- Hai run nước hoa có CV BME cao: **1,27%** và **1,70%**.
+- Metadata cũng đánh dấu đúng hai run nước hoa là baseline không ổn định.
+- CV của MQ135 khoảng 0,36–0,67%; MQ3 khoảng 0,20–0,34%.
+
+**Kết quả recovery:**
+
+- Nước hoa trial 01: BME còn -8,25%, MQ3 còn +3,05%.
+- Nước hoa trial 02: BME còn -17,78%, MQ3 còn +4,30%.
+- Nách: BME còn khoảng -1,63 đến -1,97%.
+- Mắm tôm trial 01: BME còn -1,73%, MQ3 còn -1,53%; trial 02 hồi phục tốt hơn.
+- MQ135 nhìn chung trở về gần baseline hơn hai kênh còn lại.
+
+Recovery cố định 60 giây chưa đủ cho nước hoa. Đây là nguồn carry-over quan trọng cần xem xét khi diễn giải run kế tiếp.
+
+## 11. Heatmap fingerprint
+
+**Phương pháp:** 15 đặc trưng được chuẩn hóa z-score theo từng cột. Heatmap dùng để so sánh hình dạng fingerprint, không dùng để so sánh trực tiếp đơn vị vật lý.
+
+![Fingerprint heatmap](analysis/figures/08_fingerprint_heatmap.png)
+
+**Kết quả:**
+
+- Hai run nước hoa có profile nổi bật trên cả BME gas và MQ3.
+- Hai run nách tương đối giống nhau trên nhóm đặc trưng BME.
+- Mắm tôm khác nhau đáng kể ở MQ135/MQ3 và slope.
+- Không khí và áo có nhiều đặc trưng gần nhau, giải thích việc mô hình nhầm áo.
+
+Heatmap cho thấy fingerprint đa cảm biến có thông tin, nhưng mức lặp lại không đồng đều giữa các nhãn.
+
+## 12. PCA của fingerprint
+
+**Phương pháp:** StandardScaler trên 15 đặc trưng rồi PCA xuống hai chiều. PCA ở đây chỉ dùng để mô tả, không phải phép đánh giá dự đoán.
+
+![PCA fingerprint](analysis/figures/09_pca.png)
+
+**Kết quả:**
+
+- PC1 giải thích **80,9%** phương sai.
+- PC2 giải thích **9,3%** phương sai.
+- Nước hoa tách rất xa theo PC1.
+- Hai điểm nách nằm cùng vùng tương đối gần nhau.
+- Mắm tôm trial 02 lệch mạnh trên PC2 so với trial 01.
+- Áo và không khí nằm gần cụm trung tâm, chưa tạo cụm riêng rõ ràng.
+
+PC1 cao không có nghĩa là cả 5 lớp đều phân biệt tốt; phần lớn phương sai bị chi phối bởi nước hoa là một mẫu rất mạnh.
+
+## 13. Khoảng cách fingerprint giữa hai trial
+
+**Phương pháp:** tính khoảng cách Euclidean giữa fingerprint z-score của từng mẫu trial 01 và từng mẫu trial 02. Nếu fingerprint lặp lại tốt, các ô trên đường chéo phải nhỏ hơn các ô ngoài đường chéo.
+
+![Ma trận khoảng cách](analysis/figures/10_cross_trial_distance.png)
+
+**Kết quả:**
+
+- Không khí, nách và nước hoa có xu hướng gần đúng nhãn tương ứng.
+- Áo gần không khí/mắm tôm hơn mong muốn.
+- Mắm tôm có độ lệch giữa hai trial tương đối lớn, phù hợp với sự không ổn định của MQ135/MQ3.
+
+## 14. Độ lặp lại cùng nhãn so với khác nhãn
+
+**Phương pháp:** tách các khoảng cách chéo trial thành hai nhóm:
+
+- cùng nhãn: 5 khoảng cách trên đường chéo;
+- khác nhãn: 20 khoảng cách ngoài đường chéo.
+
+![Khoảng cách cùng và khác nhãn](analysis/figures/11_within_between_distance.png)
+
+| Chỉ số | Giá trị |
+|---|---:|
+| Median khoảng cách cùng nhãn | 2,314 |
+| Median khoảng cách khác nhãn | 4,194 |
+| Separation ratio | 1,812 |
+
+Median khác nhãn lớn hơn cùng nhãn là tín hiệu tích cực. Tuy nhiên, hai phân phối còn chồng lấp và chỉ có đúng một cặp lặp lại cho mỗi nhãn, nên chưa thể ước lượng khoảng tin cậy đáng tin cậy.
+
+## 15. Ablation theo nhóm cảm biến
+
+**Phương pháp:** nearest-neighbour chéo trial được chạy ba lần với:
+
+1. chỉ BME gas;
+2. MQ135 + MQ3;
+3. toàn bộ ba kênh cảm biến.
+
+![Sensor ablation](analysis/figures/12_sensor_ablation.png)
+
+| Nhóm cảm biến | Dự đoán trial 02 từ trial 01 | Dự đoán trial 01 từ trial 02 | Trung bình |
+|---|---:|---:|---:|
+| BME gas | 100% | 60% | 80% |
+| MQ135 + MQ3 | 40% | 60% | 50% |
+| Tất cả | 80% | 60% | 70% |
+
+**Diễn giải:**
+
+- BME688 đang mang phần lớn thông tin phân biệt.
+- MQ135 + MQ3 riêng tốt hơn ngẫu nhiên danh nghĩa 20%, nhưng độ ổn định thấp.
+- Ghép tất cả cảm biến không tốt hơn BME-only trong tập dữ liệu nhỏ này.
+- Chưa thể kết luận nên bỏ cảm biến MQ vì chỉ có 10 run; cần lặp lại ablation khi có dataset lớn hơn.
+
+## 16. Kết quả phân loại chéo trial
+
+**Phương pháp:** với tất cả 15 đặc trưng, mỗi run truy vấn được gán nhãn của run gần nhất trong trial tham chiếu. Hai chiều đánh giá tạo tổng cộng 10 truy vấn.
+
+![Kết quả phân loại](analysis/figures/13_classification_results.png)
+
+| Nhãn thật | Đúng/Tổng | Độ đúng mô tả | Lỗi quan sát được |
+|---|---:|---:|---|
+| Không khí | 2/2 | 100% | Không |
+| Áo | 0/2 | 0% | Nhầm thành không khí hoặc mắm tôm |
+| Nách | 2/2 | 100% | Không |
+| Nước hoa | 2/2 | 100% | Không |
+| Mắm tôm | 1/2 | 50% | Một run nhầm thành áo |
+| **Tổng** | **7/10** | **70%** | 3 lỗi |
+
+Accuracy 70% cao hơn mức ngẫu nhiên danh nghĩa 20%, nhưng đây chỉ là kết quả thăm dò:
+
+- mỗi lớp chỉ có 2 run;
+- mỗi trial tham chiếu chỉ có 1 mẫu cho mỗi lớp;
+- không có ngày đo độc lập;
+- nước hoa là lớp quá dễ và chi phối kết quả;
+- accuracy thay đổi từ 60% đến 80% tùy chiều đánh giá.
+
+Vì vậy, con số 70% không được xem là hiệu năng triển khai.
+
+## 17. Kiểm tra biến gây nhiễu
+
+**Phương pháp:** tính tương quan Spearman giữa 15 đặc trưng và ba biến:
+
+- nhiệt độ baseline;
+- độ ẩm baseline;
+- thứ tự thu trong toàn bộ thí nghiệm.
+
+![Tương quan biến gây nhiễu](analysis/figures/14_nuisance_correlations.png)
+
+**Kết quả đáng chú ý:**
+
+- MQ135 slope tương quan với thứ tự thu: **ρ = -0,83**.
+- MQ135 slope tương quan với độ ẩm baseline: **ρ = -0,77**.
+- Một số đặc trưng MQ3 tương quan vừa với nhiệt độ baseline, khoảng |ρ| = 0,53–0,59.
+- BME mean và late20 tương quan vừa với nhiệt độ baseline, khoảng ρ = 0,43–0,44.
+
+Với n = 10, đây chỉ là cảnh báo thăm dò chứ chưa phải bằng chứng thống kê chắc chắn. Dù vậy, kết quả cho thấy mô hình có nguy cơ học drift theo thời gian hoặc điều kiện môi trường, đặc biệt qua slope MQ135.
+
+## 18. Trả lời câu hỏi nghiên cứu
+
+### Có phân biệt được mùi A với mùi B không?
+
+**Có tín hiệu ban đầu, nhưng tùy cặp mùi.**
+
+- Nước hoa phân biệt rất rõ với các lớp khác.
+- Nách có fingerprint BME688 khá lặp lại.
+- Không khí và áo khó phân biệt.
+- Mắm tôm có phản ứng BME transient rõ nhưng các kênh MQ chưa lặp lại.
+- Separation ratio 1,81 và nearest-neighbour 70% cho thấy dữ liệu không hoàn toàn ngẫu nhiên.
+
+Để khẳng định khả năng phân biệt, cần nhiều run độc lập hơn cho mỗi nhãn và tập test ở ngày khác.
+
+### Có tìm được đặc trưng của người dựa vào mùi không?
+
+**Chưa thể đánh giá trên bộ dữ liệu này.**
+
+Dữ liệu chỉ có một người, `person_code` trống và nhãn hiện tại là loại nguồn mẫu chứ không phải danh tính. Kết quả nách/áo chỉ cho biết cảm biến phản ứng với nguồn mùi cơ thể, không chứng minh fingerprint giữa nhiều người là khác nhau và ổn định.
+
+## 19. Hạn chế của kết quả
+
+1. Chỉ có 2 run cho mỗi nhãn.
+2. Không có dữ liệu lặp lại qua nhiều ngày.
+3. Hai run nước hoa có baseline không ổn định.
+4. Recovery sau nước hoa chưa hoàn tất, tạo nguy cơ carry-over.
+5. Thời gian chờ giữa các pha không đồng nhất.
+6. Một số đặc trưng tương quan với thứ tự thu và độ ẩm.
+7. Nước hoa mạnh hơn rất nhiều so với các lớp khác và chi phối PCA.
+8. Không thể tính khoảng tin cậy hoặc kiểm định tổng quát hóa đáng tin cậy với n = 10.
+
+## 20. File tái lập phân tích
+
+- Script tạo toàn bộ biểu đồ và bảng: [`analysis/generate_figures.py`](analysis/generate_figures.py)
+- Thư mục biểu đồ: [`analysis/figures/`](analysis/figures/)
+- Thư mục kết quả dạng CSV/JSON: [`analysis/results/`](analysis/results/)
+- Notebook đầy đủ: [`odor_data_feasibility.executed.ipynb`](odor_data_feasibility.executed.ipynb)
+
+Các bảng kết quả có thể dùng tiếp:
+
+| File | Nội dung |
+|---|---|
+| `run_quality.csv` | Chất lượng baseline, valid-rate và recovery từng run |
+| `run_features.csv` | Fingerprint/đặc trưng từng run |
+| `cross_trial_distances.csv` | Ma trận khoảng cách trial 01–trial 02 |
+| `nearest_neighbor_predictions.csv` | Dự đoán chi tiết từng truy vấn |
+| `sensor_ablation_scores.csv` | Accuracy theo nhóm cảm biến |
+| `nuisance_correlations.csv` | Tương quan với nhiệt độ, độ ẩm và thứ tự thu |
+| `summary_metrics.json` | Các con số tóm tắt dùng trong README |
+
+Chạy lại pipeline:
+
+```powershell
+python -m pip install -r requirements.txt
+python analysis/generate_figures.py
+```
