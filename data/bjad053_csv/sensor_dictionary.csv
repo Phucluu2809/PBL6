@@ -1,0 +1,11 @@
+﻿sensor_number,sensor_name,general_description
+1,W1C,Aromatic organic compounds
+2,W5S,Broad sensitivity; nitrogen oxides; negative signal
+3,W3C,Ammonia and aromatic compounds
+4,W6S,Mainly hydrogen
+5,W5C,"Alkanes, aromatic and nonpolar organic compounds"
+6,W1S,Methane and broad range of organic compounds
+7,W1W,"Inorganic sulfur, terpenes and sulfur-containing organic compounds"
+8,W2S,Alcohol and aromatic compounds; broad sensitivity
+9,W2W,"Aromatic, inorganic sulfur and organic compounds"
+10,W3S,High concentrations of methane and aliphatic organic compounds

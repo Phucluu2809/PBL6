@@ -1,0 +1,270 @@
+{
+  "schema_version": "2.0",
+  "source_schema_version": "2.0",
+  "run_id": "c6b970c8ce8647eeafab7e4c958187b6",
+  "status": "ERROR",
+  "rows": 1324,
+  "filter_rule": "status OK + fresh; BME gas additionally gas_valid + heater_stable + new_data; MQ exclude NEGATIVE/ADC_LIMIT flags",
+  "auc_rule": "signed trapezoids over adjacent valid samples, no bridge across invalid rows or gap > max_gap_s",
+  "signals": {
+    "gas_resistance_ohm": {
+      "baseline": {
+        "n": 0,
+        "mean": null,
+        "median": null,
+        "std": null,
+        "min": null,
+        "max": null,
+        "slope_per_s": null,
+        "drift": null,
+        "reason": "Baseline chưa hoàn thành hoặc không đủ mẫu hợp lệ"
+      },
+      "exposure": null,
+      "recovery": null,
+      "reason": "Baseline chưa hoàn thành hoặc không đủ mẫu hợp lệ",
+      "invalid_fraction": 0.0007552870090634656
+    },
+    "mq135_1_voltage_v": {
+      "baseline": {
+        "n": 0,
+        "mean": null,
+        "median": null,
+        "std": null,
+        "min": null,
+        "max": null,
+        "slope_per_s": null,
+        "drift": null,
+        "reason": "Baseline chưa hoàn thành hoặc không đủ mẫu hợp lệ"
+      },
+      "exposure": null,
+      "recovery": null,
+      "reason": "Baseline chưa hoàn thành hoặc không đủ mẫu hợp lệ",
+      "quality_counts": {
+        "NEGATIVE": 0,
+        "ADC_LIMIT": 0,
+        "OK": 1323
+      },
+      "invalid_fraction": 0.0007552870090634656
+    },
+    "mq3_1_voltage_v": {
+      "baseline": {
+        "n": 0,
+        "mean": null,
+        "median": null,
+        "std": null,
+        "min": null,
+        "max": null,
+        "slope_per_s": null,
+        "drift": null,
+        "reason": "Baseline chưa hoàn thành hoặc không đủ mẫu hợp lệ"
+      },
+      "exposure": null,
+      "recovery": null,
+      "reason": "Baseline chưa hoàn thành hoặc không đủ mẫu hợp lệ",
+      "quality_counts": {
+        "NEGATIVE": 690,
+        "ADC_LIMIT": 0,
+        "OK": 633
+      },
+      "invalid_fraction": 0.5219033232628398
+    },
+    "mq135_2_voltage_v": {
+      "baseline": {
+        "n": 0,
+        "mean": null,
+        "median": null,
+        "std": null,
+        "min": null,
+        "max": null,
+        "slope_per_s": null,
+        "drift": null,
+        "reason": "Baseline chưa hoàn thành hoặc không đủ mẫu hợp lệ"
+      },
+      "exposure": null,
+      "recovery": null,
+      "reason": "Baseline chưa hoàn thành hoặc không đủ mẫu hợp lệ",
+      "quality_counts": {
+        "NEGATIVE": 0,
+        "ADC_LIMIT": 0,
+        "OK": 1323
+      },
+      "invalid_fraction": 0.0007552870090634656
+    },
+    "mq3_2_voltage_v": {
+      "baseline": {
+        "n": 0,
+        "mean": null,
+        "median": null,
+        "std": null,
+        "min": null,
+        "max": null,
+        "slope_per_s": null,
+        "drift": null,
+        "reason": "Baseline chưa hoàn thành hoặc không đủ mẫu hợp lệ"
+      },
+      "exposure": null,
+      "recovery": null,
+      "reason": "Baseline chưa hoàn thành hoặc không đủ mẫu hợp lệ",
+      "quality_counts": {
+        "NEGATIVE": 0,
+        "ADC_LIMIT": 0,
+        "OK": 1323
+      },
+      "invalid_fraction": 0.0007552870090634656
+    }
+  },
+  "environment_baseline": {
+    "temperature_c": {
+      "n": 0,
+      "mean": null,
+      "median": null,
+      "std": null,
+      "min": null,
+      "max": null,
+      "slope_per_s": null,
+      "drift": null,
+      "reason": "Baseline chưa hoàn thành hoặc không đủ mẫu hợp lệ"
+    },
+    "humidity_pct": {
+      "n": 0,
+      "mean": null,
+      "median": null,
+      "std": null,
+      "min": null,
+      "max": null,
+      "slope_per_s": null,
+      "drift": null,
+      "reason": "Baseline chưa hoàn thành hoặc không đủ mẫu hợp lệ"
+    },
+    "pressure_hpa": {
+      "n": 0,
+      "mean": null,
+      "median": null,
+      "std": null,
+      "min": null,
+      "max": null,
+      "slope_per_s": null,
+      "drift": null,
+      "reason": "Baseline chưa hoàn thành hoặc không đủ mẫu hợp lệ"
+    }
+  },
+  "warnings": [
+    "Lượt thu/pha chưa hoàn thành: ERROR",
+    "Chất lượng baseline: gas_resistance_ohm: không đủ mẫu/cửa sổ quan sát",
+    "Chất lượng baseline: gas_resistance_ohm: thiếu mẫu mới gần thời điểm đánh giá",
+    "Chất lượng baseline: gas_resistance_ohm: tỷ lệ dữ liệu không hợp lệ vượt ngưỡng",
+    "Chất lượng baseline: gas_resistance_ohm: gas gần 0 hoặc không có hệ số xu hướng",
+    "Chất lượng baseline: temperature_c: không đủ mẫu/cửa sổ quan sát",
+    "Chất lượng baseline: temperature_c: thiếu mẫu mới gần thời điểm đánh giá",
+    "Chất lượng baseline: temperature_c: tỷ lệ dữ liệu không hợp lệ vượt ngưỡng",
+    "Chất lượng baseline: humidity_pct: không đủ mẫu/cửa sổ quan sát",
+    "Chất lượng baseline: humidity_pct: thiếu mẫu mới gần thời điểm đánh giá",
+    "Chất lượng baseline: humidity_pct: tỷ lệ dữ liệu không hợp lệ vượt ngưỡng",
+    "Chất lượng baseline: BASELINE thiếu hoặc chưa hoàn thành",
+    "bme: 1 lỗi đọc",
+    "mq135_1: 1 lỗi đọc",
+    "mq3_1: điện áp/count âm; giữ raw, loại khỏi thống kê hợp lệ",
+    "mq3_1_voltage_v: thiếu/không hợp lệ 52.2%",
+    "mq3_1: 1 lỗi đọc",
+    "mq135_2: 1 lỗi đọc",
+    "mq3_2: 1 lỗi đọc"
+  ],
+  "external_pump": {
+    "initial_state": "unknown",
+    "latest_state": "unknown",
+    "source": "not_reported",
+    "physical_feedback": null,
+    "meaning": "User reports external power operation; no GPIO command and no measured feedback"
+  },
+  "measurement_quality": {
+    "pre_baseline": null,
+    "baseline": {
+      "stable": null,
+      "reasons": [
+        "gas_resistance_ohm: không đủ mẫu/cửa sổ quan sát",
+        "gas_resistance_ohm: thiếu mẫu mới gần thời điểm đánh giá",
+        "gas_resistance_ohm: tỷ lệ dữ liệu không hợp lệ vượt ngưỡng",
+        "gas_resistance_ohm: gas gần 0 hoặc không có hệ số xu hướng",
+        "temperature_c: không đủ mẫu/cửa sổ quan sát",
+        "temperature_c: thiếu mẫu mới gần thời điểm đánh giá",
+        "temperature_c: tỷ lệ dữ liệu không hợp lệ vượt ngưỡng",
+        "humidity_pct: không đủ mẫu/cửa sổ quan sát",
+        "humidity_pct: thiếu mẫu mới gần thời điểm đánh giá",
+        "humidity_pct: tỷ lệ dữ liệu không hợp lệ vượt ngưỡng",
+        "BASELINE thiếu hoặc chưa hoàn thành"
+      ],
+      "advisories": [],
+      "signals": {
+        "gas_resistance_ohm": {
+          "n": 0,
+          "span_s": 0,
+          "mean": null,
+          "slope_per_min": null,
+          "range": null,
+          "slope_pct_per_min": null,
+          "range_pct": null,
+          "invalid_fraction": 1,
+          "drifting": false,
+          "reasons": [
+            "không đủ mẫu/cửa sổ quan sát",
+            "thiếu mẫu mới gần thời điểm đánh giá",
+            "tỷ lệ dữ liệu không hợp lệ vượt ngưỡng",
+            "gas gần 0 hoặc không có hệ số xu hướng"
+          ]
+        },
+        "temperature_c": {
+          "n": 0,
+          "span_s": 0,
+          "mean": null,
+          "slope_per_min": null,
+          "range": null,
+          "slope_pct_per_min": null,
+          "range_pct": null,
+          "invalid_fraction": 1,
+          "drifting": false,
+          "reasons": [
+            "không đủ mẫu/cửa sổ quan sát",
+            "thiếu mẫu mới gần thời điểm đánh giá",
+            "tỷ lệ dữ liệu không hợp lệ vượt ngưỡng"
+          ]
+        },
+        "humidity_pct": {
+          "n": 0,
+          "span_s": 0,
+          "mean": null,
+          "slope_per_min": null,
+          "range": null,
+          "slope_pct_per_min": null,
+          "range_pct": null,
+          "invalid_fraction": 1,
+          "drifting": false,
+          "reasons": [
+            "không đủ mẫu/cửa sổ quan sát",
+            "thiếu mẫu mới gần thời điểm đánh giá",
+            "tỷ lệ dữ liệu không hợp lệ vượt ngưỡng"
+          ]
+        }
+      },
+      "window_s": null,
+      "evaluated_at_elapsed_s": 0,
+      "criteria": {
+        "window_s": 30.0,
+        "min_samples": 5,
+        "min_window_fraction": 0.8,
+        "max_gap_s": 3.0,
+        "max_invalid_fraction": 0.2,
+        "gas_epsilon_ohm": 1e-09,
+        "gas_pct_per_min": 5.0,
+        "gas_range_pct": 5.0,
+        "temperature_per_min": 0.3,
+        "temperature_range": 0.2,
+        "humidity_per_min": 1.0,
+        "humidity_range": 1.0,
+        "temperature_warning_c": 35.0
+      }
+    },
+    "baseline_unstable": null,
+    "baseline_started_without_stability": null,
+    "interpretation": "Thay đổi tín hiệu khảo sát; không chứng minh phản ứng mùi. Nền đang trôi/chưa đánh giá làm đáp ứng tương đối thiếu tin cậy."
+  }
+}

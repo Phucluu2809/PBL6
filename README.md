@@ -1,11 +1,11 @@
 # RoboNose – Phân tích dữ liệu mùi cơ thể và thử nghiệm nhận diện người
 
-README này là báo cáo phân tích đầy đủ cho lô dữ liệu [`data/chua_co_loc_khi_van_3_c`](data/chua_co_loc_khi_van_3_c/). Mục tiêu là trả lời bốn câu hỏi:
+README này là báo cáo phân tích đầy đủ cho lô dữ liệu [`data/chua_co_loc_khi_van_3_c`](data/chua_co_loc_khi_van_3_c/). Báo cáo phục vụ hai nhiệm vụ nối tiếp nhau:
 
-1. Dữ liệu đã đủ sạch và đủ tin cậy về mặt kỹ thuật chưa?
-2. Từng cảm biến phản ứng như thế nào với mùi cơ thể?
-3. Có dấu hiệu nào cho thấy tín hiệu khác nhau giữa người và lặp lại qua phiên không?
-4. Cần sửa gì trong pipeline thu thập trước khi mở rộng dự án?
+1. **Phân tích dữ liệu hiện tại nói lên điều gì:** chất lượng file và cảm biến, đáp ứng theo người/ngày/phiên, tác động môi trường, mức phân tách và độ tin cậy của mô hình.
+2. **Từ kết quả đó thiết kế đợt thu tiếp theo:** chỉ ra dữ liệu lỗi ở đâu, lệch theo yếu tố nào, yếu tố nào đang bị trộn với nhau và phải sửa protocol như thế nào.
+
+Logic của báo cáo luôn là `bằng chứng trong dữ liệu → cách diễn giải → giới hạn → hành động thu tiếp theo`. Một con số hoặc biểu đồ chỉ có giá trị khi dẫn đến được một quyết định kỹ thuật.
 
 > **Kết luận ngắn:** MQ3 đang cho tín hiệu phân biệt người đáng chú ý nhất. Trong subset cùng điều kiện bụng–không áo, MQ3 giữ thứ tự `Minh > Quy > Tài` qua các phiên có thể so sánh và mô hình thăm dò nhận đúng 6/8 run. Tuy nhiên dữ liệu mới chỉ có 8 run kiểm soát, 3 phiên đánh giá, điều kiện thu chưa cân bằng và accuracy 75% có khoảng Wilson 95% rất rộng: 40,9–92,9%. Kết quả hiện tại là **proof-of-concept**, chưa phải hiệu năng nhận diện đã được xác nhận.
 
@@ -42,7 +42,9 @@ README này là báo cáo phân tích đầy đủ cho lô dữ liệu [`data/ch
 
 ---
 
-## 2. Phạm vi và cách hiểu đúng bộ dữ liệu
+## 2. Nhiệm vụ 1 – Dữ liệu hiện tại nói lên điều gì?
+
+Các mục 2–14 đi từ kiểm kê dữ liệu, kiểm tra cảm biến đến phân tích người và mô hình. Mục tiêu không phải tìm accuracy cao nhất, mà xác định phần tín hiệu nào có thể tin, phần nào chỉ là nhiễu hoặc hiệu ứng phiên.
 
 ### 2.1. Có bao nhiêu mẫu thực sự?
 
@@ -681,13 +683,30 @@ Với mô hình MQ3 nearest-centroid đã cố định:
 
 ---
 
-## 15. Những nguồn sai lệch còn tồn tại
+## 15. Cầu nối giữa hai nhiệm vụ – Dữ liệu lỗi hoặc lệch ở đâu?
 
 Không phải mọi vấn đề đều nghiêm trọng như nhau. Có thể chia thành ba mức:
 
 - **Lỗi phải chặn trước khi phân tích:** đưa warm-up hoặc file phiên trùng lặp vào tập mẫu; chia các dòng của cùng một run sang cả train và test; thiếu nhãn người nhưng vẫn dùng supervised learning. Pipeline hiện tại đã chặn các trường hợp này.
 - **Lỗi chất lượng cảm biến:** MQ135 drift/dao động lớn, không có feedback bơm, không biết divider factor và không có blank để đo carry-over. Các lỗi này làm tín hiệu đo không chắc chắn dù file vẫn hợp lệ.
 - **Thiếu sót thiết kế thí nghiệm:** người, ngày, vị trí, áo và trạng thái sau tắm chưa cân bằng. Đây là trở ngại lớn nhất đối với kết luận “mùi nhận diện được người”, vì không thể tách riêng tác động của từng yếu tố.
+
+### 15.1. Dữ liệu đang lệch cụ thể như thế nào?
+
+| Trục kiểm tra | Phân bố hiện tại | Mức lệch và ý nghĩa |
+|---|---|---|
+| Người trên toàn bộ 15 run | Tài 5, Minh 4, Quy 4, Dũng 2 | Dũng chỉ chiếm 13,3% và không có mẫu cùng protocol để phân loại |
+| Người trong subset kiểm soát | Tài 3, Quy 3, Minh 2, Dũng 0 | Recall của Minh thay đổi 50 điểm phần trăm chỉ với một dự đoán sai |
+| Vị trí/áo | 8 bụng–không áo, 4 ngực–không áo, 1 ngực–có áo, 2 điều kiện đặc biệt | Vị trí và áo không đủ cặp đối chứng; không thể ước lượng riêng ảnh hưởng của chúng |
+| Phiên có đủ Minh–Quy–Tài | Chỉ S5 và S6 | Phần lớn dữ liệu người bị trộn với ngày/phiên; số phiên độc lập thực tế rất nhỏ |
+| Ngày và vị trí | Ngực chủ yếu ngày 13–14; bụng chủ yếu ngày 14–15 | Chênh lệch ngực–bụng có thể thực chất là chênh lệch ngày, môi trường hoặc trạng thái sensor |
+| Trạng thái sau tắm | 1 run Dũng, không rõ vị trí | Không có trước/sau trên cùng người, cùng ngày và cùng vị trí |
+| Metadata nghiên cứu | `person_code`, `source`, `distance_cm`, `notes` trống 15/15 | Ground truth phụ thuộc tên folder; không kiểm tra được khoảng cách và nguồn mẫu |
+| Thao tác tay | WAIT_EXPOSURE 6,13–63,33 s; WAIT_RECOVERY 3,48–43,08 s | Thời điểm khí thật sự đến sensor không đồng nhất giữa run |
+| MQ135 | CV nền trung vị 26,65%; 8/15 drift; 10/15 recovery lỗi | Biến thiên kỹ thuật lớn hơn tín hiệu người; chưa đủ điều kiện đưa vào fusion |
+| Kích thước bài toán | 8 mẫu kiểm soát nhưng 15 đặc trưng | `p/n = 1,875`, nguy cơ overfit và chọn nhầm mô hình rất cao |
+
+### 15.2. Nguồn lỗi, bằng chứng và hậu quả
 
 | Nguồn sai lệch | Bằng chứng trong dữ liệu | Hậu quả |
 |---|---|---|
@@ -734,9 +753,25 @@ Không phải mọi vấn đề đều nghiêm trọng như nhau. Có thể chia
 
 ---
 
-## 17. Pipeline thu thập cho đợt tiếp theo
+## 17. Nhiệm vụ 2 – Phương hướng thu dữ liệu từ các lỗi đã phát hiện
 
-### Bước 1 – Khóa bài toán
+### 17.1. Mỗi phát hiện phải dẫn đến một thay đổi trong cách thu
+
+| Bằng chứng từ lô hiện tại | Kết luận kỹ thuật | Thay đổi bắt buộc ở đợt sau | Tiêu chí chấp nhận |
+|---|---|---|---|
+| MQ3 tách người tốt nhất và giữ thứ tự ở S5–S6 | MQ3 là giả thuyết chính cần xác nhận | Giữ nguyên cấu hình MQ3 và pipeline đặc trưng trước khi thu test | Đánh giá trên ngày mới, không chọn lại mô hình bằng test |
+| MQ135 có CV nền 26,65% và nhiều lỗi recovery | MQ135 hiện phản ánh trạng thái phần cứng nhiều hơn người | Chẩn đoán nguồn/heater/ADS1115; không cho vào mô hình chính nếu chưa qua gate | Baseline CV ≤5%, recovery đạt ngưỡng và lặp lại với nguồn chuẩn |
+| BME688 ổn định nhưng phân loại yếu | Đây là kênh nền/QC, chưa phải fingerprint độc lập | Tiếp tục log gas, nhiệt độ, RH và áp suất | Baseline CV ≤1%; dùng để phát hiện lệch phiên |
+| 15/15 run thiếu `distance_cm` và nhãn chuẩn trong metadata | Biên độ chưa truy vết được về điều kiện lấy mẫu | Bắt buộc metadata trước khi cho phép bắt đầu run | Thiếu trường bắt buộc thì run bị chặn hoặc đánh dấu invalid |
+| Chỉ S5–S6 có đủ ba người | Người đang bị trộn với ngày/phiên | Mỗi phiên phải đo đủ mọi người dưới cùng protocol | Không có lớp nào vắng mặt trong một phiên dùng đánh giá |
+| Ngực/bụng, áo và sau tắm không có đối chứng | Không thể quy chênh lệch cho một yếu tố riêng | Khóa một protocol chính; các yếu tố phụ phải thành thí nghiệm ghép cặp riêng | Mỗi so sánh chỉ thay đổi một yếu tố |
+| Thời gian thao tác tay biến thiên rộng | Mốc exposure phần mềm chưa đồng nghĩa khí đã đến sensor | Cố định lưu lượng, đo độ trễ ống và ghi event tại buồng | Độ trễ được đo; lưu lượng nằm trong dung sai định trước |
+| MQ3 còn residual sau mẫu Minh | Có khả năng carry-over giữa người | Thêm blank và recovery thích ứng giữa hai người | Blank trở về ±5–10% baseline trước run kế tiếp |
+| Nhiệt độ/RH/áp suất đổi theo phiên và tương quan với MQ3 | Môi trường có thể là biến gây nhiễu | Tiếp tục ghi môi trường, cân bằng người trong cùng phiên | Không bỏ cột môi trường; split theo ngày/session |
+
+### 17.2. Pipeline thu thập đề xuất
+
+#### Bước 1 – Khóa bài toán
 
 Trong giai đoạn xác nhận người, chỉ dùng một protocol chính:
 
@@ -751,7 +786,7 @@ khoảng cách: cố định và ghi bằng số
 
 Các thí nghiệm áo/vị trí/sau tắm phải tách thành protocol phụ, không trộn vào bộ nhận diện chính.
 
-### Bước 2 – Ghi metadata bắt buộc
+#### Bước 2 – Ghi metadata bắt buộc
 
 Mỗi run phải có:
 
@@ -765,7 +800,7 @@ Mỗi run phải có:
 
 Tên folder chỉ để đọc nhanh; metadata mới là nguồn ground truth.
 
-### Bước 3 – Warm-up và quality gate riêng từng cảm biến
+#### Bước 3 – Warm-up và quality gate riêng từng cảm biến
 
 | Tiêu chí | Ngưỡng khởi đầu |
 |---|---:|
@@ -779,7 +814,7 @@ Tên folder chỉ để đọc nhanh; metadata mới là nguồn ground truth.
 
 Baseline hiện chỉ đánh giá BME gas, nhiệt độ và RH. Cần bổ sung MQ135/MQ3 vào gate trước khi cho phép exposure.
 
-### Bước 4 – Thiết kế phiên cân bằng
+#### Bước 4 – Thiết kế phiên cân bằng
 
 Mỗi phiên phải có đủ mọi người. Thứ tự người cần random hóa hoặc Latin square để mỗi người xuất hiện ở đầu/giữa/cuối gần như nhau.
 
@@ -791,21 +826,21 @@ Ngày 2: Quy → Tài → Minh
 Ngày 3: Tài → Minh → Quy
 ```
 
-### Bước 5 – Blank và recovery thích ứng
+#### Bước 5 – Blank và recovery thích ứng
 
 1. Thu blank khí phòng đầu phiên.
 2. Thu blank giữa hai người.
 3. Chỉ kết thúc recovery khi từng cảm biến trở về trong ±5–10% baseline hoặc đạt timeout đã định.
 4. Nếu blank sau một người vẫn lệch, đánh dấu run kế tiếp có nguy cơ carry-over.
 
-### Bước 6 – Kiểm soát dòng khí
+#### Bước 6 – Kiểm soát dòng khí
 
 - Đo hoặc xác nhận trạng thái bơm thực tế.
 - Cố định lưu lượng.
 - Đo thời gian trễ từ đầu ống đến buồng cảm biến.
 - Ghi event exposure theo thời điểm khí đến buồng, không chỉ theo lúc nhấn lệnh.
 
-### Bước 7 – Quy mô dữ liệu
+#### Bước 7 – Quy mô dữ liệu
 
 Mức tối thiểu thực dụng cho vòng tiếp theo:
 
@@ -814,9 +849,19 @@ Mức tối thiểu thực dụng cho vòng tiếp theo:
 - 2–4 run/người/ngày;
 - 10–20 run/người;
 - tổng 30–60 run người;
-- khoảng 30 blank/control run bổ sung.
+- khoảng 30–50 blank/control run bổ sung.
 
 Nếu mở rộng số người, ưu tiên tăng số ngày và session trước khi tăng nhiều lần lặp liên tiếp trong cùng một phiên.
+
+### 17.3. Kế hoạch thực thi cụ thể
+
+| Giai đoạn | Dữ liệu cần thu | Mục tiêu | Điều kiện để đi tiếp |
+|---|---|---|---|
+| A. Xác nhận phần cứng | Khí phòng và một nguồn chuẩn lặp lại, chưa dùng người | Kiểm tra MQ135, bơm, độ trễ ống, saturation và recovery | BME688/MQ3 qua gate; MQ135 qua gate hoặc bị loại khỏi nhánh chính |
+| B. Pilot cân bằng | 3 người × 5 ngày × tối thiểu 2 run/người/ngày = 30 run | Xác nhận MQ3 còn giữ khác biệt khi ngày và thứ tự được cân bằng | Mỗi ngày đủ ba người, metadata 100%, có blank, không rò rỉ run giữa train/test |
+| C. Xác nhận độc lập | Ít nhất 2 ngày hoàn toàn mới sau khi khóa pipeline | Đo khả năng nhận diện thật sự trên dữ liệu chưa dùng chọn mô hình | Báo balanced accuracy, macro-F1, confusion matrix và khoảng tin cậy |
+
+Nếu đủ thời gian, tăng giai đoạn B lên 3–4 run/người/ngày, tương đương 45–60 run. Giá trị ưu tiên nằm ở **nhiều ngày độc lập**, không phải thu thật nhiều lần liên tiếp trong cùng một buổi.
 
 ---
 

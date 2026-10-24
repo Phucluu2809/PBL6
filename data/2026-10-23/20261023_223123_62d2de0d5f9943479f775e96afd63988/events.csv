@@ -1,0 +1,5 @@
+run_id,timestamp,elapsed_s,phase_elapsed_s,phase,event,details_json
+62d2de0d5f9943479f775e96afd63988,2026-10-23T22:31:23.957820+07:00,0.0,0.0,MONITOR,external_pump_report,"{""initial_state"": ""unknown"", ""latest_state"": ""unknown"", ""source"": ""not_reported"", ""physical_feedback"": null, ""meaning"": ""User reports external power operation; no GPIO command and no measured feedback"", ""state"": ""unknown"", ""reason"": ""initial declaration"", ""gpio_command_sent"": false}"
+62d2de0d5f9943479f775e96afd63988,2026-10-23T22:31:23.957831+07:00,0.0,0.0,MONITOR,pump_command,"{""command"": ""DISABLED"", ""reason"": ""initialization"", ""feedback"": ""none""}"
+62d2de0d5f9943479f775e96afd63988,2026-10-23T22:33:18.658739+07:00,114.70090645100004,114.70090645100004,MONITOR,pump_command,"{""command"": ""DISABLED"", ""reason"": ""session cleanup"", ""error"": null}"
+62d2de0d5f9943479f775e96afd63988,2026-10-23T22:33:18.658665+07:00,114.70084198900008,114.70084198900008,SESSION,session_end,"{""status"": ""ABORTED"", ""reason"": ""Ctrl+C"", ""pump_command"": ""DISABLED""}"
