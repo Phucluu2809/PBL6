@@ -1,0 +1,42 @@
+{
+  "feature_order": [
+    "gas_exposure_mean_pct",
+    "gas_exposure_middle_mean_pct",
+    "gas_exposure_q10_pct",
+    "gas_exposure_q90_pct",
+    "mq135_1_exposure_middle_mean_pct",
+    "mq135_1_exposure_slope_pct_per_s",
+    "mq135_1_recovery_end_mean_pct"
+  ],
+  "fit_source": "accepted_real_runs_only",
+  "statistics": {
+    "gas_exposure_mean_pct": {
+      "mean": 0.023436425597616314,
+      "std": 0.3351688046525801
+    },
+    "gas_exposure_middle_mean_pct": {
+      "mean": -0.04153593902630587,
+      "std": 0.4232239714568997
+    },
+    "gas_exposure_q10_pct": {
+      "mean": -0.4954545583458776,
+      "std": 0.18965436623393012
+    },
+    "gas_exposure_q90_pct": {
+      "mean": 0.5120706172993402,
+      "std": 0.3970269817257126
+    },
+    "mq135_1_exposure_middle_mean_pct": {
+      "mean": -0.0936723205660079,
+      "std": 0.18500183683437255
+    },
+    "mq135_1_exposure_slope_pct_per_s": {
+      "mean": -0.0012542316370126665,
+      "std": 0.0023995721323665973
+    },
+    "mq135_1_recovery_end_mean_pct": {
+      "mean": -0.4496086339342395,
+      "std": 0.32044126157533054
+    }
+  }
+}

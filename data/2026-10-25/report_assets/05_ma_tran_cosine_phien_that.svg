@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="880" viewBox="0 0 1040 880">
+<title>Ma trận cosine</title>
+<rect width="100%" height="100%" fill="#FFFFFF"/>
+<style>
+text { font-family: "Segoe UI", Arial, sans-serif; fill: #172033; }
+.title { font-size: 28px; font-weight: 700; }
+.subtitle { font-size: 15px; fill: #5D687A; }
+.axis { font-size: 13px; fill: #5D687A; }
+.label { font-size: 14px; font-weight: 600; }
+.value { font-size: 13px; font-weight: 700; }
+</style>
+<text x="48.0" y="48.0" class="title" text-anchor="start">Cosine similarity giữa các phiên thật đạt chất lượng</text>
+<text x="48.0" y="76.0" class="subtitle" text-anchor="start">Vector 7 chiều đã z-score và chuẩn hóa L2. Giá trị cao nghĩa là hướng đặc trưng giống nhau.</text>
+<text x="349.0" y="172.0" class="label" text-anchor="middle">Dung 21:22</text>
+<text x="287.0" y="239.0" class="label" text-anchor="end">Dung 21:22</text>
+<text x="437.0" y="172.0" class="label" text-anchor="middle">Minh 21:38</text>
+<text x="287.0" y="327.0" class="label" text-anchor="end">Minh 21:38</text>
+<text x="525.0" y="172.0" class="label" text-anchor="middle">Quy 21:54</text>
+<text x="287.0" y="415.0" class="label" text-anchor="end">Quy 21:54</text>
+<text x="613.0" y="172.0" class="label" text-anchor="middle">Tai 21:31</text>
+<text x="287.0" y="503.0" class="label" text-anchor="end">Tai 21:31</text>
+<text x="701.0" y="172.0" class="label" text-anchor="middle">Tai 21:47</text>
+<text x="287.0" y="591.0" class="label" text-anchor="end">Tai 21:47</text>
+<text x="789.0" y="172.0" class="label" text-anchor="middle">Tai 22:01</text>
+<text x="287.0" y="679.0" class="label" text-anchor="end">Tai 22:01</text>
+<rect x="305" y="190" width="84" height="84" rx="5" fill="#2C7BB6"/>
+<text x="347.0" y="234.0" class="value" text-anchor="middle" style="fill:#FFFFFF">1.000</text>
+<rect x="393" y="190" width="84" height="84" rx="5" fill="#9FC2DE"/>
+<text x="435.0" y="234.0" class="value" text-anchor="middle" style="fill:#172033">-0.129</text>
+<rect x="481" y="190" width="84" height="84" rx="5" fill="#76A9D0"/>
+<text x="523.0" y="234.0" class="value" text-anchor="middle" style="fill:#172033">0.270</text>
+<rect x="569" y="190" width="84" height="84" rx="5" fill="#D6E5F1"/>
+<text x="611.0" y="234.0" class="value" text-anchor="middle" style="fill:#172033">-0.676</text>
+<rect x="657" y="190" width="84" height="84" rx="5" fill="#EFF4F9"/>
+<text x="699.0" y="234.0" class="value" text-anchor="middle" style="fill:#172033">-0.925</text>
+<rect x="745" y="190" width="84" height="84" rx="5" fill="#EBF2F8"/>
+<text x="787.0" y="234.0" class="value" text-anchor="middle" style="fill:#172033">-0.884</text>
+<rect x="305" y="278" width="84" height="84" rx="5" fill="#9FC2DE"/>
+<text x="347.0" y="322.0" class="value" text-anchor="middle" style="fill:#172033">-0.129</text>
+<rect x="393" y="278" width="84" height="84" rx="5" fill="#2C7BB6"/>
+<text x="435.0" y="322.0" class="value" text-anchor="middle" style="fill:#FFFFFF">1.000</text>
+<rect x="481" y="278" width="84" height="84" rx="5" fill="#D0E1EF"/>
+<text x="523.0" y="322.0" class="value" text-anchor="middle" style="fill:#172033">-0.615</text>
+<rect x="569" y="278" width="84" height="84" rx="5" fill="#76A9CF"/>
+<text x="611.0" y="322.0" class="value" text-anchor="middle" style="fill:#172033">0.275</text>
+<rect x="657" y="278" width="84" height="84" rx="5" fill="#98BEDB"/>
+<text x="699.0" y="322.0" class="value" text-anchor="middle" style="fill:#172033">-0.066</text>
+<rect x="745" y="278" width="84" height="84" rx="5" fill="#ACCAE2"/>
+<text x="787.0" y="322.0" class="value" text-anchor="middle" style="fill:#172033">-0.258</text>
+<rect x="305" y="366" width="84" height="84" rx="5" fill="#76A9D0"/>
+<text x="347.0" y="410.0" class="value" text-anchor="middle" style="fill:#172033">0.270</text>
+<rect x="393" y="366" width="84" height="84" rx="5" fill="#D0E1EF"/>
+<text x="435.0" y="410.0" class="value" text-anchor="middle" style="fill:#172033">-0.615</text>
+<rect x="481" y="366" width="84" height="84" rx="5" fill="#2C7BB6"/>
+<text x="523.0" y="410.0" class="value" text-anchor="middle" style="fill:#FFFFFF">1.000</text>
+<rect x="569" y="366" width="84" height="84" rx="5" fill="#E0EBF4"/>
+<text x="611.0" y="410.0" class="value" text-anchor="middle" style="fill:#172033">-0.776</text>
+<rect x="657" y="366" width="84" height="84" rx="5" fill="#B3CFE5"/>
+<text x="699.0" y="410.0" class="value" text-anchor="middle" style="fill:#172033">-0.334</text>
+<rect x="745" y="366" width="84" height="84" rx="5" fill="#A6C7E0"/>
+<text x="787.0" y="410.0" class="value" text-anchor="middle" style="fill:#172033">-0.202</text>
+<rect x="305" y="454" width="84" height="84" rx="5" fill="#D6E5F1"/>
+<text x="347.0" y="498.0" class="value" text-anchor="middle" style="fill:#172033">-0.676</text>
+<rect x="393" y="454" width="84" height="84" rx="5" fill="#76A9CF"/>
+<text x="435.0" y="498.0" class="value" text-anchor="middle" style="fill:#172033">0.275</text>
+<rect x="481" y="454" width="84" height="84" rx="5" fill="#E0EBF4"/>
+<text x="523.0" y="498.0" class="value" text-anchor="middle" style="fill:#172033">-0.776</text>
+<rect x="569" y="454" width="84" height="84" rx="5" fill="#2C7BB6"/>
+<text x="611.0" y="498.0" class="value" text-anchor="middle" style="fill:#FFFFFF">1.000</text>
+<rect x="657" y="454" width="84" height="84" rx="5" fill="#4B8EC1"/>
+<text x="699.0" y="498.0" class="value" text-anchor="middle" style="fill:#FFFFFF">0.699</text>
+<rect x="745" y="454" width="84" height="84" rx="5" fill="#4F91C2"/>
+<text x="787.0" y="498.0" class="value" text-anchor="middle" style="fill:#FFFFFF">0.655</text>
+<rect x="305" y="542" width="84" height="84" rx="5" fill="#EFF4F9"/>
+<text x="347.0" y="586.0" class="value" text-anchor="middle" style="fill:#172033">-0.925</text>
+<rect x="393" y="542" width="84" height="84" rx="5" fill="#98BEDB"/>
+<text x="435.0" y="586.0" class="value" text-anchor="middle" style="fill:#172033">-0.066</text>
+<rect x="481" y="542" width="84" height="84" rx="5" fill="#B3CFE5"/>
+<text x="523.0" y="586.0" class="value" text-anchor="middle" style="fill:#172033">-0.334</text>
+<rect x="569" y="542" width="84" height="84" rx="5" fill="#4B8EC1"/>
+<text x="611.0" y="586.0" class="value" text-anchor="middle" style="fill:#FFFFFF">0.699</text>
+<rect x="657" y="542" width="84" height="84" rx="5" fill="#2C7BB6"/>
+<text x="699.0" y="586.0" class="value" text-anchor="middle" style="fill:#FFFFFF">1.000</text>
+<rect x="745" y="542" width="84" height="84" rx="5" fill="#327FB8"/>
+<text x="787.0" y="586.0" class="value" text-anchor="middle" style="fill:#FFFFFF">0.942</text>
+<rect x="305" y="630" width="84" height="84" rx="5" fill="#EBF2F8"/>
+<text x="347.0" y="674.0" class="value" text-anchor="middle" style="fill:#172033">-0.884</text>
+<rect x="393" y="630" width="84" height="84" rx="5" fill="#ACCAE2"/>
+<text x="435.0" y="674.0" class="value" text-anchor="middle" style="fill:#172033">-0.258</text>
+<rect x="481" y="630" width="84" height="84" rx="5" fill="#A6C7E0"/>
+<text x="523.0" y="674.0" class="value" text-anchor="middle" style="fill:#172033">-0.202</text>
+<rect x="569" y="630" width="84" height="84" rx="5" fill="#4F91C2"/>
+<text x="611.0" y="674.0" class="value" text-anchor="middle" style="fill:#FFFFFF">0.655</text>
+<rect x="657" y="630" width="84" height="84" rx="5" fill="#327FB8"/>
+<text x="699.0" y="674.0" class="value" text-anchor="middle" style="fill:#FFFFFF">0.942</text>
+<rect x="745" y="630" width="84" height="84" rx="5" fill="#2C7BB6"/>
+<text x="787.0" y="674.0" class="value" text-anchor="middle" style="fill:#FFFFFF">1.000</text>
+</svg>

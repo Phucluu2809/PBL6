@@ -1,0 +1,47 @@
+{
+  "generated_at": "2026-10-26T08:59:37.429437+00:00",
+  "input": "D:\\PBL6\\data\\2026-10-25",
+  "output": "D:\\PBL6\\data\\2026-10-25_augmented",
+  "seed": 20261025,
+  "variants_per_run": 20,
+  "minimum_valid_fraction": 0.9,
+  "phase_lengths": {
+    "BASELINE": 60,
+    "EXPOSURE": 120,
+    "RECOVERY": 60
+  },
+  "selected_sensors": {
+    "gas": {
+      "value": "gas_resistance_ohm",
+      "status": "bme_status",
+      "fresh": "bme_fresh"
+    },
+    "mq135_1": {
+      "value": "mq135_1_voltage_v",
+      "status": "mq135_1_status",
+      "fresh": "mq135_1_fresh"
+    }
+  },
+  "feature_order": [
+    "gas_exposure_mean_pct",
+    "gas_exposure_middle_mean_pct",
+    "gas_exposure_q10_pct",
+    "gas_exposure_q90_pct",
+    "mq135_1_exposure_middle_mean_pct",
+    "mq135_1_exposure_slope_pct_per_s",
+    "mq135_1_recovery_end_mean_pct"
+  ],
+  "accepted_real_runs": [
+    "aDung_20261025_212248_38b6e5b5a8e84de3a5cf01c3155b99bf",
+    "aMinh_20261025_213826_48c413b66db34045b65795e09d60e541",
+    "aQuy_20261025_215448_79f35cc752414bfe9ba9250f45238dd0",
+    "Tai_20261025_213104_8f5aaa8d5eed44809636777749e2335a",
+    "Tai_20261025_214756_62ac6185c4014cefa6dec64c07ea2291",
+    "Tai_20261025_220130_c0ab68689fb4440793fb4dd54164ad8a"
+  ],
+  "rejected_real_runs": [
+    "Tai_20261025_205139_5d2a3c167fa0485eb88cc20949bc6e22"
+  ],
+  "sample_count": 126,
+  "signal_row_count": 30240
+}

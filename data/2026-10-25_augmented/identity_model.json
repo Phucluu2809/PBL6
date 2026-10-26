@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "model_type": "source-balanced cosine identity profiles",
+  "feature_order": [
+    "gas_exposure_mean_pct",
+    "gas_exposure_middle_mean_pct",
+    "gas_exposure_q10_pct",
+    "gas_exposure_q90_pct",
+    "mq135_1_exposure_middle_mean_pct",
+    "mq135_1_exposure_slope_pct_per_s",
+    "mq135_1_recovery_end_mean_pct"
+  ],
+  "vector_columns": [
+    "v_01",
+    "v_02",
+    "v_03",
+    "v_04",
+    "v_05",
+    "v_06",
+    "v_07"
+  ],
+  "seed": 20261025,
+  "centroid_policy": "Average variants within each source run, L2-normalize, then average source centroids per person with equal source-run weight.",
+  "threshold_policy": "Use the midpoint between own p05 and maximum impostor similarity when separable; otherwise use own p05 and mark training_separable=false.",
+  "calibration_warning": "Thresholds are estimated from augmented training data and are provisional until validated on independent real sessions.",
+  "profiles": [
+    {
+      "person": "Dung",
+      "vector": [
+        0.4044121433746961,
+        0.44026268359521303,
+        0.12493867435946579,
+        0.4448939084126874,
+        -0.32621354683758774,
+        -0.3618836049403103,
+        -0.4378405006006808
+      ],
+      "real_run_count": 1,
+      "source_runs": [
+        "aDung_20261025_212248_38b6e5b5a8e84de3a5cf01c3155b99bf"
+      ],
+      "augmented_sample_count": 20,
+      "total_sample_count": 21,
+      "genuine_similarity_min": 0.9737595679459503,
+      "genuine_similarity_p05": 0.977850839344767,
+      "genuine_similarity_median": 0.9966818934678058,
+      "impostor_similarity_max": 0.3612485236540994,
+      "impostor_similarity_p95": 0.3112374027733199,
+      "similarity_threshold": 0.6695496814994332,
+      "margin_threshold": 0.5549072688176397,
+      "training_separable": true
+    },
+    {
+      "person": "Minh",
+      "vector": [
+        -0.4030802723942656,
+        -0.35456178672126887,
+        -0.23357092211427935,
+        -0.4571821133280316,
+        -0.4846064802844063,
+        -0.41780559460137023,
+        -0.197069574986453
+      ],
+      "real_run_count": 1,
+      "source_runs": [
+        "aMinh_20261025_213826_48c413b66db34045b65795e09d60e541"
+      ],
+      "augmented_sample_count": 20,
+      "total_sample_count": 21,
+      "genuine_similarity_min": 0.9978535750655394,
+      "genuine_similarity_p05": 0.9980176524863031,
+      "genuine_similarity_median": 0.9990466595827355,
+      "impostor_similarity_max": 0.3840727617141041,
+      "impostor_similarity_p95": 0.35826947348000215,
+      "similarity_threshold": 0.6910452071002036,
+      "margin_threshold": 0.9558240108385578,
+      "training_separable": true
+    },
+    {
+      "person": "Quy",
+      "vector": [
+        0.3250579983024716,
+        0.23449231922574212,
+        0.878907894371034,
+        0.17060744144437726,
+        0.06409268045968909,
+        0.10876664069822703,
+        0.14773831690701286
+      ],
+      "real_run_count": 1,
+      "source_runs": [
+        "aQuy_20261025_215448_79f35cc752414bfe9ba9250f45238dd0"
+      ],
+      "augmented_sample_count": 20,
+      "total_sample_count": 21,
+      "genuine_similarity_min": 0.9945463853960606,
+      "genuine_similarity_p05": 0.9959681152530329,
+      "genuine_similarity_median": 0.9990874505008454,
+      "impostor_similarity_max": 0.4539527646742364,
+      "impostor_similarity_p95": 0.34506234855918916,
+      "similarity_threshold": 0.7249604399636347,
+      "margin_threshold": 0.675975658274611,
+      "training_separable": true
+    },
+    {
+      "person": "Tai",
+      "vector": [
+        -0.3236424206426521,
+        -0.3471991442057294,
+        -0.42773007725584283,
+        -0.29005718232695865,
+        0.4553248418368681,
+        0.4253300292090719,
+        0.34553697989342774
+      ],
+      "real_run_count": 3,
+      "source_runs": [
+        "Tai_20261025_213104_8f5aaa8d5eed44809636777749e2335a",
+        "Tai_20261025_214756_62ac6185c4014cefa6dec64c07ea2291",
+        "Tai_20261025_220130_c0ab68689fb4440793fb4dd54164ad8a"
+      ],
+      "augmented_sample_count": 60,
+      "total_sample_count": 63,
+      "genuine_similarity_min": 0.7704547854165826,
+      "genuine_similarity_p05": 0.7986788019901564,
+      "genuine_similarity_median": 0.9248564882337076,
+      "impostor_similarity_max": 0.04686318866368856,
+      "impostor_similarity_p95": 0.03181911121206081,
+      "similarity_threshold": 0.42277099532692247,
+      "margin_threshold": 0.44300636333929716,
+      "training_separable": true
+    }
+  ]
+}

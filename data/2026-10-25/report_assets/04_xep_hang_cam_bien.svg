@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="570" viewBox="0 0 1040 570">
+<title>Xếp hạng cảm biến</title>
+<rect width="100%" height="100%" fill="#FFFFFF"/>
+<style>
+text { font-family: "Segoe UI", Arial, sans-serif; fill: #172033; }
+.title { font-size: 28px; font-weight: 700; }
+.subtitle { font-size: 15px; fill: #5D687A; }
+.axis { font-size: 13px; fill: #5D687A; }
+.label { font-size: 14px; font-weight: 600; }
+.value { font-size: 13px; font-weight: 700; }
+</style>
+<text x="48.0" y="48.0" class="title" text-anchor="start">Khả năng tách Tai khỏi người khác theo cảm biến</text>
+<text x="48.0" y="76.0" class="subtitle" text-anchor="start">Tỷ lệ &gt; 1 tốt hơn; chỉ là chỉ báo thăm dò vì ba người còn lại có một phiên.</text>
+<line x1="250.0" y1="97" x2="250.0" y2="475" stroke="#D7DEE8"/>
+<text x="250.0" y="88.0" class="axis" text-anchor="middle">0</text>
+<line x1="430.55555555555554" y1="97" x2="430.55555555555554" y2="475" stroke="#D7DEE8"/>
+<text x="430.6" y="88.0" class="axis" text-anchor="middle">0.5</text>
+<line x1="611.1111111111111" y1="97" x2="611.1111111111111" y2="475" stroke="#D7DEE8"/>
+<text x="611.1" y="88.0" class="axis" text-anchor="middle">1.0</text>
+<line x1="791.6666666666666" y1="97" x2="791.6666666666666" y2="475" stroke="#D7DEE8"/>
+<text x="791.7" y="88.0" class="axis" text-anchor="middle">1.5</text>
+<line x1="611.1111111111111" y1="91" x2="611.1111111111111" y2="475" stroke="#D55E00" stroke-width="2" stroke-dasharray="6 5"/>
+<text x="232.0" y="147.0" class="label" text-anchor="end">BME gas</text>
+<rect x="250" y="125" width="538.4667458631415" height="28" rx="6" fill="#2A9D8F"/>
+<text x="798.5" y="146.0" class="value" text-anchor="start">1.49 · Tai NN 2/3</text>
+<text x="232.0" y="219.0" class="label" text-anchor="end">MQ135-1</text>
+<rect x="250" y="197" width="577.9929085087886" height="28" rx="6" fill="#2A9D8F"/>
+<text x="838.0" y="218.0" class="value" text-anchor="start">1.60 · Tai NN 2/3</text>
+<text x="232.0" y="291.0" class="label" text-anchor="end">MQ3-1</text>
+<rect x="250" y="269" width="409.0179202685281" height="28" rx="6" fill="#9AA6B2"/>
+<text x="669.0" y="290.0" class="value" text-anchor="start">1.13 · Tai NN 2/3</text>
+<text x="232.0" y="363.0" class="label" text-anchor="end">MQ135-2</text>
+<rect x="250" y="341" width="365.4754638681185" height="28" rx="6" fill="#9AA6B2"/>
+<text x="625.5" y="362.0" class="value" text-anchor="start">1.01 · Tai NN 0/3</text>
+<text x="232.0" y="435.0" class="label" text-anchor="end">MQ3-2</text>
+<rect x="250" y="413" width="340.6356769375654" height="28" rx="6" fill="#9AA6B2"/>
+<text x="600.6" y="434.0" class="value" text-anchor="start">0.94 · Tai NN 2/3</text>
+</svg>

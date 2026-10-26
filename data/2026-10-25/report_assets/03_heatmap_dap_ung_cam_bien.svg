@@ -1,0 +1,201 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="720" viewBox="0 0 1180 720">
+<title>Đáp ứng cảm biến</title>
+<rect width="100%" height="100%" fill="#FFFFFF"/>
+<style>
+text { font-family: "Segoe UI", Arial, sans-serif; fill: #172033; }
+.title { font-size: 28px; font-weight: 700; }
+.subtitle { font-size: 15px; fill: #5D687A; }
+.axis { font-size: 13px; fill: #5D687A; }
+.label { font-size: 14px; font-weight: 600; }
+.value { font-size: 13px; font-weight: 700; }
+</style>
+<text x="48.0" y="48.0" class="title" text-anchor="start">Đáp ứng trung bình trong pha EXPOSURE</text>
+<text x="48.0" y="76.0" class="subtitle" text-anchor="start">Đơn vị: % so với median baseline. Màu bị giới hạn ở ±1%; con số trong ô là giá trị thật.</text>
+<text x="385.0" y="113.0" class="label" text-anchor="middle">BME gas</text>
+<text x="535.0" y="113.0" class="label" text-anchor="middle">MQ135-1</text>
+<text x="685.0" y="113.0" class="label" text-anchor="middle">MQ3-1</text>
+<text x="835.0" y="113.0" class="label" text-anchor="middle">MQ135-2</text>
+<text x="985.0" y="113.0" class="label" text-anchor="middle">MQ3-2</text>
+<text x="292.0" y="171.0" class="label" text-anchor="end">Dung 21:22</text>
+<rect x="310" y="135" width="146" height="58" rx="5" fill="#E2995F"/>
+<text x="383.0" y="171" class="value" text-anchor="middle" style="fill:#172033">+0.622%</text>
+<rect x="460" y="135" width="146" height="58" rx="5" fill="#B0D2E7"/>
+<text x="533.0" y="171" class="value" text-anchor="middle" style="fill:#172033">-0.287%</text>
+<rect x="610" y="135" width="146" height="58" rx="5" fill="#D55E00"/>
+<text x="683.0" y="171" class="value" text-anchor="middle" style="fill:#FFFFFF">+1.004%</text>
+<rect x="760" y="135" width="146" height="58" rx="5" fill="#F4F7FB"/>
+<text x="833.0" y="171" class="value" text-anchor="middle" style="fill:#172033">-0.014%</text>
+<rect x="910" y="135" width="146" height="58" rx="5" fill="#82B9D9"/>
+<text x="983.0" y="171" class="value" text-anchor="middle" style="fill:#172033">-0.475%</text>
+<text x="292.0" y="233.0" class="label" text-anchor="end">Minh 21:38</text>
+<rect x="310" y="197" width="146" height="58" rx="5" fill="#A9CEE4"/>
+<text x="383.0" y="233" class="value" text-anchor="middle" style="fill:#172033">-0.318%</text>
+<rect x="460" y="197" width="146" height="58" rx="5" fill="#A9CEE4"/>
+<text x="533.0" y="233" class="value" text-anchor="middle" style="fill:#172033">-0.318%</text>
+<rect x="610" y="197" width="146" height="58" rx="5" fill="#D4E6F2"/>
+<text x="683.0" y="233" class="value" text-anchor="middle" style="fill:#172033">-0.142%</text>
+<rect x="760" y="197" width="146" height="58" rx="5" fill="#C0DBEB"/>
+<text x="833.0" y="233" class="value" text-anchor="middle" style="fill:#172033">-0.224%</text>
+<rect x="910" y="197" width="146" height="58" rx="5" fill="#6AACD2"/>
+<text x="983.0" y="233" class="value" text-anchor="middle" style="fill:#172033">-0.572%</text>
+<text x="292.0" y="295.0" class="label" text-anchor="end">Quy 21:54</text>
+<rect x="310" y="259" width="146" height="58" rx="5" fill="#ECC6A9"/>
+<text x="383.0" y="295" class="value" text-anchor="middle" style="fill:#172033">+0.328%</text>
+<rect x="460" y="259" width="146" height="58" rx="5" fill="#E7F0F7"/>
+<text x="533.0" y="295" class="value" text-anchor="middle" style="fill:#172033">-0.066%</text>
+<rect x="610" y="259" width="146" height="58" rx="5" fill="#C2DCEC"/>
+<text x="683.0" y="295" class="value" text-anchor="middle" style="fill:#172033">-0.215%</text>
+<rect x="760" y="259" width="146" height="58" rx="5" fill="#F7F8FA"/>
+<text x="833.0" y="295" class="value" text-anchor="middle" style="fill:#172033">+0.008%</text>
+<rect x="910" y="259" width="146" height="58" rx="5" fill="#B3D4E8"/>
+<text x="983.0" y="295" class="value" text-anchor="middle" style="fill:#172033">-0.274%</text>
+<text x="292.0" y="357.0" class="label" text-anchor="end">Tai 20:51</text>
+<text x="292.0" y="374.0" class="axis" text-anchor="end">phiên bị loại</text>
+<rect x="310" y="321" width="146" height="58" rx="5" fill="#EBC1A1"/>
+<text x="383.0" y="357" class="value" text-anchor="middle" style="fill:#172033">+0.362%</text>
+<rect x="460" y="321" width="146" height="58" rx="5" fill="#D55E00"/>
+<text x="533.0" y="357" class="value" text-anchor="middle" style="fill:#FFFFFF">+5.910%</text>
+<rect x="610" y="321" width="146" height="58" rx="5" fill="#0072B2"/>
+<text x="683.0" y="357" class="value" text-anchor="middle" style="fill:#FFFFFF">-8.540%</text>
+<rect x="760" y="321" width="146" height="58" rx="5" fill="#D55E00"/>
+<text x="833.0" y="357" class="value" text-anchor="middle" style="fill:#FFFFFF">+5.254%</text>
+<rect x="910" y="321" width="146" height="58" rx="5" fill="#4F9DCA"/>
+<text x="983.0" y="357" class="value" text-anchor="middle" style="fill:#FFFFFF">-0.681%</text>
+<text x="292.0" y="419.0" class="label" text-anchor="end">Tai 21:31</text>
+<rect x="310" y="383" width="146" height="58" rx="5" fill="#D4E6F2"/>
+<text x="383.0" y="419" class="value" text-anchor="middle" style="fill:#172033">-0.140%</text>
+<rect x="460" y="383" width="146" height="58" rx="5" fill="#DDEBF4"/>
+<text x="533.0" y="419" class="value" text-anchor="middle" style="fill:#172033">-0.104%</text>
+<rect x="610" y="383" width="146" height="58" rx="5" fill="#7DB6D7"/>
+<text x="683.0" y="419" class="value" text-anchor="middle" style="fill:#172033">-0.494%</text>
+<rect x="760" y="383" width="146" height="58" rx="5" fill="#A9CEE4"/>
+<text x="833.0" y="419" class="value" text-anchor="middle" style="fill:#172033">-0.318%</text>
+<rect x="910" y="383" width="146" height="58" rx="5" fill="#58A2CC"/>
+<text x="983.0" y="419" class="value" text-anchor="middle" style="fill:#172033">-0.645%</text>
+<text x="292.0" y="481.0" class="label" text-anchor="end">Tai 21:47</text>
+<rect x="310" y="445" width="146" height="58" rx="5" fill="#C7DFEE"/>
+<text x="383.0" y="481" class="value" text-anchor="middle" style="fill:#172033">-0.196%</text>
+<rect x="460" y="445" width="146" height="58" rx="5" fill="#F4EDE8"/>
+<text x="533.0" y="481" class="value" text-anchor="middle" style="fill:#172033">+0.078%</text>
+<rect x="610" y="445" width="146" height="58" rx="5" fill="#ECF3F9"/>
+<text x="683.0" y="481" class="value" text-anchor="middle" style="fill:#172033">-0.043%</text>
+<rect x="760" y="445" width="146" height="58" rx="5" fill="#F3F7FB"/>
+<text x="833.0" y="481" class="value" text-anchor="middle" style="fill:#172033">-0.016%</text>
+<rect x="910" y="445" width="146" height="58" rx="5" fill="#F4F7FB"/>
+<text x="983.0" y="481" class="value" text-anchor="middle" style="fill:#172033">-0.014%</text>
+<text x="292.0" y="543.0" class="label" text-anchor="end">Tai 22:01</text>
+<rect x="310" y="507" width="146" height="58" rx="5" fill="#D0E4F0"/>
+<text x="383.0" y="543" class="value" text-anchor="middle" style="fill:#172033">-0.156%</text>
+<rect x="460" y="507" width="146" height="58" rx="5" fill="#F3E9E2"/>
+<text x="533.0" y="543" class="value" text-anchor="middle" style="fill:#172033">+0.104%</text>
+<rect x="610" y="507" width="146" height="58" rx="5" fill="#F5EFEC"/>
+<text x="683.0" y="543" class="value" text-anchor="middle" style="fill:#172033">+0.065%</text>
+<rect x="760" y="507" width="146" height="58" rx="5" fill="#F5EEEA"/>
+<text x="833.0" y="543" class="value" text-anchor="middle" style="fill:#172033">+0.072%</text>
+<rect x="910" y="507" width="146" height="58" rx="5" fill="#E8F1F7"/>
+<text x="983.0" y="543" class="value" text-anchor="middle" style="fill:#172033">-0.062%</text>
+<rect x="310" y="601" width="4.2" height="16" fill="#0072B2"/>
+<rect x="314" y="601" width="4.2" height="16" fill="#0575B3"/>
+<rect x="318" y="601" width="4.2" height="16" fill="#0A77B5"/>
+<rect x="322" y="601" width="4.2" height="16" fill="#0F7AB6"/>
+<rect x="326" y="601" width="4.2" height="16" fill="#147DB8"/>
+<rect x="330" y="601" width="4.2" height="16" fill="#1980B9"/>
+<rect x="334" y="601" width="4.2" height="16" fill="#1E82BB"/>
+<rect x="338" y="601" width="4.2" height="16" fill="#2385BC"/>
+<rect x="342" y="601" width="4.2" height="16" fill="#2888BE"/>
+<rect x="346" y="601" width="4.2" height="16" fill="#2C8ABF"/>
+<rect x="350" y="601" width="4.2" height="16" fill="#318DC1"/>
+<rect x="354" y="601" width="4.2" height="16" fill="#3690C2"/>
+<rect x="358" y="601" width="4.2" height="16" fill="#3B92C4"/>
+<rect x="362" y="601" width="4.2" height="16" fill="#4095C5"/>
+<rect x="366" y="601" width="4.2" height="16" fill="#4598C7"/>
+<rect x="370" y="601" width="4.2" height="16" fill="#4A9AC8"/>
+<rect x="374" y="601" width="4.2" height="16" fill="#4F9DCA"/>
+<rect x="378" y="601" width="4.2" height="16" fill="#54A0CB"/>
+<rect x="382" y="601" width="4.2" height="16" fill="#59A3CD"/>
+<rect x="386" y="601" width="4.2" height="16" fill="#5EA5CE"/>
+<rect x="390" y="601" width="4.2" height="16" fill="#63A8D0"/>
+<rect x="394" y="601" width="4.2" height="16" fill="#68ABD1"/>
+<rect x="398" y="601" width="4.2" height="16" fill="#6DADD3"/>
+<rect x="402" y="601" width="4.2" height="16" fill="#72B0D4"/>
+<rect x="406" y="601" width="4.2" height="16" fill="#77B3D6"/>
+<rect x="410" y="601" width="4.2" height="16" fill="#7CB6D7"/>
+<rect x="414" y="601" width="4.2" height="16" fill="#80B8D8"/>
+<rect x="418" y="601" width="4.2" height="16" fill="#85BBDA"/>
+<rect x="422" y="601" width="4.2" height="16" fill="#8ABEDB"/>
+<rect x="426" y="601" width="4.2" height="16" fill="#8FC0DD"/>
+<rect x="430" y="601" width="4.2" height="16" fill="#94C3DE"/>
+<rect x="434" y="601" width="4.2" height="16" fill="#99C6E0"/>
+<rect x="438" y="601" width="4.2" height="16" fill="#9EC8E1"/>
+<rect x="442" y="601" width="4.2" height="16" fill="#A3CBE3"/>
+<rect x="446" y="601" width="4.2" height="16" fill="#A8CEE4"/>
+<rect x="450" y="601" width="4.2" height="16" fill="#ADD0E6"/>
+<rect x="454" y="601" width="4.2" height="16" fill="#B2D3E7"/>
+<rect x="458" y="601" width="4.2" height="16" fill="#B7D6E9"/>
+<rect x="462" y="601" width="4.2" height="16" fill="#BCD9EA"/>
+<rect x="466" y="601" width="4.2" height="16" fill="#C1DBEC"/>
+<rect x="470" y="601" width="4.2" height="16" fill="#C6DEED"/>
+<rect x="474" y="601" width="4.2" height="16" fill="#CBE1EF"/>
+<rect x="478" y="601" width="4.2" height="16" fill="#CFE3F0"/>
+<rect x="482" y="601" width="4.2" height="16" fill="#D4E6F2"/>
+<rect x="486" y="601" width="4.2" height="16" fill="#D9E9F3"/>
+<rect x="490" y="601" width="4.2" height="16" fill="#DEECF5"/>
+<rect x="494" y="601" width="4.2" height="16" fill="#E3EEF6"/>
+<rect x="498" y="601" width="4.2" height="16" fill="#E8F1F8"/>
+<rect x="502" y="601" width="4.2" height="16" fill="#EDF4F9"/>
+<rect x="506" y="601" width="4.2" height="16" fill="#F2F6FB"/>
+<rect x="510" y="601" width="4.2" height="16" fill="#F7F9FC"/>
+<rect x="514" y="601" width="4.2" height="16" fill="#F6F6F7"/>
+<rect x="518" y="601" width="4.2" height="16" fill="#F6F3F2"/>
+<rect x="522" y="601" width="4.2" height="16" fill="#F5F0ED"/>
+<rect x="526" y="601" width="4.2" height="16" fill="#F4EDE8"/>
+<rect x="530" y="601" width="4.2" height="16" fill="#F4EAE3"/>
+<rect x="534" y="601" width="4.2" height="16" fill="#F3E6DE"/>
+<rect x="538" y="601" width="4.2" height="16" fill="#F2E3D9"/>
+<rect x="542" y="601" width="4.2" height="16" fill="#F2E0D4"/>
+<rect x="546" y="601" width="4.2" height="16" fill="#F1DDCF"/>
+<rect x="550" y="601" width="4.2" height="16" fill="#F0DACA"/>
+<rect x="554" y="601" width="4.2" height="16" fill="#F0D7C5"/>
+<rect x="558" y="601" width="4.2" height="16" fill="#EFD4C0"/>
+<rect x="562" y="601" width="4.2" height="16" fill="#EED1BA"/>
+<rect x="566" y="601" width="4.2" height="16" fill="#EDCEB5"/>
+<rect x="570" y="601" width="4.2" height="16" fill="#EDCAB0"/>
+<rect x="574" y="601" width="4.2" height="16" fill="#ECC7AB"/>
+<rect x="578" y="601" width="4.2" height="16" fill="#EBC4A6"/>
+<rect x="582" y="601" width="4.2" height="16" fill="#EBC1A1"/>
+<rect x="586" y="601" width="4.2" height="16" fill="#EABE9C"/>
+<rect x="590" y="601" width="4.2" height="16" fill="#E9BB97"/>
+<rect x="594" y="601" width="4.2" height="16" fill="#E9B892"/>
+<rect x="598" y="601" width="4.2" height="16" fill="#E8B58D"/>
+<rect x="602" y="601" width="4.2" height="16" fill="#E7B288"/>
+<rect x="606" y="601" width="4.2" height="16" fill="#E7AF83"/>
+<rect x="610" y="601" width="4.2" height="16" fill="#E6AC7E"/>
+<rect x="614" y="601" width="4.2" height="16" fill="#E5A879"/>
+<rect x="618" y="601" width="4.2" height="16" fill="#E5A574"/>
+<rect x="622" y="601" width="4.2" height="16" fill="#E4A26F"/>
+<rect x="626" y="601" width="4.2" height="16" fill="#E39F6A"/>
+<rect x="630" y="601" width="4.2" height="16" fill="#E39C65"/>
+<rect x="634" y="601" width="4.2" height="16" fill="#E29960"/>
+<rect x="638" y="601" width="4.2" height="16" fill="#E1965B"/>
+<rect x="642" y="601" width="4.2" height="16" fill="#E19356"/>
+<rect x="646" y="601" width="4.2" height="16" fill="#E09051"/>
+<rect x="650" y="601" width="4.2" height="16" fill="#DF8C4C"/>
+<rect x="654" y="601" width="4.2" height="16" fill="#DF8947"/>
+<rect x="658" y="601" width="4.2" height="16" fill="#DE8642"/>
+<rect x="662" y="601" width="4.2" height="16" fill="#DD833C"/>
+<rect x="666" y="601" width="4.2" height="16" fill="#DC8037"/>
+<rect x="670" y="601" width="4.2" height="16" fill="#DC7D32"/>
+<rect x="674" y="601" width="4.2" height="16" fill="#DB7A2D"/>
+<rect x="678" y="601" width="4.2" height="16" fill="#DA7728"/>
+<rect x="682" y="601" width="4.2" height="16" fill="#DA7423"/>
+<rect x="686" y="601" width="4.2" height="16" fill="#D9711E"/>
+<rect x="690" y="601" width="4.2" height="16" fill="#D86E19"/>
+<rect x="694" y="601" width="4.2" height="16" fill="#D86A14"/>
+<rect x="698" y="601" width="4.2" height="16" fill="#D7670F"/>
+<rect x="702" y="601" width="4.2" height="16" fill="#D6640A"/>
+<rect x="706" y="601" width="4.2" height="16" fill="#D66105"/>
+<rect x="710" y="601" width="4.2" height="16" fill="#D55E00"/>
+<text x="310.0" y="639.0" class="axis" text-anchor="start">−1%</text>
+<text x="512.0" y="639.0" class="axis" text-anchor="middle">0%</text>
+<text x="714.0" y="639.0" class="axis" text-anchor="end">+1%</text>
+</svg>
