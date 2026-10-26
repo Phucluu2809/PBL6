@@ -58,6 +58,28 @@ Không làm augmentation cho mẫu cần nhận diện. Predictor luôn xử lý
 
 ## Sử dụng nhanh
 
+### Cách đơn giản nhất: chạy `main.py`
+
+Đặt file của lần thu mới ở bất kỳ đâu, giữ nguyên định dạng `raw.csv`, rồi chạy:
+
+```powershell
+python main.py "đường_dẫn\tới\raw.csv"
+```
+
+Ví dụ:
+
+```powershell
+python main.py "data\mau_moi\raw.csv"
+```
+
+Bạn cũng có thể chạy không kèm đường dẫn, sau đó dán đường dẫn khi chương trình hỏi:
+
+```powershell
+python main.py
+```
+
+Chương trình tái sử dụng pipeline trong `analysis\predict_odor_identity.py`: kiểm tra chất lượng, trích bảy đặc trưng, chuẩn hóa thành vector, tính cosine similarity với profile bốn người và áp dụng ngưỡng chấp nhận. Kết quả đầy đủ được ghi vào `prediction.json` cạnh file đầu vào.
+
 ### 1. Tạo lại dữ liệu augmented và model
 
 Chạy tại thư mục gốc của repository:
