@@ -1,6 +1,6 @@
 # RoboNose – Nhận diện người bằng mùi cơ thể
 
-RoboNose là pipeline thử nghiệm nhận diện một người trong nhóm đã biết bằng tín hiệu chuỗi thời gian từ mảng cảm biến khí. Hệ thống hiện sử dụng dữ liệu BME gas và MQ135-1, chuyển mỗi phiên đo thành vector bảy chiều rồi so sánh với profile từng người bằng cosine similarity.
+RoboNose là pipeline thử nghiệm nhận diện một người trong nhóm đã biết bằng tín hiệu chuỗi thời gian từ mảng cảm biến khí. Hệ thống sử dụng ba kênh chung BME gas, MQ135 và MQ3, chuyển mỗi phiên đo thành vector mười chiều rồi so sánh với profile từng người bằng cosine similarity.
 
 > Trạng thái hiện tại: proof-of-concept. Model và ngưỡng nhận diện đã chạy được đầu-cuối, nhưng cần thêm phiên đo thật độc lập cho mỗi người trước khi dùng như hệ thống xác nhận danh tính.
 
@@ -11,7 +11,7 @@ raw.csv mới
    ↓ kiểm tra chất lượng
 BASELINE / EXPOSURE / RECOVERY
    ↓ chuẩn hóa và nội suy
-7 đặc trưng
+10 đặc trưng
    ↓ z-score + L2 normalization
 vector cosine
    ↓ so với identity_model.json
@@ -52,7 +52,10 @@ File `raw.csv` phải giữ tên cột giống dữ liệu huấn luyện, đặ
 - `phase`, `phase_elapsed_s`
 - `gas_resistance_ohm`, `bme_status`, `bme_fresh`
 - `gas_valid`, `heater_stable`, `new_data`
-- `mq135_1_voltage_v`, `mq135_1_status`, `mq135_1_fresh`, `mq135_1_quality`
+- `mq135_voltage_v`, `mq135_status`, `mq135_fresh` hoặc các cột tương ứng có hậu tố `_1`
+- `mq3_voltage_v`, `mq3_status`, `mq3_fresh` hoặc các cột tương ứng có hậu tố `_1`
+
+Predictor tự động chuẩn hóa hai schema logger: dữ liệu cũ dùng `mq135`/`mq3`, còn dữ liệu mới có thể lưu cùng hai kênh này dưới tên `mq135_1`/`mq3_1`.
 
 Không làm augmentation cho mẫu cần nhận diện. Predictor luôn xử lý trực tiếp phiên đo thật.
 
@@ -78,7 +81,7 @@ Bạn cũng có thể chạy không kèm đường dẫn, sau đó dán đườn
 python main.py
 ```
 
-Chương trình tái sử dụng pipeline trong `analysis\predict_odor_identity.py`: kiểm tra chất lượng, trích bảy đặc trưng, chuẩn hóa thành vector, tính cosine similarity với profile bốn người và áp dụng ngưỡng chấp nhận. Kết quả đầy đủ được ghi vào `prediction.json` cạnh file đầu vào.
+Chương trình tái sử dụng pipeline trong `analysis\predict_odor_identity.py`: kiểm tra chất lượng, trích mười đặc trưng, chuẩn hóa thành vector, tính cosine similarity với profile bốn người và áp dụng ngưỡng chấp nhận. Kết quả đầy đủ được ghi vào `prediction.json` cạnh file đầu vào.
 
 ### 1. Tạo lại dữ liệu augmented và model
 
@@ -150,15 +153,18 @@ scores                               # Điểm chi tiết của toàn bộ ngư�
 
 ## Đặc trưng đang sử dụng
 
-Mỗi phiên được nén thành bảy đặc trưng:
+Mỗi phiên được nén thành mười đặc trưng:
 
 1. Mean BME gas trong EXPOSURE.
 2. Mean BME gas ở một phần ba giữa EXPOSURE.
 3. Phân vị 10% của BME gas trong EXPOSURE.
 4. Phân vị 90% của BME gas trong EXPOSURE.
-5. Mean MQ135-1 ở một phần ba giữa EXPOSURE.
-6. Slope MQ135-1 trong EXPOSURE.
-7. Mean 10 giây cuối RECOVERY của MQ135-1.
+5. Mean MQ135 ở một phần ba giữa EXPOSURE.
+6. Slope MQ135 trong EXPOSURE.
+7. Mean 10 giây cuối RECOVERY của MQ135.
+8. Mean MQ3 ở một phần ba giữa EXPOSURE.
+9. Slope MQ3 trong EXPOSURE.
+10. Mean 10 giây cuối RECOVERY của MQ3.
 
 Scaler chỉ được fit từ các phiên thật đạt chất lượng. Centroid từng người được cân bằng theo `source_run`: các biến thể augmented được trung bình trong từng phiên trước, sau đó các phiên thật mới được trung bình với trọng số bằng nhau.
 

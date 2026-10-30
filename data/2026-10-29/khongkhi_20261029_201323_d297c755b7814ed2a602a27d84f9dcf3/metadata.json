@@ -1,0 +1,423 @@
+{
+  "schema_version": "2.0",
+  "program_version": "1.0.0",
+  "run_id": "d297c755b7814ed2a602a27d84f9dcf3",
+  "backend": "hardware",
+  "kind": "collect",
+  "started_at": "2026-10-29T20:13:23.580663+07:00",
+  "ended_at": "2026-10-29T20:19:45.324452+07:00",
+  "status": "COMPLETE",
+  "config": {
+    "sample_hz": 1.0,
+    "fsync_interval_s": 5.0,
+    "baseline_s": 60.0,
+    "exposure_s": 120.0,
+    "recovery_s": 60.0,
+    "seed": 688,
+    "esp32": {
+      "enabled": true,
+      "port": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B42018560-if00",
+      "baudrate": 115200,
+      "heartbeat_s": 4.0,
+      "reply_timeout_s": 1.0,
+      "startup_s": 2.0,
+      "health_timeout_s": 3.0,
+      "lease_s": 2.0
+    },
+    "hardware": {
+      "mq_layout": "four",
+      "i2c_bus": 1,
+      "bme_address": 119,
+      "ads_address": 72,
+      "heater_c": 320,
+      "heater_ms": 150,
+      "temperature_oversampling": 8,
+      "humidity_oversampling": 2,
+      "pressure_oversampling": 4,
+      "ads_gain": 1.0,
+      "ads_data_rate": 128,
+      "mq135_channel": 0,
+      "mq3_channel": 1,
+      "mq135_divider_factor": null,
+      "mq3_divider_factor": null,
+      "mq135_divider_description": "Chưa xác nhận; dự kiến 10 kΩ/10 kΩ",
+      "mq3_divider_description": "Chưa xác nhận; dự kiến 10 kΩ/10 kΩ",
+      "mq135_1_channel": 0,
+      "mq135_1_divider_factor": null,
+      "mq135_1_divider_description": "Cầu chia áp riêng, chưa xác nhận",
+      "mq3_1_channel": 1,
+      "mq3_1_divider_factor": null,
+      "mq3_1_divider_description": "Cầu chia áp riêng, chưa xác nhận",
+      "mq135_2_channel": 2,
+      "mq135_2_divider_factor": null,
+      "mq135_2_divider_description": "Cầu chia áp riêng, chưa xác nhận",
+      "mq3_2_channel": 3,
+      "mq3_2_divider_factor": null,
+      "mq3_2_divider_description": "Cầu chia áp riêng, chưa xác nhận"
+    },
+    "pump": {
+      "enabled": false,
+      "confirmed": false,
+      "gpio_bcm": 17,
+      "active_high": null
+    },
+    "stability": {
+      "window_s": 30.0,
+      "min_samples": 5,
+      "min_window_fraction": 0.8,
+      "max_gap_s": 3.0,
+      "max_invalid_fraction": 0.2,
+      "gas_epsilon_ohm": 1e-09,
+      "gas_pct_per_min": 5.0,
+      "gas_range_pct": 5.0,
+      "temperature_per_min": 0.3,
+      "temperature_range": 0.2,
+      "humidity_per_min": 1.0,
+      "humidity_range": 1.0,
+      "temperature_warning_c": 35.0
+    },
+    "analysis": {
+      "min_baseline_samples": 3,
+      "baseline_epsilon": 1e-09,
+      "baseline_drift_pct": 5.0,
+      "recovery_tolerance_pct": 10.0,
+      "missing_fraction": 0.1,
+      "adc_limit_count": 32700,
+      "max_gap_s": 3.0
+    }
+  },
+  "applied": {
+    "backend": "hardware",
+    "bme": {
+      "driver": "Bosch BME68x SensorAPI v4.4.8",
+      "chip_id": 97,
+      "variant_id": 1,
+      "mode": "FORCED",
+      "filter": "OFF",
+      "odr": "NONE",
+      "ambient_temperature_for_heater_c": 25,
+      "temperature_oversampling": 8,
+      "humidity_oversampling": 2,
+      "pressure_oversampling": 4,
+      "heater_target_c": 320,
+      "heater_requested_ms": 150,
+      "heater_programmed_ms": 148,
+      "res_heat_register": 109,
+      "gas_wait_register": 101,
+      "conversion_wait_s": 0.181775,
+      "library_sha256": "5b94720bfb8507b93089c4891c29dcd2b636b83a230d57fe15ab2bc9e5c9a8ee"
+    },
+    "ads": {
+      "driver": "RoboNose ADS1115 register driver 1.0",
+      "smbus2": "0.6.1",
+      "mode": "single-shot",
+      "gain": 1.0,
+      "data_rate_sps": 128,
+      "configuration_readback": "checked independently on each conversion"
+    },
+    "hardware": {
+      "mq_layout": "four",
+      "i2c_bus": 1,
+      "bme_address": 119,
+      "ads_address": 72,
+      "heater_c": 320,
+      "heater_ms": 150,
+      "temperature_oversampling": 8,
+      "humidity_oversampling": 2,
+      "pressure_oversampling": 4,
+      "ads_gain": 1.0,
+      "ads_data_rate": 128,
+      "mq135_channel": 0,
+      "mq3_channel": 1,
+      "mq135_divider_factor": null,
+      "mq3_divider_factor": null,
+      "mq135_divider_description": "Chưa xác nhận; dự kiến 10 kΩ/10 kΩ",
+      "mq3_divider_description": "Chưa xác nhận; dự kiến 10 kΩ/10 kΩ",
+      "mq135_1_channel": 0,
+      "mq135_1_divider_factor": null,
+      "mq135_1_divider_description": "Cầu chia áp riêng, chưa xác nhận",
+      "mq3_1_channel": 1,
+      "mq3_1_divider_factor": null,
+      "mq3_1_divider_description": "Cầu chia áp riêng, chưa xác nhận",
+      "mq135_2_channel": 2,
+      "mq135_2_divider_factor": null,
+      "mq135_2_divider_description": "Cầu chia áp riêng, chưa xác nhận",
+      "mq3_2_channel": 3,
+      "mq3_2_divider_factor": null,
+      "mq3_2_divider_description": "Cầu chia áp riêng, chưa xác nhận"
+    },
+    "pump": {
+      "enabled": true,
+      "initial_command": "OFF",
+      "backend": "esp32",
+      "feedback": "ESP reported only; no physical feedback"
+    }
+  },
+  "sample": {
+    "sample_description": "thu tham do: khong khi va mau that",
+    "person_code": "",
+    "source": "",
+    "sampling_method": "doi dau ong thu cong, khong dung van",
+    "purge_method": "dua dau ong ve khi nen thu cong",
+    "lid_state": "dong",
+    "distance_cm": ""
+  },
+  "original_name": "khongkhi",
+  "notes": "",
+  "phase_intervals": [
+    {
+      "phase": "MONITOR",
+      "start_s": 0.0,
+      "end_s": 122.18001635100063,
+      "actual_s": 122.18001635100063,
+      "planned_s": null
+    },
+    {
+      "phase": "BASELINE",
+      "start_s": 122.18001635100063,
+      "end_s": 182.18001635100063,
+      "actual_s": 60.0,
+      "planned_s": 60.0
+    },
+    {
+      "phase": "WAIT_EXPOSURE",
+      "start_s": 182.18001635100063,
+      "end_s": 184.56224828400082,
+      "actual_s": 2.3822319330001847,
+      "planned_s": null
+    },
+    {
+      "phase": "EXPOSURE",
+      "start_s": 184.56224828400082,
+      "end_s": 304.5622482840008,
+      "actual_s": 120.0,
+      "planned_s": 120.0
+    },
+    {
+      "phase": "WAIT_RECOVERY",
+      "start_s": 304.5622482840008,
+      "end_s": 318.85449618300026,
+      "actual_s": 14.292247898999449,
+      "planned_s": null
+    },
+    {
+      "phase": "RECOVERY",
+      "start_s": 318.85449618300026,
+      "end_s": 378.85449618300026,
+      "actual_s": 60.0,
+      "planned_s": 60.0
+    },
+    {
+      "phase": "WAIT_FINISH",
+      "start_s": 378.85449618300026,
+      "end_s": 381.74998311700074,
+      "actual_s": 2.8954869340004734,
+      "planned_s": null
+    }
+  ],
+  "extensions": [],
+  "rows": 382,
+  "time_basis": "elapsed_s = monotonic - run_start; ISO Asia/Ho_Chi_Minh",
+  "pump_feedback": "controller reported state / command only; no physical feedback",
+  "adc_inputs": {
+    "mq135_1": {
+      "channel": 0,
+      "voltage_location": "ADS1115 input",
+      "divider_description": "Cầu chia áp riêng, chưa xác nhận",
+      "divider_factor_confirmed": false,
+      "ao_estimate_factor": null,
+      "ao_estimate_rule": "AO estimate = ADS voltage * confirmed factor; null otherwise"
+    },
+    "mq3_1": {
+      "channel": 1,
+      "voltage_location": "ADS1115 input",
+      "divider_description": "Cầu chia áp riêng, chưa xác nhận",
+      "divider_factor_confirmed": false,
+      "ao_estimate_factor": null,
+      "ao_estimate_rule": "AO estimate = ADS voltage * confirmed factor; null otherwise"
+    },
+    "mq135_2": {
+      "channel": 2,
+      "voltage_location": "ADS1115 input",
+      "divider_description": "Cầu chia áp riêng, chưa xác nhận",
+      "divider_factor_confirmed": false,
+      "ao_estimate_factor": null,
+      "ao_estimate_rule": "AO estimate = ADS voltage * confirmed factor; null otherwise"
+    },
+    "mq3_2": {
+      "channel": 3,
+      "voltage_location": "ADS1115 input",
+      "divider_description": "Cầu chia áp riêng, chưa xác nhận",
+      "divider_factor_confirmed": false,
+      "ao_estimate_factor": null,
+      "ao_estimate_rule": "AO estimate = ADS voltage * confirmed factor; null otherwise"
+    }
+  },
+  "software": {
+    "python": "3.11.2 (main, May 12 2026, 05:17:27) [GCC 12.2.0]",
+    "platform": "Linux-6.12.109+rpt-rpi-v8-aarch64-with-glibc2.36",
+    "dependencies": {
+      "numpy": "2.4.6",
+      "matplotlib": "3.11.2",
+      "prompt-toolkit": "3.0.53",
+      "pyserial": "3.5",
+      "smbus2": "0.6.1",
+      "gpiozero": "2.0.1.post3",
+      "lgpio": "0.2.2.0"
+    }
+  },
+  "session_run_id": "c8d575d97c2542adaa039c913514b635",
+  "session_log_path": "/home/pi/robonosev1.0/data/exploration/2026-10-29/20261029_195344_c8d575d97c2542adaa039c913514b635",
+  "external_pump": {
+    "initial_state": "unknown",
+    "latest_state": "unknown",
+    "source": "not_reported",
+    "physical_feedback": null,
+    "meaning": "User reports external power operation; no GPIO command and no measured feedback"
+  },
+  "sensor_uptime_at_start_s": 1181.8237843739994,
+  "pre_baseline_quality": {
+    "stable": false,
+    "reasons": [
+      "temperature_c: đang trôi: slope/range vượt ngưỡng"
+    ],
+    "advisories": [
+      "Nhiệt độ BME vượt 35.0 °C; kiểm tra ảnh hưởng nhiệt/vị trí cảm biến, không suy ra nhiệt độ môi trường đã bù"
+    ],
+    "signals": {
+      "gas_resistance_ohm": {
+        "n": 30,
+        "span_s": 28.999948329999825,
+        "mean": 100299.70260416667,
+        "slope_per_min": 867.4801246607458,
+        "range": 1652.984375,
+        "slope_pct_per_min": 0.8648880327036071,
+        "range_pct": 1.6480451407951946,
+        "invalid_fraction": 0.0,
+        "drifting": false,
+        "reasons": []
+      },
+      "temperature_c": {
+        "n": 30,
+        "span_s": 28.999948329999825,
+        "mean": 33.908284250895186,
+        "slope_per_min": 0.8768149273337794,
+        "range": 2.6139259338378906,
+        "slope_pct_per_min": null,
+        "range_pct": null,
+        "invalid_fraction": 0.0,
+        "drifting": true,
+        "reasons": [
+          "đang trôi: slope/range vượt ngưỡng"
+        ]
+      },
+      "humidity_pct": {
+        "n": 30,
+        "span_s": 28.999948329999825,
+        "mean": 63.093459065755205,
+        "slope_per_min": -0.03328779763578312,
+        "range": 0.5131568908691406,
+        "slope_pct_per_min": null,
+        "range_pct": null,
+        "invalid_fraction": 0.0,
+        "drifting": false,
+        "reasons": []
+      }
+    },
+    "window_s": 30.0,
+    "evaluated_at_elapsed_s": 1301.6108823980003,
+    "criteria": {
+      "window_s": 30.0,
+      "min_samples": 5,
+      "min_window_fraction": 0.8,
+      "max_gap_s": 3.0,
+      "max_invalid_fraction": 0.2,
+      "gas_epsilon_ohm": 1e-09,
+      "gas_pct_per_min": 5.0,
+      "gas_range_pct": 5.0,
+      "temperature_per_min": 0.3,
+      "temperature_range": 0.2,
+      "humidity_per_min": 1.0,
+      "humidity_range": 1.0,
+      "temperature_warning_c": 35.0
+    }
+  },
+  "baseline_started_without_stability": true,
+  "baseline_quality": {
+    "stable": true,
+    "reasons": [],
+    "advisories": [],
+    "signals": {
+      "gas_resistance_ohm": {
+        "n": 60,
+        "span_s": 59.00000699299926,
+        "mean": 100271.448828125,
+        "slope_per_min": -551.8748312425498,
+        "range": 1415.1484375,
+        "slope_pct_per_min": -0.5503808289321888,
+        "range_pct": 1.411317432867358,
+        "invalid_fraction": 0.0,
+        "drifting": false,
+        "reasons": []
+      },
+      "temperature_c": {
+        "n": 60,
+        "span_s": 59.00000699299926,
+        "mean": 33.80399112701416,
+        "slope_per_min": 0.005997790469254761,
+        "range": 0.017223358154296875,
+        "slope_pct_per_min": null,
+        "range_pct": null,
+        "invalid_fraction": 0.0,
+        "drifting": false,
+        "reasons": []
+      },
+      "humidity_pct": {
+        "n": 60,
+        "span_s": 59.00000699299926,
+        "mean": 63.185100110371906,
+        "slope_per_min": 0.26494132963002914,
+        "range": 0.3719902038574219,
+        "slope_pct_per_min": null,
+        "range_pct": null,
+        "invalid_fraction": 0.0,
+        "drifting": false,
+        "reasons": []
+      }
+    },
+    "window_s": null,
+    "evaluated_at_elapsed_s": 181.59782511100002,
+    "criteria": {
+      "window_s": 30.0,
+      "min_samples": 5,
+      "min_window_fraction": 0.8,
+      "max_gap_s": 3.0,
+      "max_invalid_fraction": 0.2,
+      "gas_epsilon_ohm": 1e-09,
+      "gas_pct_per_min": 5.0,
+      "gas_range_pct": 5.0,
+      "temperature_per_min": 0.3,
+      "temperature_range": 0.2,
+      "humidity_per_min": 1.0,
+      "humidity_range": 1.0,
+      "temperature_warning_c": 35.0
+    }
+  },
+  "baseline_unstable": false,
+  "elapsed_s": 381.74998311700074,
+  "end_reason": "user finish",
+  "durations": {
+    "BASELINE": {
+      "planned_s": 60.0,
+      "actual_s": 60.0
+    },
+    "EXPOSURE": {
+      "planned_s": 120.0,
+      "actual_s": 120.0
+    },
+    "RECOVERY": {
+      "planned_s": 60.0,
+      "actual_s": 60.0
+    }
+  }
+}

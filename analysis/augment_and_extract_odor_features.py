@@ -1,7 +1,7 @@
 """Augment the 2026-10-25 odor runs and extract cosine-ready features.
 
-The pipeline intentionally uses only the two channels that were most useful in
-the exploratory analysis: BME gas resistance and the first MQ135 channel.
+The pipeline uses the three channels shared by the old and new logger schemas:
+BME gas resistance, MQ135 voltage, and MQ3 voltage.
 Augmentation is phase-preserving and conservative. Person prototypes are built
 from real runs only; augmented samples never count as independent real runs.
 """
@@ -27,6 +27,7 @@ DEFAULT_OUTPUT = ROOT / "data" / "2026-10-25_augmented"
 PHASE_LENGTHS = {"BASELINE": 60, "EXPOSURE": 120, "RECOVERY": 60}
 PHASES = tuple(PHASE_LENGTHS)
 MIN_VALID_FRACTION = 0.90
+MIN_IDENTITY_SIMILARITY = 0.60
 
 SENSORS = {
     "gas": {
@@ -34,10 +35,17 @@ SENSORS = {
         "status": "bme_status",
         "fresh": "bme_fresh",
     },
-    "mq135_1": {
-        "value": "mq135_1_voltage_v",
-        "status": "mq135_1_status",
-        "fresh": "mq135_1_fresh",
+    "mq135": {
+        "value": "mq135_voltage_v",
+        "status": "mq135_status",
+        "fresh": "mq135_fresh",
+        "quality": "mq135_quality",
+    },
+    "mq3": {
+        "value": "mq3_voltage_v",
+        "status": "mq3_status",
+        "fresh": "mq3_fresh",
+        "quality": "mq3_quality",
     },
 }
 
@@ -46,10 +54,14 @@ FEATURE_COLUMNS = [
     "gas_exposure_middle_mean_pct",
     "gas_exposure_q10_pct",
     "gas_exposure_q90_pct",
-    "mq135_1_exposure_middle_mean_pct",
-    "mq135_1_exposure_slope_pct_per_s",
-    "mq135_1_recovery_end_mean_pct",
+    "mq135_exposure_middle_mean_pct",
+    "mq135_exposure_slope_pct_per_s",
+    "mq135_recovery_end_mean_pct",
+    "mq3_exposure_middle_mean_pct",
+    "mq3_exposure_slope_pct_per_s",
+    "mq3_recovery_end_mean_pct",
 ]
+VECTOR_DIMENSIONS = len(FEATURE_COLUMNS)
 
 
 def parse_args() -> argparse.Namespace:
@@ -78,6 +90,32 @@ def parse_float(value: object) -> float | None:
     except (TypeError, ValueError):
         return None
     return number if math.isfinite(number) else None
+
+
+def normalize_sensor_columns(rows: list[dict[str, str]]) -> None:
+    """Map the newer *_1 logger columns onto the original sensor names."""
+    suffixes = (
+        "read_started_at",
+        "read_elapsed_s",
+        "read_duration_s",
+        "status",
+        "error",
+        "fresh",
+        "adc_count",
+        "voltage_v",
+        "ao_voltage_v",
+        "quality",
+    )
+    for row in rows:
+        for sensor in ("mq135", "mq3"):
+            for suffix in suffixes:
+                canonical = f"{sensor}_{suffix}"
+                versioned = f"{sensor}_1_{suffix}"
+                if row.get(canonical) in {None, ""} and row.get(versioned) not in {
+                    None,
+                    "",
+                }:
+                    row[canonical] = row[versioned]
 
 
 def mean(values: Iterable[float]) -> float:
@@ -134,7 +172,7 @@ def sensor_value_is_valid(row: dict[str, str], sensor: str) -> bool:
             parse_bool(row.get(column))
             for column in ("gas_valid", "heater_stable", "new_data")
         )
-    return row.get("mq135_1_quality") in {"", None, "OK"}
+    return row.get(config["quality"]) in {"", None, "OK"}
 
 
 def interpolate_at(points: list[tuple[float, float]], target: float) -> float:
@@ -174,6 +212,7 @@ def resample(points: list[tuple[float, float]], length: int) -> list[float]:
 def load_run(directory: Path) -> tuple[dict[str, object] | None, dict[str, object]]:
     with (directory / "raw.csv").open(encoding="utf-8-sig", newline="") as handle:
         rows = list(csv.DictReader(handle))
+    normalize_sensor_columns(rows)
     metadata = json.loads((directory / "metadata.json").read_text(encoding="utf-8"))
 
     quality: dict[str, object] = {
@@ -304,10 +343,13 @@ def make_sample(
 def extract_features(sample: dict[str, object]) -> dict[str, object]:
     signals = sample["signals"]
     gas_exposure = signals["gas"]["EXPOSURE"]
-    mq_exposure = signals["mq135_1"]["EXPOSURE"]
-    mq_recovery = signals["mq135_1"]["RECOVERY"]
+    mq135_exposure = signals["mq135"]["EXPOSURE"]
+    mq135_recovery = signals["mq135"]["RECOVERY"]
+    mq3_exposure = signals["mq3"]["EXPOSURE"]
+    mq3_recovery = signals["mq3"]["RECOVERY"]
     gas_third = len(gas_exposure) // 3
-    mq_third = len(mq_exposure) // 3
+    mq135_third = len(mq135_exposure) // 3
+    mq3_third = len(mq3_exposure) // 3
 
     row = {
         key: sample[key]
@@ -332,11 +374,16 @@ def extract_features(sample: dict[str, object]) -> dict[str, object]:
             ),
             "gas_exposure_q10_pct": percentile(gas_exposure, 0.10),
             "gas_exposure_q90_pct": percentile(gas_exposure, 0.90),
-            "mq135_1_exposure_middle_mean_pct": mean(
-                mq_exposure[mq_third : 2 * mq_third]
+            "mq135_exposure_middle_mean_pct": mean(
+                mq135_exposure[mq135_third : 2 * mq135_third]
             ),
-            "mq135_1_exposure_slope_pct_per_s": linear_slope(mq_exposure),
-            "mq135_1_recovery_end_mean_pct": mean(mq_recovery[-10:]),
+            "mq135_exposure_slope_pct_per_s": linear_slope(mq135_exposure),
+            "mq135_recovery_end_mean_pct": mean(mq135_recovery[-10:]),
+            "mq3_exposure_middle_mean_pct": mean(
+                mq3_exposure[mq3_third : 2 * mq3_third]
+            ),
+            "mq3_exposure_slope_pct_per_s": linear_slope(mq3_exposure),
+            "mq3_recovery_end_mean_pct": mean(mq3_recovery[-10:]),
         }
     )
     return row
@@ -374,7 +421,10 @@ def build_prototypes(feature_rows: list[dict[str, object]]) -> list[dict[str, ob
 
     prototypes = []
     for person, rows in sorted(grouped.items()):
-        vector = [mean(float(row[f"v_{index:02d}"]) for row in rows) for index in range(1, 8)]
+        vector = [
+            mean(float(row[f"v_{index:02d}"]) for row in rows)
+            for index in range(1, VECTOR_DIMENSIONS + 1)
+        ]
         norm = math.sqrt(sum(value * value for value in vector)) or 1.0
         prototype: dict[str, object] = {
             "person": person,
@@ -388,7 +438,10 @@ def build_prototypes(feature_rows: list[dict[str, object]]) -> list[dict[str, ob
 
 
 def row_vector(row: dict[str, object]) -> list[float]:
-    return [float(row[f"v_{index:02d}"]) for index in range(1, 8)]
+    return [
+        float(row[f"v_{index:02d}"])
+        for index in range(1, VECTOR_DIMENSIONS + 1)
+    ]
 
 
 def unit_vector(values: Iterable[float]) -> list[float]:
@@ -412,14 +465,14 @@ def build_identity_model(
     for (person, source_run), rows in sorted(by_source.items()):
         centroid = unit_vector(
             mean(row_vector(row)[dimension] for row in rows)
-            for dimension in range(7)
+            for dimension in range(VECTOR_DIMENSIONS)
         )
         source_centroids[person].append((source_run, centroid))
 
     person_centroids = {
         person: unit_vector(
             mean(vector[dimension] for _, vector in centroids)
-            for dimension in range(7)
+            for dimension in range(VECTOR_DIMENSIONS)
         )
         for person, centroids in source_centroids.items()
     }
@@ -447,9 +500,10 @@ def build_identity_model(
         genuine_p05 = percentile(genuine, 0.05)
         impostor_max = max(impostor)
         separable = genuine_p05 > impostor_max
-        similarity_threshold = (
+        calibrated_threshold = (
             (genuine_p05 + impostor_max) / 2 if separable else genuine_p05
         )
+        similarity_threshold = max(MIN_IDENTITY_SIMILARITY, calibrated_threshold)
         margin_threshold = max(0.0, percentile(margins, 0.05))
         profile = {
             "person": person,
@@ -479,10 +533,12 @@ def build_identity_model(
         profile_rows.append(flat_profile)
 
     model = {
-        "schema_version": 1,
+        "schema_version": 2,
         "model_type": "source-balanced cosine identity profiles",
         "feature_order": FEATURE_COLUMNS,
-        "vector_columns": [f"v_{index:02d}" for index in range(1, 8)],
+        "vector_columns": [
+            f"v_{index:02d}" for index in range(1, VECTOR_DIMENSIONS + 1)
+        ],
         "seed": seed,
         "centroid_policy": (
             "Average variants within each source run, L2-normalize, then average source "
@@ -490,7 +546,8 @@ def build_identity_model(
         ),
         "threshold_policy": (
             "Use the midpoint between own p05 and maximum impostor similarity when "
-            "separable; otherwise use own p05 and mark training_separable=false."
+            "separable; otherwise use own p05 and mark training_separable=false. "
+            f"Never use a cosine threshold below {MIN_IDENTITY_SIMILARITY:.2f}."
         ),
         "calibration_warning": (
             "Thresholds are estimated from augmented training data and are provisional "
@@ -534,7 +591,8 @@ def signal_rows(samples: list[dict[str, object]]) -> Iterable[dict[str, object]]
                     "phase_index": index,
                     "phase_elapsed_s": float(index),
                     "gas_response_pct": sample["signals"]["gas"][phase_name][index],
-                    "mq135_1_response_pct": sample["signals"]["mq135_1"][phase_name][index],
+                    "mq135_response_pct": sample["signals"]["mq135"][phase_name][index],
+                    "mq3_response_pct": sample["signals"]["mq3"][phase_name][index],
                 }
 
 
@@ -558,7 +616,7 @@ def write_readme(
 ## Tệp đầu ra
 
 - `augmented_signals.csv`: tín hiệu đã chuẩn hóa baseline, cố định 60/120/60 mẫu cho BASELINE/EXPOSURE/RECOVERY.
-- `feature_vectors.csv`: bảy đặc trưng gốc, z-score và vector `v_01..v_07` đã chuẩn hóa L2 để tính cosine similarity.
+- `feature_vectors.csv`: mười đặc trưng gốc, z-score và vector `v_01..v_10` đã chuẩn hóa L2 để tính cosine similarity.
 - `person_prototypes.csv`: vector đại diện tính từ các phiên thật, không dùng bản augmented như phiên độc lập.
 - `identity_profiles.csv`: centroid cân bằng theo phiên và ngưỡng cosine/margin của từng người.
 - `identity_model.json`: model vector hoàn chỉnh để kiểm tra một mẫu mới có phù hợp hay không.
@@ -568,7 +626,7 @@ def write_readme(
 
 ## Augmentation
 
-Mỗi biến thể dùng cùng hệ số cho cả hai cảm biến: amplitude scaling 0.97–1.03, time stretching 0.98–1.02, dịch ±2 mẫu và cộng 0.10–0.30 lần residual noise của baseline. Các pha không bị đảo hoặc trộn.
+Mỗi biến thể dùng cùng hệ số cho cả ba cảm biến: amplitude scaling 0.97–1.03, time stretching 0.98–1.02, dịch ±2 mẫu và cộng 0.10–0.30 lần residual noise của baseline. Các pha không bị đảo hoặc trộn.
 
 ## Lưu ý
 
@@ -621,7 +679,8 @@ def main() -> None:
         "phase_index",
         "phase_elapsed_s",
         "gas_response_pct",
-        "mq135_1_response_pct",
+        "mq135_response_pct",
+        "mq3_response_pct",
         "amplitude_scale",
         "time_scale",
         "time_shift_samples",
@@ -643,7 +702,9 @@ def main() -> None:
         "noise_scale",
     ]
     standardized_columns = [f"z_{feature}" for feature in FEATURE_COLUMNS]
-    vector_columns = [f"v_{index:02d}" for index in range(1, 8)]
+    vector_columns = [
+        f"v_{index:02d}" for index in range(1, VECTOR_DIMENSIONS + 1)
+    ]
     write_csv(
         output_dir / "feature_vectors.csv",
         feature_rows,
@@ -710,6 +771,7 @@ def main() -> None:
         "seed": args.seed,
         "variants_per_run": args.variants_per_run,
         "minimum_valid_fraction": MIN_VALID_FRACTION,
+        "minimum_identity_similarity": MIN_IDENTITY_SIMILARITY,
         "phase_lengths": PHASE_LENGTHS,
         "selected_sensors": SENSORS,
         "feature_order": FEATURE_COLUMNS,

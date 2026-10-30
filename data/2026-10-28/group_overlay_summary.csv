@@ -1,0 +1,21 @@
+﻿group_key,group,group_title,n_runs,sensor,sensor_label,median_exposure_response_pct,minimum_run_response_pct,maximum_run_response_pct,direction,direction_agreement,median_exposure_curve_correlation,pair_count,assessment
+A_human_only,HUMAN_ONLY,Nhóm A – Human Only,7,gas_resistance_ohm,BME688 gas,-1.1897101691143745,-6.9644719678913525,0.6762851855238733,giảm,0.8571428571428571,0.15237723923652785,21,vừa; hình dạng kém ổn định
+A_human_only,HUMAN_ONLY,Nhóm A – Human Only,7,mq135_1_voltage_v,MQ135-1,0.20946391019511065,-0.2409795154414108,3.559533832118141,tăng,0.8571428571428571,-0.03263307385169171,21,yếu; hình dạng kém ổn định
+A_human_only,HUMAN_ONLY,Nhóm A – Human Only,7,mq3_1_voltage_v,MQ3-1,0.7235690235690221,-0.2940791603247894,3.745019920318717,tăng,0.8571428571428571,0.08939344307338669,21,vừa; hình dạng kém ổn định
+A_human_only,HUMAN_ONLY,Nhóm A – Human Only,7,mq135_2_voltage_v,MQ135-2,-0.03402061855670644,-0.4678976080570697,1.2534489554591968,gần 0,0.14285714285714285,0.024096463941831448,21,không cùng chiều; hình dạng kém ổn định
+A_human_only,HUMAN_ONLY,Nhóm A – Human Only,7,mq3_2_voltage_v,MQ3-2,-0.04465408805031039,-1.7538196686033911,0.3621901071146252,gần 0,0.14285714285714285,-0.05135450044022024,21,không cùng chiều; hình dạng kém ổn định
+B_human_coffee,HUMAN_COFFEE,Nhóm B – Human + Coffee,4,gas_resistance_ohm,BME688 gas,-2.297506962914127,-4.083453289074437,0.9339928484294975,giảm,0.75,0.08059246139815614,6,rõ; hình dạng kém ổn định
+B_human_coffee,HUMAN_COFFEE,Nhóm B – Human + Coffee,4,mq135_1_voltage_v,MQ135-1,0.049140038322271554,-0.010661388823577813,0.3788321555709074,gần 0,0.5,-0.10219673906034568,6,không cùng chiều; hình dạng kém ổn định
+B_human_coffee,HUMAN_COFFEE,Nhóm B – Human + Coffee,4,mq3_1_voltage_v,MQ3-1,1.1172393775567864,-0.9764229578471134,2.644538816867827,tăng,0.75,-0.039363110997704426,6,vừa; hình dạng kém ổn định
+B_human_coffee,HUMAN_COFFEE,Nhóm B – Human + Coffee,4,mq135_2_voltage_v,MQ135-2,0.11234414194161908,-0.21544335359202874,0.32905629139073617,tăng,0.75,0.23747156049935186,6,yếu; hình dạng kém ổn định
+B_human_coffee,HUMAN_COFFEE,Nhóm B – Human + Coffee,4,mq3_2_voltage_v,MQ3-2,-0.17695365080547043,-0.3746685840111417,0.07656967840734626,giảm,0.75,0.04115845058137452,6,yếu; hình dạng kém ổn định
+C_coffee_only,COFFEE_ONLY,Nhóm C – Coffee Only,4,gas_resistance_ohm,BME688 gas,-3.9266049963726273,-6.791538496546682,-1.9872188180586927,giảm,1.0,0.06964408183383639,6,rõ; hình dạng kém ổn định
+C_coffee_only,COFFEE_ONLY,Nhóm C – Coffee Only,4,mq135_1_voltage_v,MQ135-1,-0.19480250549557432,-0.9164450354609912,0.11325925280573537,giảm,0.75,-0.24124713051089258,6,yếu; hình dạng kém ổn định
+C_coffee_only,COFFEE_ONLY,Nhóm C – Coffee Only,4,mq3_1_voltage_v,MQ3-1,1.643899234737308,0.6921070815594172,4.1318096880839486,tăng,1.0,0.015279263633200979,6,vừa; hình dạng kém ổn định
+C_coffee_only,COFFEE_ONLY,Nhóm C – Coffee Only,4,mq135_2_voltage_v,MQ135-2,-0.33801957263500393,-1.1458411452885513,-0.1359069639416506,giảm,1.0,0.028261580648945933,6,yếu; hình dạng kém ổn định
+C_coffee_only,COFFEE_ONLY,Nhóm C – Coffee Only,4,mq3_2_voltage_v,MQ3-2,0.06357863334708308,-0.3804095445899743,0.15683520599251327,tăng,0.75,0.094837899973005,6,yếu; hình dạng kém ổn định
+D_air,AIR,Nhóm D – Air,1,gas_resistance_ohm,BME688 gas,0.10640156010483114,0.10640156010483114,0.10640156010483114,tăng,1.0,,0,yếu; chưa đo lặp
+D_air,AIR,Nhóm D – Air,1,mq135_1_voltage_v,MQ135-1,4.437990928200027,4.437990928200027,4.437990928200027,tăng,1.0,,0,rõ; chưa đo lặp
+D_air,AIR,Nhóm D – Air,1,mq3_1_voltage_v,MQ3-1,-1.0270667226185461,-1.0270667226185461,-1.0270667226185461,giảm,1.0,,0,vừa; chưa đo lặp
+D_air,AIR,Nhóm D – Air,1,mq135_2_voltage_v,MQ135-2,-0.22102318145483257,-0.22102318145483257,-0.22102318145483257,giảm,1.0,,0,yếu; chưa đo lặp
+D_air,AIR,Nhóm D – Air,1,mq3_2_voltage_v,MQ3-2,-0.7377242681775171,-0.7377242681775171,-0.7377242681775171,giảm,1.0,,0,vừa; chưa đo lặp

@@ -1,0 +1,223 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="535" viewBox="0 0 1180 535">
+<rect width="100%" height="100%" fill="white"/>
+<text x="590.0" y="38.0" font-size="22" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">Đáp ứng EXPOSURE trung bình theo nhóm mẫu</text>
+<text x="405.0" y="72.0" font-size="14" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">BME688 gas</text>
+<text x="555.0" y="72.0" font-size="14" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">MQ135-1</text>
+<text x="705.0" y="72.0" font-size="14" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">MQ3-1</text>
+<text x="855.0" y="72.0" font-size="14" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">MQ135-2</text>
+<text x="1005.0" y="72.0" font-size="14" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">MQ3-2</text>
+<text x="318.0" y="113.0" font-size="13" text-anchor="end" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">Cà phê nhiều (n=2)</text>
+<rect x="330" y="90" width="150" height="36" fill="#4578bc" stroke="white"/>
+<text x="405.0" y="113.0" font-size="13" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">-3.9</text>
+<rect x="480" y="90" width="150" height="36" fill="#eef1f4" stroke="white"/>
+<text x="555.0" y="113.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">-0.2</text>
+<rect x="630" y="90" width="150" height="36" fill="#e8b6b7" stroke="white"/>
+<text x="705.0" y="113.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">1.6</text>
+<rect x="780" y="90" width="150" height="36" fill="#edf0f4" stroke="white"/>
+<text x="855.0" y="113.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">-0.2</text>
+<rect x="930" y="90" width="150" height="36" fill="#f0f2f5" stroke="white"/>
+<text x="1005.0" y="113.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">-0.2</text>
+<text x="318.0" y="149.0" font-size="13" text-anchor="end" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">Cà phê ít (n=2)</text>
+<rect x="330" y="126" width="150" height="36" fill="#3069b5" stroke="white"/>
+<text x="405.0" y="149.0" font-size="13" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">-4.4</text>
+<rect x="480" y="126" width="150" height="36" fill="#e5eaf1" stroke="white"/>
+<text x="555.0" y="149.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">-0.4</text>
+<rect x="630" y="126" width="150" height="36" fill="#df9091" stroke="white"/>
+<text x="705.0" y="149.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">2.5</text>
+<rect x="780" y="126" width="150" height="36" fill="#d4deeb" stroke="white"/>
+<text x="855.0" y="149.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">-0.8</text>
+<rect x="930" y="126" width="150" height="36" fill="#f6f3f3" stroke="white"/>
+<text x="1005.0" y="149.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">0.1</text>
+<text x="318.0" y="185.0" font-size="13" text-anchor="end" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">Không khí (n=1)</text>
+<rect x="330" y="162" width="150" height="36" fill="#f6f3f3" stroke="white"/>
+<text x="405.0" y="185.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">0.1</text>
+<rect x="480" y="162" width="150" height="36" fill="#cc4144" stroke="white"/>
+<text x="555.0" y="185.0" font-size="13" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">4.4</text>
+<rect x="630" y="162" width="150" height="36" fill="#c8d6e8" stroke="white"/>
+<text x="705.0" y="185.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">-1.0</text>
+<rect x="780" y="162" width="150" height="36" fill="#edf0f4" stroke="white"/>
+<text x="855.0" y="185.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">-0.2</text>
+<rect x="930" y="162" width="150" height="36" fill="#d6dfec" stroke="white"/>
+<text x="1005.0" y="185.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">-0.7</text>
+<text x="318.0" y="221.0" font-size="13" text-anchor="end" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">Minh (n=1)</text>
+<rect x="330" y="198" width="150" height="36" fill="#3069b5" stroke="white"/>
+<text x="405.0" y="221.0" font-size="13" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">-7.0</text>
+<rect x="480" y="198" width="150" height="36" fill="#edcecf" stroke="white"/>
+<text x="555.0" y="221.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">1.0</text>
+<rect x="630" y="198" width="150" height="36" fill="#d25c5e" stroke="white"/>
+<text x="705.0" y="221.0" font-size="13" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">3.7</text>
+<rect x="780" y="198" width="150" height="36" fill="#e2e8f0" stroke="white"/>
+<text x="855.0" y="221.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">-0.5</text>
+<rect x="930" y="198" width="150" height="36" fill="#a7bedd" stroke="white"/>
+<text x="1005.0" y="221.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">-1.8</text>
+<text x="318.0" y="257.0" font-size="13" text-anchor="end" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">Quy (n=1)</text>
+<rect x="330" y="234" width="150" height="36" fill="#c9d6e8" stroke="white"/>
+<text x="405.0" y="257.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">-1.0</text>
+<rect x="480" y="234" width="150" height="36" fill="#f7f6f6" stroke="white"/>
+<text x="555.0" y="257.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">0.0</text>
+<rect x="630" y="234" width="150" height="36" fill="#f0d9d9" stroke="white"/>
+<text x="705.0" y="257.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">0.7</text>
+<rect x="780" y="234" width="150" height="36" fill="#f5f6f6" stroke="white"/>
+<text x="855.0" y="257.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">-0.0</text>
+<rect x="930" y="234" width="150" height="36" fill="#f6f3f3" stroke="white"/>
+<text x="1005.0" y="257.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">0.1</text>
+<text x="318.0" y="293.0" font-size="13" text-anchor="end" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">Tài (n=5)</text>
+<rect x="330" y="270" width="150" height="36" fill="#c8d5e7" stroke="white"/>
+<text x="405.0" y="293.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">-1.0</text>
+<rect x="480" y="270" width="150" height="36" fill="#efd5d5" stroke="white"/>
+<text x="555.0" y="293.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">0.8</text>
+<rect x="630" y="270" width="150" height="36" fill="#f2e4e4" stroke="white"/>
+<text x="705.0" y="293.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">0.5</text>
+<rect x="780" y="270" width="150" height="36" fill="#f3e5e5" stroke="white"/>
+<text x="855.0" y="293.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">0.4</text>
+<rect x="930" y="270" width="150" height="36" fill="#f7f7f7" stroke="white"/>
+<text x="1005.0" y="293.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">0.0</text>
+<text x="318.0" y="329.0" font-size="13" text-anchor="end" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">Tài + cà phê (n=2)</text>
+<rect x="330" y="306" width="150" height="36" fill="#4074ba" stroke="white"/>
+<text x="405.0" y="329.0" font-size="13" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">-4.0</text>
+<rect x="480" y="306" width="150" height="36" fill="#f7f7f7" stroke="white"/>
+<text x="555.0" y="329.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">0.0</text>
+<rect x="630" y="306" width="150" height="36" fill="#e09799" stroke="white"/>
+<text x="705.0" y="329.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">2.3</text>
+<rect x="780" y="306" width="150" height="36" fill="#f6f6f7" stroke="white"/>
+<text x="855.0" y="329.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">-0.0</text>
+<rect x="930" y="306" width="150" height="36" fill="#f5f6f6" stroke="white"/>
+<text x="1005.0" y="329.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">-0.0</text>
+<text x="318.0" y="365.0" font-size="13" text-anchor="end" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">Tài + cà phê nhiều (n=1)</text>
+<rect x="330" y="342" width="150" height="36" fill="#eed0d1" stroke="white"/>
+<text x="405.0" y="365.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">0.9</text>
+<rect x="480" y="342" width="150" height="36" fill="#f6f4f4" stroke="white"/>
+<text x="555.0" y="365.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">0.1</text>
+<rect x="630" y="342" width="150" height="36" fill="#cbd7e8" stroke="white"/>
+<text x="705.0" y="365.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">-1.0</text>
+<rect x="780" y="342" width="150" height="36" fill="#f7f5f5" stroke="white"/>
+<text x="855.0" y="365.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">0.0</text>
+<rect x="930" y="342" width="150" height="36" fill="#e6ebf1" stroke="white"/>
+<text x="1005.0" y="365.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">-0.4</text>
+<text x="318.0" y="401.0" font-size="13" text-anchor="end" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">Tài + cà phê ít (n=1)</text>
+<rect x="330" y="378" width="150" height="36" fill="#dce3ee" stroke="white"/>
+<text x="405.0" y="401.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">-0.6</text>
+<rect x="480" y="378" width="150" height="36" fill="#f3e7e8" stroke="white"/>
+<text x="555.0" y="401.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">0.4</text>
+<rect x="630" y="378" width="150" height="36" fill="#f4ecec" stroke="white"/>
+<text x="705.0" y="401.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">0.3</text>
+<rect x="780" y="378" width="150" height="36" fill="#f4e9ea" stroke="white"/>
+<text x="855.0" y="401.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">0.3</text>
+<rect x="930" y="378" width="150" height="36" fill="#eef0f4" stroke="white"/>
+<text x="1005.0" y="401.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">-0.2</text>
+<text x="318.0" y="437.0" font-size="13" text-anchor="end" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">Tài nền → Tài + cà phê (n=1)</text>
+<rect x="330" y="414" width="150" height="36" fill="#b2c6e0" stroke="white"/>
+<text x="405.0" y="437.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">-1.5</text>
+<rect x="480" y="414" width="150" height="36" fill="#f4f5f6" stroke="white"/>
+<text x="555.0" y="437.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">-0.1</text>
+<rect x="630" y="414" width="150" height="36" fill="#edcccd" stroke="white"/>
+<text x="705.0" y="437.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">1.0</text>
+<rect x="780" y="414" width="150" height="36" fill="#f2f3f5" stroke="white"/>
+<text x="855.0" y="437.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">-0.1</text>
+<rect x="930" y="414" width="150" height="36" fill="#f5f0f0" stroke="white"/>
+<text x="1005.0" y="437.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">0.2</text>
+<rect x="330.0" y="478" width="4.7" height="14" fill="#3069b5"/>
+<rect x="334.5" y="478" width="4.7" height="14" fill="#346cb6"/>
+<rect x="339.0" y="478" width="4.7" height="14" fill="#386fb8"/>
+<rect x="343.5" y="478" width="4.7" height="14" fill="#3c72b9"/>
+<rect x="348.0" y="478" width="4.7" height="14" fill="#4074ba"/>
+<rect x="352.5" y="478" width="4.7" height="14" fill="#4477bc"/>
+<rect x="357.0" y="478" width="4.7" height="14" fill="#487abd"/>
+<rect x="361.5" y="478" width="4.7" height="14" fill="#4c7dbe"/>
+<rect x="366.0" y="478" width="4.7" height="14" fill="#5080c0"/>
+<rect x="370.5" y="478" width="4.7" height="14" fill="#5483c1"/>
+<rect x="375.0" y="478" width="4.7" height="14" fill="#5885c2"/>
+<rect x="379.5" y="478" width="4.7" height="14" fill="#5c88c4"/>
+<rect x="384.0" y="478" width="4.7" height="14" fill="#608bc5"/>
+<rect x="388.5" y="478" width="4.7" height="14" fill="#648ec6"/>
+<rect x="393.0" y="478" width="4.7" height="14" fill="#6891c7"/>
+<rect x="397.5" y="478" width="4.7" height="14" fill="#6c94c9"/>
+<rect x="402.0" y="478" width="4.7" height="14" fill="#7096ca"/>
+<rect x="406.5" y="478" width="4.7" height="14" fill="#7499cb"/>
+<rect x="411.0" y="478" width="4.7" height="14" fill="#789ccd"/>
+<rect x="415.5" y="478" width="4.7" height="14" fill="#7c9fce"/>
+<rect x="420.0" y="478" width="4.7" height="14" fill="#80a2cf"/>
+<rect x="424.5" y="478" width="4.7" height="14" fill="#84a5d1"/>
+<rect x="429.0" y="478" width="4.7" height="14" fill="#88a7d2"/>
+<rect x="433.5" y="478" width="4.7" height="14" fill="#8caad3"/>
+<rect x="438.0" y="478" width="4.7" height="14" fill="#90add5"/>
+<rect x="442.5" y="478" width="4.7" height="14" fill="#94b0d6"/>
+<rect x="447.0" y="478" width="4.7" height="14" fill="#97b3d7"/>
+<rect x="451.5" y="478" width="4.7" height="14" fill="#9bb6d9"/>
+<rect x="456.0" y="478" width="4.7" height="14" fill="#9fb9da"/>
+<rect x="460.5" y="478" width="4.7" height="14" fill="#a3bbdb"/>
+<rect x="465.0" y="478" width="4.7" height="14" fill="#a7bedd"/>
+<rect x="469.5" y="478" width="4.7" height="14" fill="#abc1de"/>
+<rect x="474.0" y="478" width="4.7" height="14" fill="#afc4df"/>
+<rect x="478.5" y="478" width="4.7" height="14" fill="#b3c7e1"/>
+<rect x="483.0" y="478" width="4.7" height="14" fill="#b7cae2"/>
+<rect x="487.5" y="478" width="4.7" height="14" fill="#bbcce3"/>
+<rect x="492.0" y="478" width="4.7" height="14" fill="#bfcfe5"/>
+<rect x="496.5" y="478" width="4.7" height="14" fill="#c3d2e6"/>
+<rect x="501.0" y="478" width="4.7" height="14" fill="#c7d5e7"/>
+<rect x="505.5" y="478" width="4.7" height="14" fill="#cbd8e8"/>
+<rect x="510.0" y="478" width="4.7" height="14" fill="#cfdbea"/>
+<rect x="514.5" y="478" width="4.7" height="14" fill="#d3ddeb"/>
+<rect x="519.0" y="478" width="4.7" height="14" fill="#d7e0ec"/>
+<rect x="523.5" y="478" width="4.7" height="14" fill="#dbe3ee"/>
+<rect x="528.0" y="478" width="4.7" height="14" fill="#dfe6ef"/>
+<rect x="532.5" y="478" width="4.7" height="14" fill="#e3e9f0"/>
+<rect x="537.0" y="478" width="4.7" height="14" fill="#e7ecf2"/>
+<rect x="541.5" y="478" width="4.7" height="14" fill="#ebeef3"/>
+<rect x="546.0" y="478" width="4.7" height="14" fill="#eff1f4"/>
+<rect x="550.5" y="478" width="4.7" height="14" fill="#f3f4f6"/>
+<rect x="555.0" y="478" width="4.7" height="14" fill="#f7f7f7"/>
+<rect x="559.5" y="478" width="4.7" height="14" fill="#f6f3f3"/>
+<rect x="564.0" y="478" width="4.7" height="14" fill="#f5f0f0"/>
+<rect x="568.5" y="478" width="4.7" height="14" fill="#f4ecec"/>
+<rect x="573.0" y="478" width="4.7" height="14" fill="#f4e8e9"/>
+<rect x="577.5" y="478" width="4.7" height="14" fill="#f3e5e5"/>
+<rect x="582.0" y="478" width="4.7" height="14" fill="#f2e1e2"/>
+<rect x="586.5" y="478" width="4.7" height="14" fill="#f1dede"/>
+<rect x="591.0" y="478" width="4.7" height="14" fill="#f0dada"/>
+<rect x="595.5" y="478" width="4.7" height="14" fill="#efd6d7"/>
+<rect x="600.0" y="478" width="4.7" height="14" fill="#eed3d3"/>
+<rect x="604.5" y="478" width="4.7" height="14" fill="#eecfd0"/>
+<rect x="609.0" y="478" width="4.7" height="14" fill="#edcbcc"/>
+<rect x="613.5" y="478" width="4.7" height="14" fill="#ecc8c8"/>
+<rect x="618.0" y="478" width="4.7" height="14" fill="#ebc4c5"/>
+<rect x="622.5" y="478" width="4.7" height="14" fill="#eac0c1"/>
+<rect x="627.0" y="478" width="4.7" height="14" fill="#e9bdbe"/>
+<rect x="631.5" y="478" width="4.7" height="14" fill="#e8b9ba"/>
+<rect x="636.0" y="478" width="4.7" height="14" fill="#e8b5b7"/>
+<rect x="640.5" y="478" width="4.7" height="14" fill="#e7b2b3"/>
+<rect x="645.0" y="478" width="4.7" height="14" fill="#e6aeaf"/>
+<rect x="649.5" y="478" width="4.7" height="14" fill="#e5abac"/>
+<rect x="654.0" y="478" width="4.7" height="14" fill="#e4a7a8"/>
+<rect x="658.5" y="478" width="4.7" height="14" fill="#e3a3a5"/>
+<rect x="663.0" y="478" width="4.7" height="14" fill="#e2a0a1"/>
+<rect x="667.5" y="478" width="4.7" height="14" fill="#e29c9d"/>
+<rect x="672.0" y="478" width="4.7" height="14" fill="#e1989a"/>
+<rect x="676.5" y="478" width="4.7" height="14" fill="#e09596"/>
+<rect x="681.0" y="478" width="4.7" height="14" fill="#df9193"/>
+<rect x="685.5" y="478" width="4.7" height="14" fill="#de8d8f"/>
+<rect x="690.0" y="478" width="4.7" height="14" fill="#dd8a8c"/>
+<rect x="694.5" y="478" width="4.7" height="14" fill="#dc8688"/>
+<rect x="699.0" y="478" width="4.7" height="14" fill="#db8384"/>
+<rect x="703.5" y="478" width="4.7" height="14" fill="#db7f81"/>
+<rect x="708.0" y="478" width="4.7" height="14" fill="#da7b7d"/>
+<rect x="712.5" y="478" width="4.7" height="14" fill="#d9787a"/>
+<rect x="717.0" y="478" width="4.7" height="14" fill="#d87476"/>
+<rect x="721.5" y="478" width="4.7" height="14" fill="#d77073"/>
+<rect x="726.0" y="478" width="4.7" height="14" fill="#d66d6f"/>
+<rect x="730.5" y="478" width="4.7" height="14" fill="#d5696b"/>
+<rect x="735.0" y="478" width="4.7" height="14" fill="#d56568"/>
+<rect x="739.5" y="478" width="4.7" height="14" fill="#d46264"/>
+<rect x="744.0" y="478" width="4.7" height="14" fill="#d35e61"/>
+<rect x="748.5" y="478" width="4.7" height="14" fill="#d25a5d"/>
+<rect x="753.0" y="478" width="4.7" height="14" fill="#d15759"/>
+<rect x="757.5" y="478" width="4.7" height="14" fill="#d05356"/>
+<rect x="762.0" y="478" width="4.7" height="14" fill="#cf5052"/>
+<rect x="766.5" y="478" width="4.7" height="14" fill="#cf4c4f"/>
+<rect x="771.0" y="478" width="4.7" height="14" fill="#ce484b"/>
+<rect x="775.5" y="478" width="4.7" height="14" fill="#cd4548"/>
+<rect x="780.0" y="478" width="4.7" height="14" fill="#cc4144"/>
+<text x="330.0" y="512.0" font-size="12" text-anchor="start" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">−4.4%</text>
+<text x="555.0" y="512.0" font-size="12" text-anchor="middle" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">0%</text>
+<text x="780.0" y="512.0" font-size="12" text-anchor="end" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">+4.4%</text>
+</svg>

@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1250" height="790" viewBox="0 0 1250 790">
+<rect width="100%" height="100%" fill="white"/>
+<text x="625.0" y="38.0" font-size="22" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">Điều kiện môi trường theo thời gian</text>
+<rect x="342.3" y="75" width="605.5" height="175" fill="#eeeeee"/>
+<text x="90.0" y="63.0" font-size="15" text-anchor="start" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">Nhiệt độ baseline (°C)</text>
+<line x1="90" y1="250" x2="1200" y2="250" stroke="#777"/>
+<line x1="90" y1="75" x2="90" y2="250" stroke="#777"/>
+<text x="82.0" y="80.0" font-size="11" text-anchor="end" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">33.80</text>
+<text x="82.0" y="250.0" font-size="11" text-anchor="end" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">30.42</text>
+<polyline points="137.1,233.1 155.6,229.6 174.1,225.7 190.9,223.7 214.5,222.1 229.6,217.1 243.0,223.0 253.1,217.7 1048.6,91.9 1065.5,91.9 1075.5,91.9 1089.0,91.9 1107.5,228.0 1134.4,225.2 1144.5,226.7 1158.0,219.7 1168.0,217.4" fill="none" stroke="#cc4144" stroke-width="2.5"/>
+<circle cx="137.1" cy="233.1" r="4.5" fill="#cc4144"/>
+<circle cx="155.6" cy="229.6" r="4.5" fill="#cc4144"/>
+<circle cx="174.1" cy="225.7" r="4.5" fill="#cc4144"/>
+<circle cx="190.9" cy="223.7" r="4.5" fill="#cc4144"/>
+<circle cx="214.5" cy="222.1" r="4.5" fill="#cc4144"/>
+<circle cx="229.6" cy="217.1" r="4.5" fill="#cc4144"/>
+<circle cx="243.0" cy="223.0" r="4.5" fill="#cc4144"/>
+<circle cx="253.1" cy="217.7" r="4.5" fill="#cc4144"/>
+<circle cx="1048.6" cy="91.9" r="4.5" fill="#cc4144"/>
+<circle cx="1065.5" cy="91.9" r="4.5" fill="#cc4144"/>
+<circle cx="1075.5" cy="91.9" r="4.5" fill="#cc4144"/>
+<circle cx="1089.0" cy="91.9" r="4.5" fill="#cc4144"/>
+<circle cx="1107.5" cy="228.0" r="4.5" fill="#cc4144"/>
+<circle cx="1134.4" cy="225.2" r="4.5" fill="#cc4144"/>
+<circle cx="1144.5" cy="226.7" r="4.5" fill="#cc4144"/>
+<circle cx="1158.0" cy="219.7" r="4.5" fill="#cc4144"/>
+<circle cx="1168.0" cy="217.4" r="4.5" fill="#cc4144"/>
+<rect x="342.3" y="310" width="605.5" height="175" fill="#eeeeee"/>
+<text x="90.0" y="298.0" font-size="15" text-anchor="start" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">Độ ẩm baseline (%)</text>
+<line x1="90" y1="485" x2="1200" y2="485" stroke="#777"/>
+<line x1="90" y1="310" x2="90" y2="485" stroke="#777"/>
+<text x="82.0" y="315.0" font-size="11" text-anchor="end" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">71.50</text>
+<text x="82.0" y="485.0" font-size="11" text-anchor="end" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">67.44</text>
+<polyline points="137.1,354.6 155.6,359.1 174.1,363.6 190.9,368.6 214.5,328.4 229.6,353.2 243.0,326.9 253.1,327.9 1048.6,424.9 1065.5,444.0 1075.5,421.5 1089.0,428.6 1107.5,437.7 1134.4,442.8 1144.5,437.0 1158.0,458.8 1168.0,468.1" fill="none" stroke="#2f69b1" stroke-width="2.5"/>
+<circle cx="137.1" cy="354.6" r="4.5" fill="#2f69b1"/>
+<circle cx="155.6" cy="359.1" r="4.5" fill="#2f69b1"/>
+<circle cx="174.1" cy="363.6" r="4.5" fill="#2f69b1"/>
+<circle cx="190.9" cy="368.6" r="4.5" fill="#2f69b1"/>
+<circle cx="214.5" cy="328.4" r="4.5" fill="#2f69b1"/>
+<circle cx="229.6" cy="353.2" r="4.5" fill="#2f69b1"/>
+<circle cx="243.0" cy="326.9" r="4.5" fill="#2f69b1"/>
+<circle cx="253.1" cy="327.9" r="4.5" fill="#2f69b1"/>
+<circle cx="1048.6" cy="424.9" r="4.5" fill="#2f69b1"/>
+<circle cx="1065.5" cy="444.0" r="4.5" fill="#2f69b1"/>
+<circle cx="1075.5" cy="421.5" r="4.5" fill="#2f69b1"/>
+<circle cx="1089.0" cy="428.6" r="4.5" fill="#2f69b1"/>
+<circle cx="1107.5" cy="437.7" r="4.5" fill="#2f69b1"/>
+<circle cx="1134.4" cy="442.8" r="4.5" fill="#2f69b1"/>
+<circle cx="1144.5" cy="437.0" r="4.5" fill="#2f69b1"/>
+<circle cx="1158.0" cy="458.8" r="4.5" fill="#2f69b1"/>
+<circle cx="1168.0" cy="468.1" r="4.5" fill="#2f69b1"/>
+<rect x="342.3" y="545" width="605.5" height="175" fill="#eeeeee"/>
+<text x="90.0" y="533.0" font-size="15" text-anchor="start" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">Áp suất baseline (hPa)</text>
+<line x1="90" y1="720" x2="1200" y2="720" stroke="#777"/>
+<line x1="90" y1="545" x2="90" y2="720" stroke="#777"/>
+<text x="82.0" y="550.0" font-size="11" text-anchor="end" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">1019.81</text>
+<text x="82.0" y="720.0" font-size="11" text-anchor="end" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">1010.89</text>
+<polyline points="137.1,681.8 155.6,686.6 174.1,694.2 190.9,696.8 214.5,699.3 229.6,703.1 243.0,701.2 253.1,701.1 1048.6,561.9 1065.5,575.3 1075.5,575.8 1089.0,577.6 1107.5,652.0 1134.4,645.5 1144.5,650.8 1158.0,653.3 1168.0,653.8" fill="none" stroke="#4f9a52" stroke-width="2.5"/>
+<circle cx="137.1" cy="681.8" r="4.5" fill="#4f9a52"/>
+<circle cx="155.6" cy="686.6" r="4.5" fill="#4f9a52"/>
+<circle cx="174.1" cy="694.2" r="4.5" fill="#4f9a52"/>
+<circle cx="190.9" cy="696.8" r="4.5" fill="#4f9a52"/>
+<circle cx="214.5" cy="699.3" r="4.5" fill="#4f9a52"/>
+<circle cx="229.6" cy="703.1" r="4.5" fill="#4f9a52"/>
+<circle cx="243.0" cy="701.2" r="4.5" fill="#4f9a52"/>
+<circle cx="253.1" cy="701.1" r="4.5" fill="#4f9a52"/>
+<circle cx="1048.6" cy="561.9" r="4.5" fill="#4f9a52"/>
+<circle cx="1065.5" cy="575.3" r="4.5" fill="#4f9a52"/>
+<circle cx="1075.5" cy="575.8" r="4.5" fill="#4f9a52"/>
+<circle cx="1089.0" cy="577.6" r="4.5" fill="#4f9a52"/>
+<circle cx="1107.5" cy="652.0" r="4.5" fill="#4f9a52"/>
+<circle cx="1134.4" cy="645.5" r="4.5" fill="#4f9a52"/>
+<circle cx="1144.5" cy="650.8" r="4.5" fill="#4f9a52"/>
+<circle cx="1158.0" cy="653.3" r="4.5" fill="#4f9a52"/>
+<circle cx="1168.0" cy="653.8" r="4.5" fill="#4f9a52"/>
+<line x1="140.5" y1="720" x2="140.5" y2="725" stroke="#777"/>
+<text x="140.5" y="742.0" font-size="11" text-anchor="middle" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">13:00</text>
+<line x1="241.4" y1="720" x2="241.4" y2="725" stroke="#777"/>
+<text x="241.4" y="742.0" font-size="11" text-anchor="middle" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">14:00</text>
+<line x1="342.3" y1="720" x2="342.3" y2="725" stroke="#777"/>
+<text x="342.3" y="742.0" font-size="11" text-anchor="middle" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">15:00</text>
+<line x1="645.0" y1="720" x2="645.0" y2="725" stroke="#777"/>
+<text x="645.0" y="742.0" font-size="11" text-anchor="middle" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">18:00</text>
+<line x1="947.7" y1="720" x2="947.7" y2="725" stroke="#777"/>
+<text x="947.7" y="742.0" font-size="11" text-anchor="middle" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">21:00</text>
+<line x1="1048.6" y1="720" x2="1048.6" y2="725" stroke="#777"/>
+<text x="1048.6" y="742.0" font-size="11" text-anchor="middle" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">22:00</text>
+<line x1="1149.5" y1="720" x2="1149.5" y2="725" stroke="#777"/>
+<text x="1149.5" y="742.0" font-size="11" text-anchor="middle" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">23:00</text>
+<text x="625.0" y="775.0" font-size="13" text-anchor="middle" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">Giờ trong ngày; vùng xám là khoảng không có phiên đo</text>
+</svg>

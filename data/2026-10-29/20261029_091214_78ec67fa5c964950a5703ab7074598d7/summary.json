@@ -1,0 +1,247 @@
+{
+  "schema_version": "2.0",
+  "source_schema_version": "2.0",
+  "run_id": "78ec67fa5c964950a5703ab7074598d7",
+  "status": "COMPLETE",
+  "rows": 2044,
+  "filter_rule": "status OK + fresh; BME gas additionally gas_valid + heater_stable + new_data; MQ exclude NEGATIVE/ADC_LIMIT flags",
+  "auc_rule": "signed trapezoids over adjacent valid samples, no bridge across invalid rows or gap > max_gap_s",
+  "signals": {
+    "gas_resistance_ohm": {
+      "baseline": {
+        "n": 120,
+        "mean": null,
+        "median": null,
+        "std": null,
+        "min": null,
+        "max": null,
+        "slope_per_s": null,
+        "drift": null,
+        "reason": "Log session/monitor: dùng thống kê từng lượt collect, không gộp nền nhiều lượt"
+      },
+      "exposure": null,
+      "recovery": null,
+      "reason": "Log session/monitor: dùng thống kê từng lượt collect, không gộp nền nhiều lượt",
+      "invalid_fraction": 0.0
+    },
+    "mq135_1_voltage_v": {
+      "baseline": {
+        "n": 120,
+        "mean": null,
+        "median": null,
+        "std": null,
+        "min": null,
+        "max": null,
+        "slope_per_s": null,
+        "drift": null,
+        "reason": "Log session/monitor: dùng thống kê từng lượt collect, không gộp nền nhiều lượt"
+      },
+      "exposure": null,
+      "recovery": null,
+      "reason": "Log session/monitor: dùng thống kê từng lượt collect, không gộp nền nhiều lượt",
+      "quality_counts": {
+        "NEGATIVE": 0,
+        "ADC_LIMIT": 0,
+        "OK": 2040
+      },
+      "invalid_fraction": 0.00195694716242667
+    },
+    "mq3_1_voltage_v": {
+      "baseline": {
+        "n": 119,
+        "mean": null,
+        "median": null,
+        "std": null,
+        "min": null,
+        "max": null,
+        "slope_per_s": null,
+        "drift": null,
+        "reason": "Log session/monitor: dùng thống kê từng lượt collect, không gộp nền nhiều lượt"
+      },
+      "exposure": null,
+      "recovery": null,
+      "reason": "Log session/monitor: dùng thống kê từng lượt collect, không gộp nền nhiều lượt",
+      "quality_counts": {
+        "NEGATIVE": 0,
+        "ADC_LIMIT": 0,
+        "OK": 2035
+      },
+      "invalid_fraction": 0.0044031311154598685
+    },
+    "mq135_2_voltage_v": {
+      "baseline": {
+        "n": 120,
+        "mean": null,
+        "median": null,
+        "std": null,
+        "min": null,
+        "max": null,
+        "slope_per_s": null,
+        "drift": null,
+        "reason": "Log session/monitor: dùng thống kê từng lượt collect, không gộp nền nhiều lượt"
+      },
+      "exposure": null,
+      "recovery": null,
+      "reason": "Log session/monitor: dùng thống kê từng lượt collect, không gộp nền nhiều lượt",
+      "quality_counts": {
+        "NEGATIVE": 0,
+        "ADC_LIMIT": 0,
+        "OK": 2037
+      },
+      "invalid_fraction": 0.003424657534246589
+    },
+    "mq3_2_voltage_v": {
+      "baseline": {
+        "n": 120,
+        "mean": null,
+        "median": null,
+        "std": null,
+        "min": null,
+        "max": null,
+        "slope_per_s": null,
+        "drift": null,
+        "reason": "Log session/monitor: dùng thống kê từng lượt collect, không gộp nền nhiều lượt"
+      },
+      "exposure": null,
+      "recovery": null,
+      "reason": "Log session/monitor: dùng thống kê từng lượt collect, không gộp nền nhiều lượt",
+      "quality_counts": {
+        "NEGATIVE": 0,
+        "ADC_LIMIT": 0,
+        "OK": 2031
+      },
+      "invalid_fraction": 0.006360078277886538
+    }
+  },
+  "environment_baseline": {
+    "temperature_c": {
+      "n": 120,
+      "mean": null,
+      "median": null,
+      "std": null,
+      "min": null,
+      "max": null,
+      "slope_per_s": null,
+      "drift": null,
+      "reason": "Log session/monitor: dùng thống kê từng lượt collect, không gộp nền nhiều lượt"
+    },
+    "humidity_pct": {
+      "n": 120,
+      "mean": null,
+      "median": null,
+      "std": null,
+      "min": null,
+      "max": null,
+      "slope_per_s": null,
+      "drift": null,
+      "reason": "Log session/monitor: dùng thống kê từng lượt collect, không gộp nền nhiều lượt"
+    },
+    "pressure_hpa": {
+      "n": 120,
+      "mean": null,
+      "median": null,
+      "std": null,
+      "min": null,
+      "max": null,
+      "slope_per_s": null,
+      "drift": null,
+      "reason": "Log session/monitor: dùng thống kê từng lượt collect, không gộp nền nhiều lượt"
+    }
+  },
+  "warnings": [
+    "mq135_1: 4 lỗi đọc",
+    "mq3_1: 9 lỗi đọc",
+    "mq135_2: 7 lỗi đọc",
+    "mq3_2: 13 lỗi đọc"
+  ],
+  "external_pump": {
+    "initial_state": "unknown",
+    "latest_state": "unknown",
+    "source": "not_reported",
+    "physical_feedback": null,
+    "meaning": "User reports external power operation; no GPIO command and no measured feedback"
+  },
+  "measurement_quality": {
+    "pre_baseline": null,
+    "baseline": {
+      "stable": null,
+      "reasons": [
+        "gas_resistance_ohm: khoảng trống dữ liệu vượt ngưỡng",
+        "gas_resistance_ohm: đang trôi: slope/range vượt ngưỡng",
+        "temperature_c: khoảng trống dữ liệu vượt ngưỡng",
+        "temperature_c: đang trôi: slope/range vượt ngưỡng",
+        "humidity_pct: khoảng trống dữ liệu vượt ngưỡng",
+        "humidity_pct: đang trôi: slope/range vượt ngưỡng",
+        "BASELINE thiếu hoặc chưa hoàn thành"
+      ],
+      "advisories": [],
+      "signals": {
+        "gas_resistance_ohm": {
+          "n": 120,
+          "span_s": 936.9997236519998,
+          "mean": 93878.8369140625,
+          "slope_per_min": 560.5401142634081,
+          "range": 9717.2421875,
+          "slope_pct_per_min": 0.5970888995743858,
+          "range_pct": 10.35083359244773,
+          "invalid_fraction": 0.0,
+          "drifting": true,
+          "reasons": [
+            "khoảng trống dữ liệu vượt ngưỡng",
+            "đang trôi: slope/range vượt ngưỡng"
+          ]
+        },
+        "temperature_c": {
+          "n": 120,
+          "span_s": 936.9997236519998,
+          "mean": 31.13045988082886,
+          "slope_per_min": -0.02450833207640219,
+          "range": 0.4421234130859375,
+          "slope_pct_per_min": null,
+          "range_pct": null,
+          "invalid_fraction": 0.0,
+          "drifting": true,
+          "reasons": [
+            "khoảng trống dữ liệu vượt ngưỡng",
+            "đang trôi: slope/range vượt ngưỡng"
+          ]
+        },
+        "humidity_pct": {
+          "n": 120,
+          "span_s": 936.9997236519998,
+          "mean": 69.87090555826823,
+          "slope_per_min": 0.08104086750921498,
+          "range": 1.4722213745117188,
+          "slope_pct_per_min": null,
+          "range_pct": null,
+          "invalid_fraction": 0.0,
+          "drifting": true,
+          "reasons": [
+            "khoảng trống dữ liệu vượt ngưỡng",
+            "đang trôi: slope/range vượt ngưỡng"
+          ]
+        }
+      },
+      "window_s": null,
+      "evaluated_at_elapsed_s": 1522.062813655,
+      "criteria": {
+        "window_s": 30.0,
+        "min_samples": 5,
+        "min_window_fraction": 0.8,
+        "max_gap_s": 3.0,
+        "max_invalid_fraction": 0.2,
+        "gas_epsilon_ohm": 1e-09,
+        "gas_pct_per_min": 5.0,
+        "gas_range_pct": 5.0,
+        "temperature_per_min": 0.3,
+        "temperature_range": 0.2,
+        "humidity_per_min": 1.0,
+        "humidity_range": 1.0,
+        "temperature_warning_c": 35.0
+      }
+    },
+    "baseline_unstable": null,
+    "baseline_started_without_stability": null,
+    "interpretation": "Thay đổi tín hiệu khảo sát; không chứng minh phản ứng mùi. Nền đang trôi/chưa đánh giá làm đáp ứng tương đối thiếu tin cậy."
+  }
+}

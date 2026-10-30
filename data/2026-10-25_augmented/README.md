@@ -10,7 +10,7 @@
 ## Tệp đầu ra
 
 - `augmented_signals.csv`: tín hiệu đã chuẩn hóa baseline, cố định 60/120/60 mẫu cho BASELINE/EXPOSURE/RECOVERY.
-- `feature_vectors.csv`: bảy đặc trưng gốc, z-score và vector `v_01..v_07` đã chuẩn hóa L2 để tính cosine similarity.
+- `feature_vectors.csv`: mười đặc trưng gốc, z-score và vector `v_01..v_10` đã chuẩn hóa L2 để tính cosine similarity.
 - `person_prototypes.csv`: vector đại diện tính từ các phiên thật, không dùng bản augmented như phiên độc lập.
 - `identity_profiles.csv`: centroid cân bằng theo phiên và ngưỡng cosine/margin của từng người.
 - `identity_model.json`: model vector hoàn chỉnh để kiểm tra một mẫu mới có phù hợp hay không.
@@ -20,7 +20,7 @@
 
 ## Augmentation
 
-Mỗi biến thể dùng cùng hệ số cho cả hai cảm biến: amplitude scaling 0.97–1.03, time stretching 0.98–1.02, dịch ±2 mẫu và cộng 0.10–0.30 lần residual noise của baseline. Các pha không bị đảo hoặc trộn.
+Mỗi biến thể dùng cùng hệ số cho cả ba cảm biến: amplitude scaling 0.97–1.03, time stretching 0.98–1.02, dịch ±2 mẫu và cộng 0.10–0.30 lần residual noise của baseline. Các pha không bị đảo hoặc trộn.
 
 ## Lưu ý
 

@@ -1,10 +1,11 @@
 {
-  "generated_at": "2026-10-26T08:59:37.429437+00:00",
+  "generated_at": "2026-10-26T09:40:21.233138+00:00",
   "input": "D:\\PBL6\\data\\2026-10-25",
   "output": "D:\\PBL6\\data\\2026-10-25_augmented",
   "seed": 20261025,
   "variants_per_run": 20,
   "minimum_valid_fraction": 0.9,
+  "minimum_identity_similarity": 0.6,
   "phase_lengths": {
     "BASELINE": 60,
     "EXPOSURE": 120,
@@ -16,10 +17,17 @@
       "status": "bme_status",
       "fresh": "bme_fresh"
     },
-    "mq135_1": {
-      "value": "mq135_1_voltage_v",
-      "status": "mq135_1_status",
-      "fresh": "mq135_1_fresh"
+    "mq135": {
+      "value": "mq135_voltage_v",
+      "status": "mq135_status",
+      "fresh": "mq135_fresh",
+      "quality": "mq135_quality"
+    },
+    "mq3": {
+      "value": "mq3_voltage_v",
+      "status": "mq3_status",
+      "fresh": "mq3_fresh",
+      "quality": "mq3_quality"
     }
   },
   "feature_order": [
@@ -27,9 +35,12 @@
     "gas_exposure_middle_mean_pct",
     "gas_exposure_q10_pct",
     "gas_exposure_q90_pct",
-    "mq135_1_exposure_middle_mean_pct",
-    "mq135_1_exposure_slope_pct_per_s",
-    "mq135_1_recovery_end_mean_pct"
+    "mq135_exposure_middle_mean_pct",
+    "mq135_exposure_slope_pct_per_s",
+    "mq135_recovery_end_mean_pct",
+    "mq3_exposure_middle_mean_pct",
+    "mq3_exposure_slope_pct_per_s",
+    "mq3_recovery_end_mean_pct"
   ],
   "accepted_real_runs": [
     "aDung_20261025_212248_38b6e5b5a8e84de3a5cf01c3155b99bf",

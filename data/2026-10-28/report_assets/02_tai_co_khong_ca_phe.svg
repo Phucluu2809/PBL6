@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="530" viewBox="0 0 1500 530">
+<rect width="100%" height="100%" fill="white"/>
+<text x="750.0" y="40.0" font-size="23" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">So sánh trực tiếp: Tài không cà phê và Tài có cà phê</text>
+<text x="22.0" y="270.0" font-size="14" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">Đáp ứng EXPOSURE (%)</text>
+<text x="185.0" y="78.0" font-size="16" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">BME688 gas</text>
+<line x1="80" y1="100" x2="80" y2="425" stroke="#777"/>
+<line x1="80" y1="425" x2="290" y2="425" stroke="#777"/>
+<text x="72.0" y="104.0" font-size="11" text-anchor="end" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">1.7</text>
+<text x="72.0" y="425.0" font-size="11" text-anchor="end" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">-4.8</text>
+<line x1="80" y1="184.0" x2="290" y2="184.0" stroke="#aaaaaa" stroke-dasharray="4 4"/>
+<circle cx="123.0" cy="298.6" r="5" fill="#2f69b1" fill-opacity="0.82"/>
+<circle cx="134.0" cy="243.3" r="5" fill="#2f69b1" fill-opacity="0.82"/>
+<circle cx="145.0" cy="211.6" r="5" fill="#2f69b1" fill-opacity="0.82"/>
+<circle cx="156.0" cy="276.0" r="5" fill="#2f69b1" fill-opacity="0.82"/>
+<circle cx="167.0" cy="150.3" r="5" fill="#2f69b1" fill-opacity="0.82"/>
+<line x1="115" y1="236.0" x2="175" y2="236.0" stroke="#2f69b1" stroke-width="4"/>
+<text x="145.0" y="450.0" font-size="12" text-anchor="middle" font-weight="bold" fill="#2f69b1" font-family="DejaVu Sans, Arial, sans-serif">Không CF</text>
+<text x="145.0" y="469.0" font-size="11" text-anchor="middle" font-weight="normal" fill="#2f69b1" font-family="DejaVu Sans, Arial, sans-serif">mean -1.04%</text>
+<circle cx="223.0" cy="387.5" r="5" fill="#cc4144" fill-opacity="0.82"/>
+<circle cx="234.0" cy="382.9" r="5" fill="#cc4144" fill-opacity="0.82"/>
+<circle cx="245.0" cy="137.5" r="5" fill="#cc4144" fill-opacity="0.82"/>
+<circle cx="256.0" cy="214.1" r="5" fill="#cc4144" fill-opacity="0.82"/>
+<line x1="215" y1="280.5" x2="275" y2="280.5" stroke="#cc4144" stroke-width="4"/>
+<text x="245.0" y="450.0" font-size="12" text-anchor="middle" font-weight="bold" fill="#cc4144" font-family="DejaVu Sans, Arial, sans-serif">Có CF</text>
+<text x="245.0" y="469.0" font-size="11" text-anchor="middle" font-weight="normal" fill="#cc4144" font-family="DejaVu Sans, Arial, sans-serif">mean -1.94%</text>
+<text x="465.0" y="78.0" font-size="16" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">MQ135-1</text>
+<line x1="360" y1="100" x2="360" y2="425" stroke="#777"/>
+<line x1="360" y1="425" x2="570" y2="425" stroke="#777"/>
+<text x="352.0" y="104.0" font-size="11" text-anchor="end" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">4.1</text>
+<text x="352.0" y="425.0" font-size="11" text-anchor="end" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">-0.8</text>
+<line x1="360" y1="371.6" x2="570" y2="371.6" stroke="#aaaaaa" stroke-dasharray="4 4"/>
+<circle cx="403.0" cy="357.9" r="5" fill="#2f69b1" fill-opacity="0.82"/>
+<circle cx="414.0" cy="368.1" r="5" fill="#2f69b1" fill-opacity="0.82"/>
+<circle cx="425.0" cy="334.6" r="5" fill="#2f69b1" fill-opacity="0.82"/>
+<circle cx="436.0" cy="137.5" r="5" fill="#2f69b1" fill-opacity="0.82"/>
+<circle cx="447.0" cy="387.5" r="5" fill="#2f69b1" fill-opacity="0.82"/>
+<line x1="395" y1="317.1" x2="455" y2="317.1" stroke="#2f69b1" stroke-width="4"/>
+<text x="425.0" y="450.0" font-size="12" text-anchor="middle" font-weight="bold" fill="#2f69b1" font-family="DejaVu Sans, Arial, sans-serif">Không CF</text>
+<text x="425.0" y="469.0" font-size="11" text-anchor="middle" font-weight="normal" fill="#2f69b1" font-family="DejaVu Sans, Arial, sans-serif">mean 0.83%</text>
+<circle cx="503.0" cy="369.6" r="5" fill="#cc4144" fill-opacity="0.82"/>
+<circle cx="514.0" cy="372.3" r="5" fill="#cc4144" fill-opacity="0.82"/>
+<circle cx="525.0" cy="367.3" r="5" fill="#cc4144" fill-opacity="0.82"/>
+<circle cx="536.0" cy="346.7" r="5" fill="#cc4144" fill-opacity="0.82"/>
+<line x1="495" y1="364.0" x2="555" y2="364.0" stroke="#cc4144" stroke-width="4"/>
+<text x="525.0" y="450.0" font-size="12" text-anchor="middle" font-weight="bold" fill="#cc4144" font-family="DejaVu Sans, Arial, sans-serif">Có CF</text>
+<text x="525.0" y="469.0" font-size="11" text-anchor="middle" font-weight="normal" fill="#cc4144" font-family="DejaVu Sans, Arial, sans-serif">mean 0.12%</text>
+<text x="745.0" y="78.0" font-size="16" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">MQ3-1</text>
+<line x1="640" y1="100" x2="640" y2="425" stroke="#777"/>
+<line x1="640" y1="425" x2="850" y2="425" stroke="#777"/>
+<text x="632.0" y="104.0" font-size="11" text-anchor="end" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">3.2</text>
+<text x="632.0" y="425.0" font-size="11" text-anchor="end" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">-1.5</text>
+<line x1="640" y1="320.1" x2="850" y2="320.1" stroke="#aaaaaa" stroke-dasharray="4 4"/>
+<circle cx="683.0" cy="246.5" r="5" fill="#2f69b1" fill-opacity="0.82"/>
+<circle cx="694.0" cy="276.3" r="5" fill="#2f69b1" fill-opacity="0.82"/>
+<circle cx="705.0" cy="340.4" r="5" fill="#2f69b1" fill-opacity="0.82"/>
+<circle cx="716.0" cy="263.9" r="5" fill="#2f69b1" fill-opacity="0.82"/>
+<circle cx="727.0" cy="311.5" r="5" fill="#2f69b1" fill-opacity="0.82"/>
+<line x1="675" y1="287.7" x2="735" y2="287.7" stroke="#2f69b1" stroke-width="4"/>
+<text x="705.0" y="450.0" font-size="12" text-anchor="middle" font-weight="bold" fill="#2f69b1" font-family="DejaVu Sans, Arial, sans-serif">Không CF</text>
+<text x="705.0" y="469.0" font-size="11" text-anchor="middle" font-weight="normal" fill="#2f69b1" font-family="DejaVu Sans, Arial, sans-serif">mean 0.47%</text>
+<circle cx="783.0" cy="184.4" r="5" fill="#cc4144" fill-opacity="0.82"/>
+<circle cx="794.0" cy="137.5" r="5" fill="#cc4144" fill-opacity="0.82"/>
+<circle cx="805.0" cy="387.5" r="5" fill="#cc4144" fill-opacity="0.82"/>
+<circle cx="816.0" cy="301.5" r="5" fill="#cc4144" fill-opacity="0.82"/>
+<line x1="775" y1="252.7" x2="835" y2="252.7" stroke="#cc4144" stroke-width="4"/>
+<text x="805.0" y="450.0" font-size="12" text-anchor="middle" font-weight="bold" fill="#cc4144" font-family="DejaVu Sans, Arial, sans-serif">Có CF</text>
+<text x="805.0" y="469.0" font-size="11" text-anchor="middle" font-weight="normal" fill="#cc4144" font-family="DejaVu Sans, Arial, sans-serif">mean 0.98%</text>
+<text x="1025.0" y="78.0" font-size="16" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">MQ135-2</text>
+<line x1="920" y1="100" x2="920" y2="425" stroke="#777"/>
+<line x1="920" y1="425" x2="1130" y2="425" stroke="#777"/>
+<text x="912.0" y="104.0" font-size="11" text-anchor="end" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">1.5</text>
+<text x="912.0" y="425.0" font-size="11" text-anchor="end" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">-0.5</text>
+<line x1="920" y1="348.2" x2="1130" y2="348.2" stroke="#aaaaaa" stroke-dasharray="4 4"/>
+<circle cx="963.0" cy="331.9" r="5" fill="#2f69b1" fill-opacity="0.82"/>
+<circle cx="974.0" cy="357.3" r="5" fill="#2f69b1" fill-opacity="0.82"/>
+<circle cx="985.0" cy="367.1" r="5" fill="#2f69b1" fill-opacity="0.82"/>
+<circle cx="996.0" cy="141.3" r="5" fill="#2f69b1" fill-opacity="0.82"/>
+<circle cx="1007.0" cy="177.2" r="5" fill="#2f69b1" fill-opacity="0.82"/>
+<line x1="955" y1="275.0" x2="1015" y2="275.0" stroke="#2f69b1" stroke-width="4"/>
+<text x="985.0" y="450.0" font-size="12" text-anchor="middle" font-weight="bold" fill="#2f69b1" font-family="DejaVu Sans, Arial, sans-serif">Không CF</text>
+<text x="985.0" y="469.0" font-size="11" text-anchor="middle" font-weight="normal" fill="#2f69b1" font-family="DejaVu Sans, Arial, sans-serif">mean 0.44%</text>
+<circle cx="1063.0" cy="318.9" r="5" fill="#cc4144" fill-opacity="0.82"/>
+<circle cx="1074.0" cy="383.7" r="5" fill="#cc4144" fill-opacity="0.82"/>
+<circle cx="1085.0" cy="340.3" r="5" fill="#cc4144" fill-opacity="0.82"/>
+<circle cx="1096.0" cy="293.9" r="5" fill="#cc4144" fill-opacity="0.82"/>
+<line x1="1055" y1="334.2" x2="1115" y2="334.2" stroke="#cc4144" stroke-width="4"/>
+<text x="1085.0" y="450.0" font-size="12" text-anchor="middle" font-weight="bold" fill="#cc4144" font-family="DejaVu Sans, Arial, sans-serif">Có CF</text>
+<text x="1085.0" y="469.0" font-size="11" text-anchor="middle" font-weight="normal" fill="#cc4144" font-family="DejaVu Sans, Arial, sans-serif">mean 0.08%</text>
+<text x="1305.0" y="78.0" font-size="16" text-anchor="middle" font-weight="bold" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">MQ3-2</text>
+<line x1="1200" y1="100" x2="1200" y2="425" stroke="#777"/>
+<line x1="1200" y1="425" x2="1410" y2="425" stroke="#777"/>
+<text x="1192.0" y="104.0" font-size="11" text-anchor="end" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">0.6</text>
+<text x="1192.0" y="425.0" font-size="11" text-anchor="end" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">-0.6</text>
+<line x1="1200" y1="257.9" x2="1410" y2="257.9" stroke="#aaaaaa" stroke-dasharray="4 4"/>
+<circle cx="1243.0" cy="269.4" r="5" fill="#2f69b1" fill-opacity="0.82"/>
+<circle cx="1254.0" cy="300.6" r="5" fill="#2f69b1" fill-opacity="0.82"/>
+<circle cx="1265.0" cy="360.5" r="5" fill="#2f69b1" fill-opacity="0.82"/>
+<circle cx="1276.0" cy="187.0" r="5" fill="#2f69b1" fill-opacity="0.82"/>
+<circle cx="1287.0" cy="164.5" r="5" fill="#2f69b1" fill-opacity="0.82"/>
+<line x1="1235" y1="256.4" x2="1295" y2="256.4" stroke="#2f69b1" stroke-width="4"/>
+<text x="1265.0" y="450.0" font-size="12" text-anchor="middle" font-weight="bold" fill="#2f69b1" font-family="DejaVu Sans, Arial, sans-serif">Không CF</text>
+<text x="1265.0" y="469.0" font-size="11" text-anchor="middle" font-weight="normal" fill="#2f69b1" font-family="DejaVu Sans, Arial, sans-serif">mean 0.01%</text>
+<circle cx="1343.0" cy="238.1" r="5" fill="#cc4144" fill-opacity="0.82"/>
+<circle cx="1354.0" cy="297.0" r="5" fill="#cc4144" fill-opacity="0.82"/>
+<circle cx="1365.0" cy="354.5" r="5" fill="#cc4144" fill-opacity="0.82"/>
+<circle cx="1376.0" cy="310.0" r="5" fill="#cc4144" fill-opacity="0.82"/>
+<line x1="1335" y1="299.9" x2="1395" y2="299.9" stroke="#cc4144" stroke-width="4"/>
+<text x="1365.0" y="450.0" font-size="12" text-anchor="middle" font-weight="bold" fill="#cc4144" font-family="DejaVu Sans, Arial, sans-serif">Có CF</text>
+<text x="1365.0" y="469.0" font-size="11" text-anchor="middle" font-weight="normal" fill="#cc4144" font-family="DejaVu Sans, Arial, sans-serif">mean -0.16%</text>
+<text x="750.0" y="505.0" font-size="13" text-anchor="middle" font-weight="normal" fill="#222222" font-family="DejaVu Sans, Arial, sans-serif">Mỗi chấm là một phiên; đường ngang đậm là trung bình nhóm</text>
+</svg>

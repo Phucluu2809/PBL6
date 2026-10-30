@@ -18,6 +18,7 @@ from augment_and_extract_odor_features import (
     SENSORS,
     add_cosine_vector,
     extract_features,
+    normalize_sensor_columns,
     parse_float,
     resample,
     sensor_value_is_valid,
@@ -58,7 +59,9 @@ def parse_args() -> argparse.Namespace:
 
 def load_csv(path: Path) -> list[dict[str, str]]:
     with path.open(encoding="utf-8-sig", newline="") as handle:
-        return list(csv.DictReader(handle))
+        rows = list(csv.DictReader(handle))
+    normalize_sensor_columns(rows)
+    return rows
 
 
 def resolve_input(path: Path) -> tuple[Path, Path]:
@@ -198,7 +201,10 @@ def load_model(
 def prototype_vector(row: dict[str, object]) -> list[float]:
     if "vector" in row:
         return [float(value) for value in row["vector"]]
-    return [float(row[f"v_{index:02d}"]) for index in range(1, 8)]
+    return [
+        float(row[f"v_{index:02d}"])
+        for index in range(1, len(FEATURE_COLUMNS) + 1)
+    ]
 
 
 def default_output(raw_path: Path, run_dir: Path) -> Path:
@@ -237,7 +243,10 @@ def main() -> None:
     scaler, prototypes, model_metadata = load_model(args.model_dir.resolve())
     feature_row = extract_features(sample)
     add_cosine_vector(feature_row, scaler)
-    sample_vector = [float(feature_row[f"v_{index:02d}"]) for index in range(1, 8)]
+    sample_vector = [
+        float(feature_row[f"v_{index:02d}"])
+        for index in range(1, len(FEATURE_COLUMNS) + 1)
+    ]
 
     scores = []
     for prototype in prototypes:

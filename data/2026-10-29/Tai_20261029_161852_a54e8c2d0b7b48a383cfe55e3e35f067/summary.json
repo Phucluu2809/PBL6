@@ -1,0 +1,401 @@
+{
+  "schema_version": "2.0",
+  "source_schema_version": "2.0",
+  "run_id": "a54e8c2d0b7b48a383cfe55e3e35f067",
+  "status": "ABORTED",
+  "rows": 413,
+  "filter_rule": "status OK + fresh; BME gas additionally gas_valid + heater_stable + new_data; MQ exclude NEGATIVE/ADC_LIMIT flags",
+  "auc_rule": "signed trapezoids over adjacent valid samples, no bridge across invalid rows or gap > max_gap_s",
+  "signals": {
+    "gas_resistance_ohm": {
+      "baseline": {
+        "n": 60,
+        "mean": 110191.55,
+        "median": 110226.046875,
+        "std": 504.17731337969553,
+        "min": 109168.4453125,
+        "max": 111159.359375,
+        "slope_per_s": 23.900933971231513,
+        "drift": 854.296875,
+        "reason": null,
+        "drift_pct": 0.7752834722807692
+      },
+      "exposure": {
+        "metrics": {
+          "n": 119,
+          "maximum": 108681.8046875,
+          "minimum": 93040.15625,
+          "maximum_at_elapsed_s": 315.56603826799983,
+          "minimum_at_elapsed_s": 314.5662430699999,
+          "delta_max": -1509.745312500003,
+          "delta_min": -17151.393750000003,
+          "delta_max_pct": -1.3701098791150528,
+          "delta_min_pct": -15.565071686531319,
+          "slope_per_s": -3.7697369644507916,
+          "auc_delta_signal_s": -414382.7458106505,
+          "auc_covered_s": 116.99994098299976,
+          "percent_reason": null
+        },
+        "reason": null
+      },
+      "recovery": {
+        "metrics": null,
+        "reason": "RECOVERY thiếu/chưa hoàn thành hoặc <2 mẫu hợp lệ"
+      },
+      "reason": null,
+      "invalid_fraction": 0.002421307506053294
+    },
+    "mq135_1_voltage_v": {
+      "baseline": {
+        "n": 60,
+        "mean": 0.3275645833333333,
+        "median": 0.327625,
+        "std": 0.00022607050735066222,
+        "min": 0.327,
+        "max": 0.328,
+        "slope_per_s": -1.0193832698619165e-05,
+        "drift": -0.0005000000000000004,
+        "reason": null,
+        "drift_pct": -0.1526416546355364
+      },
+      "exposure": {
+        "metrics": {
+          "n": 119,
+          "maximum": 0.33137500000000003,
+          "minimum": 0.329,
+          "maximum_at_elapsed_s": 343.5660393449998,
+          "minimum_at_elapsed_s": 264.56607306099977,
+          "delta_max": 0.003810416666666705,
+          "delta_min": 0.001435416666666689,
+          "delta_max_pct": 1.1632566097016608,
+          "delta_min_pct": 0.4382087501828588,
+          "slope_per_s": 4.80853161076244e-06,
+          "auc_delta_signal_s": 0.27194023226957753,
+          "auc_covered_s": 116.99993498299955,
+          "percent_reason": null
+        },
+        "reason": null
+      },
+      "recovery": {
+        "metrics": null,
+        "reason": "RECOVERY thiếu/chưa hoàn thành hoặc <2 mẫu hợp lệ"
+      },
+      "reason": null,
+      "quality_counts": {
+        "NEGATIVE": 0,
+        "ADC_LIMIT": 0,
+        "OK": 410
+      },
+      "invalid_fraction": 0.007263922518159771
+    },
+    "mq3_1_voltage_v": {
+      "baseline": {
+        "n": 58,
+        "mean": 0.3769137931034483,
+        "median": 0.377,
+        "std": 0.0010609720428649751,
+        "min": 0.374375,
+        "max": 0.3785,
+        "slope_per_s": -5.376367305897735e-05,
+        "drift": -0.0018750000000000155,
+        "reason": null,
+        "drift_pct": -0.4974612323315534
+      },
+      "exposure": {
+        "metrics": {
+          "n": 119,
+          "maximum": 0.388625,
+          "minimum": 0.376875,
+          "maximum_at_elapsed_s": 343.5660393449998,
+          "minimum_at_elapsed_s": 351.5660583079998,
+          "delta_max": 0.011711206896551696,
+          "delta_min": -3.87931034482869e-05,
+          "delta_max_pct": 3.107131421252451,
+          "delta_min_pct": -0.010292301358586707,
+          "slope_per_s": 2.6516664216829167e-05,
+          "auc_delta_signal_s": 0.9433957858839884,
+          "auc_covered_s": 117.00002249899944,
+          "percent_reason": null
+        },
+        "reason": null
+      },
+      "recovery": {
+        "metrics": null,
+        "reason": "RECOVERY thiếu/chưa hoàn thành hoặc <2 mẫu hợp lệ"
+      },
+      "reason": null,
+      "quality_counts": {
+        "NEGATIVE": 0,
+        "ADC_LIMIT": 0,
+        "OK": 407
+      },
+      "invalid_fraction": 0.014527845036319653
+    },
+    "mq135_2_voltage_v": {
+      "baseline": {
+        "n": 59,
+        "mean": 0.2099597457627119,
+        "median": 0.21,
+        "std": 0.00014203090887748238,
+        "min": 0.209625,
+        "max": 0.21025,
+        "slope_per_s": -3.4151906702631183e-06,
+        "drift": -0.00037499999999998646,
+        "reason": null,
+        "drift_pct": -0.17860566492769356
+      },
+      "exposure": {
+        "metrics": {
+          "n": 119,
+          "maximum": 0.211375,
+          "minimum": 0.202125,
+          "maximum_at_elapsed_s": 347.5660280869997,
+          "minimum_at_elapsed_s": 351.5660583079998,
+          "delta_max": 0.0014152542372881105,
+          "delta_min": -0.007834745762711898,
+          "delta_max_pct": 0.6740597975802344,
+          "delta_min_pct": -3.731546603969703,
+          "slope_per_s": -5.739804999927144e-07,
+          "auc_delta_signal_s": 0.06595660233321107,
+          "auc_covered_s": 117.00001992499983,
+          "percent_reason": null
+        },
+        "reason": null
+      },
+      "recovery": {
+        "metrics": null,
+        "reason": "RECOVERY thiếu/chưa hoàn thành hoặc <2 mẫu hợp lệ"
+      },
+      "reason": null,
+      "quality_counts": {
+        "NEGATIVE": 0,
+        "ADC_LIMIT": 0,
+        "OK": 411
+      },
+      "invalid_fraction": 0.004842615012106588
+    },
+    "mq3_2_voltage_v": {
+      "baseline": {
+        "n": 60,
+        "mean": 0.1558291666666667,
+        "median": 0.155875,
+        "std": 0.0001992659552054873,
+        "min": 0.15525,
+        "max": 0.156125,
+        "slope_per_s": -4.452649764634755e-06,
+        "drift": -0.0005000000000000004,
+        "reason": null,
+        "drift_pct": -0.32086419422979245
+      },
+      "exposure": {
+        "metrics": {
+          "n": 117,
+          "maximum": 0.15675,
+          "minimum": 0.1475,
+          "maximum_at_elapsed_s": 350.5660370259998,
+          "minimum_at_elapsed_s": 351.5660583079998,
+          "delta_max": 0.0009208333333332874,
+          "delta_min": -0.00832916666666672,
+          "delta_max_pct": 0.5909248910398377,
+          "delta_min_pct": -5.345062702211322,
+          "slope_per_s": 2.2417478755527455e-06,
+          "auc_delta_signal_s": 0.0269746267756834,
+          "auc_covered_s": 113.99953964999986,
+          "percent_reason": null
+        },
+        "reason": null
+      },
+      "recovery": {
+        "metrics": null,
+        "reason": "RECOVERY thiếu/chưa hoàn thành hoặc <2 mẫu hợp lệ"
+      },
+      "reason": null,
+      "quality_counts": {
+        "NEGATIVE": 0,
+        "ADC_LIMIT": 0,
+        "OK": 406
+      },
+      "invalid_fraction": 0.016949152542372836
+    }
+  },
+  "environment_baseline": {
+    "temperature_c": {
+      "n": 60,
+      "mean": 30.87972723642985,
+      "median": 30.88624382019043,
+      "std": 0.03479912464829664,
+      "min": 30.821491241455078,
+      "max": 30.934412002563477,
+      "slope_per_s": -0.0019550490441886245,
+      "drift": -0.10973167419433594,
+      "reason": null
+    },
+    "humidity_pct": {
+      "n": 60,
+      "mean": 64.37632255554199,
+      "median": 64.3420639038086,
+      "std": 0.06820551609335775,
+      "min": 64.29653930664062,
+      "max": 64.51522064208984,
+      "slope_per_s": -0.003498227843004103,
+      "drift": -0.11754608154296875,
+      "reason": null
+    },
+    "pressure_hpa": {
+      "n": 60,
+      "mean": 1011.8075338541669,
+      "median": 1011.8135546875001,
+      "std": 0.0345450111546161,
+      "min": 1011.73,
+      "max": 1011.88734375,
+      "slope_per_s": -0.00027497735628311204,
+      "drift": 0.050546875000009095,
+      "reason": null
+    }
+  },
+  "warnings": [
+    "Lượt thu/pha chưa hoàn thành: ABORTED",
+    "bme: 1 lỗi đọc",
+    "gas_resistance_ohm: RECOVERY chưa đủ dữ liệu",
+    "mq135_1: 3 lỗi đọc",
+    "mq135_1_voltage_v: RECOVERY chưa đủ dữ liệu",
+    "mq3_1: 6 lỗi đọc",
+    "mq3_1_voltage_v: RECOVERY chưa đủ dữ liệu",
+    "mq135_2: 2 lỗi đọc",
+    "mq135_2_voltage_v: RECOVERY chưa đủ dữ liệu",
+    "mq3_2: 7 lỗi đọc",
+    "mq3_2_voltage_v: RECOVERY chưa đủ dữ liệu"
+  ],
+  "external_pump": {
+    "initial_state": "unknown",
+    "latest_state": "unknown",
+    "source": "not_reported",
+    "physical_feedback": null,
+    "meaning": "User reports external power operation; no GPIO command and no measured feedback"
+  },
+  "measurement_quality": {
+    "pre_baseline": {
+      "stable": true,
+      "reasons": [],
+      "advisories": [],
+      "signals": {
+        "gas_resistance_ohm": {
+          "n": 30,
+          "span_s": 28.999952342999677,
+          "mean": 109463.38645833333,
+          "slope_per_min": 793.9600702055382,
+          "range": 1334.5,
+          "slope_pct_per_min": 0.7253202151824116,
+          "range_pct": 1.21912910168184,
+          "invalid_fraction": 0.0,
+          "drifting": false,
+          "reasons": []
+        },
+        "temperature_c": {
+          "n": 30,
+          "span_s": 28.999952342999677,
+          "mean": 30.960804176330566,
+          "slope_per_min": -0.13767432574607094,
+          "range": 0.06188392639160156,
+          "slope_pct_per_min": null,
+          "range_pct": null,
+          "invalid_fraction": 0.0,
+          "drifting": false,
+          "reasons": []
+        },
+        "humidity_pct": {
+          "n": 30,
+          "span_s": 28.999952342999677,
+          "mean": 64.32665201822917,
+          "slope_per_min": 0.1603049914409886,
+          "range": 0.18845367431640625,
+          "slope_pct_per_min": null,
+          "range_pct": null,
+          "invalid_fraction": 0.0,
+          "drifting": false,
+          "reasons": []
+        }
+      },
+      "window_s": 30.0,
+      "evaluated_at_elapsed_s": 2119.625294582,
+      "criteria": {
+        "window_s": 30.0,
+        "min_samples": 5,
+        "min_window_fraction": 0.8,
+        "max_gap_s": 3.0,
+        "max_invalid_fraction": 0.2,
+        "gas_epsilon_ohm": 1e-09,
+        "gas_pct_per_min": 5.0,
+        "gas_range_pct": 5.0,
+        "temperature_per_min": 0.3,
+        "temperature_range": 0.2,
+        "humidity_per_min": 1.0,
+        "humidity_range": 1.0,
+        "temperature_warning_c": 35.0
+      }
+    },
+    "baseline": {
+      "stable": true,
+      "reasons": [],
+      "advisories": [],
+      "signals": {
+        "gas_resistance_ohm": {
+          "n": 60,
+          "span_s": 58.99998761400002,
+          "mean": 110191.55,
+          "slope_per_min": 1434.056038273891,
+          "range": 1990.9140625,
+          "slope_pct_per_min": 1.3014210602118683,
+          "range_pct": 1.806775621633419,
+          "invalid_fraction": 0.0,
+          "drifting": false,
+          "reasons": []
+        },
+        "temperature_c": {
+          "n": 60,
+          "span_s": 58.99998761400002,
+          "mean": 30.87972723642985,
+          "slope_per_min": -0.11730294265131752,
+          "range": 0.11292076110839844,
+          "slope_pct_per_min": null,
+          "range_pct": null,
+          "invalid_fraction": 0.0,
+          "drifting": false,
+          "reasons": []
+        },
+        "humidity_pct": {
+          "n": 60,
+          "span_s": 58.99998761400002,
+          "mean": 64.37632255554199,
+          "slope_per_min": -0.20989367058024624,
+          "range": 0.21868133544921875,
+          "slope_pct_per_min": null,
+          "range_pct": null,
+          "invalid_fraction": 0.0,
+          "drifting": false,
+          "reasons": []
+        }
+      },
+      "window_s": null,
+      "evaluated_at_elapsed_s": 191.56603153099968,
+      "criteria": {
+        "window_s": 30.0,
+        "min_samples": 5,
+        "min_window_fraction": 0.8,
+        "max_gap_s": 3.0,
+        "max_invalid_fraction": 0.2,
+        "gas_epsilon_ohm": 1e-09,
+        "gas_pct_per_min": 5.0,
+        "gas_range_pct": 5.0,
+        "temperature_per_min": 0.3,
+        "temperature_range": 0.2,
+        "humidity_per_min": 1.0,
+        "humidity_range": 1.0,
+        "temperature_warning_c": 35.0
+      }
+    },
+    "baseline_unstable": false,
+    "baseline_started_without_stability": false,
+    "interpretation": "Thay đổi tín hiệu khảo sát; không chứng minh phản ứng mùi. Nền đang trôi/chưa đánh giá làm đáp ứng tương đối thiếu tin cậy."
+  }
+}
