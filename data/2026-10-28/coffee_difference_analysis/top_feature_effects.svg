@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="440" viewBox="0 0 960 440">
+<rect width="100%" height="100%" fill="white"/>
+<text x="480" y="25" text-anchor="middle" font-family="Arial" font-size="19" font-weight="bold">Đặc trưng khác biệt mạnh nhất (Hedges g)</text>
+<line x1="632.5" y1="40" x2="632.5" y2="395" stroke="#666"/>
+<text x="348" y="70.9" text-anchor="end" font-family="Arial" font-size="12">MQ135-2 – end REC (%)</text>
+<rect x="395.5" y="56.9" width="237.0" height="20" fill="#4c78a8"/>
+<text x="389.5" y="70.9" text-anchor="end" font-family="Arial" font-size="11">-1.25</text>
+<text x="348" y="114.6" text-anchor="end" font-family="Arial" font-size="12">MQ3-1 – slope EXP (%/min)</text>
+<rect x="632.5" y="100.6" width="166.0" height="20" fill="#e45756"/>
+<text x="804.5" y="114.6" text-anchor="start" font-family="Arial" font-size="11">0.88</text>
+<text x="348" y="158.4" text-anchor="end" font-family="Arial" font-size="12">BME688 gas – end REC (%)</text>
+<rect x="632.5" y="144.4" width="160.8" height="20" fill="#e45756"/>
+<text x="799.3" y="158.4" text-anchor="start" font-family="Arial" font-size="11">0.85</text>
+<text x="348" y="202.1" text-anchor="end" font-family="Arial" font-size="12">MQ135-1 – end REC (%)</text>
+<rect x="506.0" y="188.1" width="126.5" height="20" fill="#4c78a8"/>
+<text x="500.0" y="202.1" text-anchor="end" font-family="Arial" font-size="11">-0.67</text>
+<text x="348" y="245.9" text-anchor="end" font-family="Arial" font-size="12">MQ3-2 – end REC (%)</text>
+<rect x="514.6" y="231.9" width="117.9" height="20" fill="#4c78a8"/>
+<text x="508.6" y="245.9" text-anchor="end" font-family="Arial" font-size="11">-0.62</text>
+<text x="348" y="289.6" text-anchor="end" font-family="Arial" font-size="12">MQ135-2 – mean EXP (%)</text>
+<rect x="515.0" y="275.6" width="117.5" height="20" fill="#4c78a8"/>
+<text x="509.0" y="289.6" text-anchor="end" font-family="Arial" font-size="11">-0.62</text>
+<text x="348" y="333.4" text-anchor="end" font-family="Arial" font-size="12">MQ135-1 – slope EXP (%/min)</text>
+<rect x="632.5" y="319.4" width="116.7" height="20" fill="#e45756"/>
+<text x="755.2" y="333.4" text-anchor="start" font-family="Arial" font-size="11">0.62</text>
+<text x="348" y="377.1" text-anchor="end" font-family="Arial" font-size="12">BME688 gas – slope EXP (%/min)</text>
+<rect x="521.6" y="363.1" width="110.9" height="20" fill="#4c78a8"/>
+<text x="515.6" y="377.1" text-anchor="end" font-family="Arial" font-size="11">-0.59</text>
+<text x="360" y="428" font-family="Arial" font-size="11" fill="#4c78a8">← thấp hơn khi có cà phê</text>
+<text x="905" y="428" text-anchor="end" font-family="Arial" font-size="11" fill="#e45756">cao hơn khi có cà phê →</text>
+</svg>
