@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import math
 from pathlib import Path
@@ -69,9 +70,14 @@ DATA_ROOT = ROOT / "data"
 PHASES = ("BASELINE", "EXPOSURE")
 EXPECTED_ROWS = {"BASELINE": 60, "EXPOSURE": 120}
 MIN_VALID_FRACTION = 0.90
+MAX_PHASE_GAP_S = 3.0
+MIN_PHASE_SPAN_S = {"BASELINE": 50.0, "EXPOSURE": 105.0}
+MODEL_VERSION = "coffee-rbf-ensemble-v4-consensus"
+FEATURE_VERSION = "baseline-normalized-exposure-v2-time-window"
 BROAD_POSITIVE_GATE = 0.25
 FOCUSED_POSITIVE_GATE = 0.60
-NEGATIVE_THRESHOLD = -0.75
+NEGATIVE_BROAD_GATE = 0.0
+NEGATIVE_FOCUSED_GATE = 0.0
 MODEL_C = 30.0
 MODEL_GAMMA = 0.1
 FOCUSED_MODEL_C = 10.0
@@ -207,18 +213,75 @@ def read_raw(path: Path) -> list[dict[str, str]]:
         return list(reader)
 
 
+def file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def measurement_structure_quality(
+    rows: list[dict[str, str]],
+) -> tuple[list[str], list[str]]:
+    errors: list[str] = []
+    warnings: list[str] = []
+    run_ids = {str(row.get("run_id", "")).strip() for row in rows}
+    run_ids.discard("")
+    if len(run_ids) > 1:
+        errors.append(f"CSV chứa {len(run_ids)} run_id khác nhau")
+    for phase in PHASES:
+        indices = [index for index, row in enumerate(rows) if row.get("phase") == phase]
+        if not indices:
+            errors.append(f"Thiếu pha {phase}")
+            continue
+        segment_count = 1 + sum(
+            current != previous + 1
+            for previous, current in zip(indices, indices[1:])
+        )
+        if segment_count != 1:
+            errors.append(f"Pha {phase} bị tách thành {segment_count} đoạn")
+        elapsed = [parse_float(rows[index].get("phase_elapsed_s")) for index in indices]
+        if any(value is None for value in elapsed):
+            errors.append(f"Pha {phase} có thời gian không hợp lệ")
+            continue
+        times = [float(value) for value in elapsed if value is not None]
+        if any(current < previous for previous, current in zip(times, times[1:])):
+            errors.append(f"Thời gian pha {phase} quay ngược; có thể đã gộp nhiều chu kỳ")
+            continue
+        span = times[-1] - times[0]
+        if span < MIN_PHASE_SPAN_S[phase]:
+            errors.append(
+                f"Pha {phase} chỉ phủ {span:.1f}s, cần ít nhất {MIN_PHASE_SPAN_S[phase]:.0f}s"
+            )
+        max_gap = max(
+            (current - previous for previous, current in zip(times, times[1:])),
+            default=0.0,
+        )
+        if max_gap > MAX_PHASE_GAP_S:
+            errors.append(f"Pha {phase} có khoảng trống lấy mẫu {max_gap:.1f}s")
+    return errors, warnings
+
+
 def extract_features(path: Path) -> dict[str, object]:
     rows = read_raw(path)
+    quality_errors, quality_warnings = measurement_structure_quality(rows)
     phase_rows = {
         phase: [row for row in rows if row.get("phase") == phase] for phase in PHASES
     }
     missing_phases = [phase for phase, values in phase_rows.items() if not values]
     if missing_phases:
-        raise ValueError("raw.csv thiếu pha: " + ", ".join(missing_phases))
+        return {
+            "features": {},
+            "valid_fractions": {},
+            "warnings": quality_warnings,
+            "quality": {"passed": False, "errors": quality_errors},
+            "row_count": len(rows),
+        }
 
     features: dict[str, float] = {}
     valid_fractions: dict[str, dict[str, float]] = {}
-    warnings: list[str] = []
+    warnings: list[str] = list(quality_warnings)
     for sensor, config in SENSORS.items():
         baseline_values = [
             value
@@ -227,10 +290,12 @@ def extract_features(path: Path) -> dict[str, object]:
             and (value := parse_float(row.get(config["value"]))) is not None
         ]
         if not baseline_values:
-            raise ValueError(f"Không có BASELINE hợp lệ cho {config['label']}")
+            quality_errors.append(f"Không có BASELINE hợp lệ cho {config['label']}")
+            continue
         baseline = statistics.median(baseline_values)
         if baseline == 0:
-            raise ValueError(f"BASELINE bằng 0 cho {config['label']}")
+            quality_errors.append(f"BASELINE bằng 0 cho {config['label']}")
+            continue
         normalized: dict[str, list[tuple[float, float]]] = {}
         valid_fractions[sensor] = {}
         for phase in PHASES:
@@ -250,15 +315,21 @@ def extract_features(path: Path) -> dict[str, object]:
             )
             valid_fractions[sensor][phase] = fraction
             if fraction < MIN_VALID_FRACTION:
-                warnings.append(
+                quality_errors.append(
                     f"{config['label']} {phase} chỉ có {fraction:.1%} dữ liệu hợp lệ"
                 )
         exposure = normalized["EXPOSURE"]
         values = [value for _, value in exposure]
         if not values:
-            raise ValueError(f"Không có EXPOSURE hợp lệ cho {config['label']}")
-        one_third = max(len(values) // 3, 1)
-        middle = values[one_third : 2 * one_third]
+            quality_errors.append(f"Không có EXPOSURE hợp lệ cho {config['label']}")
+            continue
+        middle = [value for elapsed, value in exposure if 40.0 <= elapsed < 80.0]
+        expected_middle_rows = 40
+        if len(middle) / expected_middle_rows < MIN_VALID_FRACTION:
+            quality_errors.append(
+                f"{config['label']} cửa sổ 40–80s chỉ có {len(middle)}/{expected_middle_rows} mẫu hợp lệ"
+            )
+            continue
         features.update(
             {
                 f"{sensor}__exposure_mean": mean(values),
@@ -272,6 +343,7 @@ def extract_features(path: Path) -> dict[str, object]:
         "features": features,
         "valid_fractions": valid_fractions,
         "warnings": warnings,
+        "quality": {"passed": not quality_errors, "errors": quality_errors},
         "row_count": len(rows),
     }
 
@@ -323,20 +395,45 @@ def load_training_sessions(
     sessions = []
     skipped = []
     excluded_resolved = excluded_raw.resolve() if excluded_raw else None
+    excluded_hash = file_sha256(excluded_raw) if excluded_raw and excluded_raw.is_file() else None
+    seen_hashes: dict[str, tuple[str, int]] = {}
     for row in discover_training_rows(data_root):
         raw_path = Path(row["directory"]) / "raw.csv"
-        if excluded_resolved and raw_path.resolve() == excluded_resolved:
+        measurement_hash = file_sha256(raw_path)
+        if (
+            excluded_resolved
+            and (
+                raw_path.resolve() == excluded_resolved
+                or measurement_hash == excluded_hash
+            )
+        ):
+            continue
+        if measurement_hash in seen_hashes:
+            duplicate_folder, duplicate_label = seen_hashes[measurement_hash]
+            if duplicate_label != int(row["label"]):
+                raise ValueError(
+                    f"Xung đột nhãn: {Path(row['directory']).name} và "
+                    f"{duplicate_folder} có cùng nội dung"
+                )
+            skipped.append(
+                f"{Path(row['directory']).name}: trùng nội dung với {duplicate_folder}"
+            )
             continue
         try:
             extracted = extract_features(raw_path)
         except ValueError as error:
             skipped.append(f"{Path(row['directory']).name}: {error}")
             continue
-        if extracted["warnings"]:
+        quality = extracted["quality"]
+        if not quality["passed"]:
             skipped.append(
-                f"{Path(row['directory']).name}: " + "; ".join(extracted["warnings"])
+                f"{Path(row['directory']).name}: " + "; ".join(quality["errors"])
             )
             continue
+        seen_hashes[measurement_hash] = (
+            Path(row["directory"]).name,
+            int(row["label"]),
+        )
         sessions.append(
             {
                 "day": row["day"],
@@ -344,6 +441,7 @@ def load_training_sessions(
                 "raw_path": raw_path,
                 "label": int(row["label"]),
                 "features": extracted["features"],
+                "measurement_hash": measurement_hash,
             }
         )
     positive_count = sum(int(session["label"]) == 1 for session in sessions)
@@ -384,19 +482,63 @@ def build_model(c: float = MODEL_C, gamma: float = MODEL_GAMMA) -> Pipeline:
     )
 
 
+def domain_diagnostics(
+    model: Pipeline, x_train: np.ndarray, x_test: np.ndarray
+) -> list[dict[str, object]]:
+    scaler: StandardScaler = model.named_steps["scale"]
+    standardized_train = scaler.transform(x_train)
+    standardized_test = scaler.transform(x_test)
+    train_nearest = []
+    for index, row in enumerate(standardized_train):
+        others = np.delete(standardized_train, index, axis=0)
+        train_nearest.append(
+            float(np.min(np.sqrt(np.mean((others - row) ** 2, axis=1))))
+        )
+    ood_threshold = float(np.quantile(train_nearest, 0.95) * 1.5)
+    results = []
+    for row in standardized_test:
+        nearest_distance = float(
+            np.min(np.sqrt(np.mean((standardized_train - row) ** 2, axis=1)))
+        )
+        max_abs_z = float(np.max(np.abs(row)))
+        results.append(
+            {
+                "out_of_distribution": nearest_distance > ood_threshold
+                or max_abs_z > 5.0,
+                "nearest_training_distance": nearest_distance,
+                "ood_threshold": ood_threshold,
+                "max_abs_z": max_abs_z,
+            }
+        )
+    return results
+
+
+def training_manifest_hash(sessions: list[dict[str, object]]) -> str:
+    manifest = sorted(
+        (str(session["measurement_hash"]), int(session["label"]))
+        for session in sessions
+    )
+    return hashlib.sha256(
+        json.dumps(manifest, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()[:16]
+
+
 def classify_scores(
     broad_score: float,
     focused_score: float,
     out_of_distribution: bool = False,
 ) -> tuple[str, str]:
     if out_of_distribution:
-        return "UNCERTAIN", "Chưa thể kết luận – mẫu ngoài miền học"
+        return "OUT_OF_DOMAIN", "Mẫu nằm ngoài miền dữ liệu đã học"
     if (
         broad_score >= BROAD_POSITIVE_GATE
         and focused_score >= FOCUSED_POSITIVE_GATE
     ):
         return "COFFEE_ODOR_LIKELY", "Có khả năng có mùi cà phê"
-    if broad_score <= NEGATIVE_THRESHOLD:
+    if (
+        broad_score < NEGATIVE_BROAD_GATE
+        and focused_score < NEGATIVE_FOCUSED_GATE
+    ):
         return "NO_COFFEE_ODOR_LIKELY", "Có khả năng không có mùi cà phê"
     return "UNCERTAIN", "Chưa thể kết luận"
 
@@ -410,10 +552,31 @@ def predict(raw_path: Path, data_root: Path) -> dict[str, object]:
     known_row = known_rows.get(raw_path)
     known_label = int(known_row["label"]) if known_row is not None else None
     leave_one_out = known_row is not None
+    extracted = extract_features(raw_path)
+    quality = extracted["quality"]
+    if not quality["passed"]:
+        return {
+            "input_file": str(raw_path),
+            "prediction": "INVALID_MEASUREMENT",
+            "prediction_vi": "Dữ liệu đo chưa đủ chất lượng để phân loại",
+            "known_ground_truth": known_label,
+            "known_ground_truth_vi": (
+                "Có mùi cà phê" if known_label == 1 else "Không có mùi cà phê"
+            )
+            if known_label is not None
+            else None,
+            "evaluation_against_label": "INVALID",
+            "decision_score": None,
+            "focused_mq135_mq3_score": None,
+            "quality": quality,
+            "row_count": extracted["row_count"],
+            "warnings": extracted["warnings"],
+            "model_version": MODEL_VERSION,
+            "feature_version": FEATURE_VERSION,
+        }
     sessions, skipped = load_training_sessions(
         data_root, excluded_raw=raw_path if leave_one_out else None
     )
-    extracted = extract_features(raw_path)
     x_train = feature_matrix(sessions)
     x_focused_train = feature_matrix(sessions, FOCUSED_FEATURE_NAMES)
     y_train = np.asarray([int(session["label"]) for session in sessions])
@@ -433,61 +596,58 @@ def predict(raw_path: Path, data_root: Path) -> dict[str, object]:
     focused_model.fit(x_focused_train, y_train)
     focused_score = float(focused_model.decision_function(x_focused_input)[0])
 
-    scaler: StandardScaler = model.named_steps["scale"]
-    standardized_train = scaler.transform(x_train)
-    standardized_input = scaler.transform(x_input)[0]
-    distances = np.sqrt(np.mean((standardized_train - standardized_input) ** 2, axis=1))
-    nearest_distance = float(np.min(distances))
-    train_nearest = []
-    for index, row in enumerate(standardized_train):
-        others = np.delete(standardized_train, index, axis=0)
-        train_nearest.append(float(np.min(np.sqrt(np.mean((others - row) ** 2, axis=1)))))
-    ood_threshold = float(max(train_nearest) * 1.5)
-    max_abs_z = float(np.max(np.abs(standardized_input)))
-    out_of_distribution = nearest_distance > ood_threshold or max_abs_z > 5.0
+    domain = domain_diagnostics(model, x_train, x_input)[0]
+    nearest_distance = float(domain["nearest_training_distance"])
+    ood_threshold = float(domain["ood_threshold"])
+    max_abs_z = float(domain["max_abs_z"])
+    out_of_distribution = bool(domain["out_of_distribution"])
     prediction, prediction_vi = classify_scores(
         score, focused_score, out_of_distribution
     )
     if known_label is None:
         evaluation_against_label = None
-    elif prediction == "UNCERTAIN":
+    elif prediction in {"UNCERTAIN", "OUT_OF_DOMAIN"}:
         evaluation_against_label = "ABSTAIN"
     else:
         predicted_label = int(prediction == "COFFEE_ODOR_LIKELY")
         evaluation_against_label = "CORRECT" if predicted_label == known_label else "WRONG"
 
     svm: SVC = model.named_steps["svm"]
-    baseline_vector = scaler.mean_.reshape(1, -1)
+    reference_vector = np.median(x_train, axis=0).reshape(1, -1)
     contributions = []
     for index, name in enumerate(FEATURE_NAMES):
         perturbed = x_input.copy()
-        perturbed[0, index] = baseline_vector[0, index]
+        perturbed[0, index] = reference_vector[0, index]
         perturbed_score = float(model.decision_function(perturbed)[0])
+        score_delta = score - perturbed_score
         contributions.append(
             {
                 "feature": name,
                 "feature_label": feature_label(name),
                 "value": float(x_input[0, index]),
-                "support_for_coffee": score - perturbed_score,
+                "score_delta_vs_reference": score_delta,
+                "support_for_coffee": score_delta,
             }
         )
     contributions.sort(
-        key=lambda row: abs(float(row["support_for_coffee"])), reverse=True
+        key=lambda row: abs(float(row["score_delta_vs_reference"])), reverse=True
     )
     sensor_support = []
     for sensor, config in SENSORS.items():
-        sensor_rows = [
-            row
-            for row in contributions
-            if str(row["feature"]).startswith(f"{sensor}__")
+        indices = [
+            index
+            for index, name in enumerate(FEATURE_NAMES)
+            if name.startswith(f"{sensor}__")
         ]
+        modified = x_input.copy()
+        modified[0, indices] = reference_vector[0, indices]
+        group_delta = score - float(model.decision_function(modified)[0])
         sensor_support.append(
             {
                 "sensor": sensor,
                 "sensor_label": config["label"],
-                "support_for_coffee": float(
-                    sum(float(row["support_for_coffee"]) for row in sensor_rows)
-                ),
+                "score_delta_vs_reference": group_delta,
+                "support_for_coffee": group_delta,
                 "exposure_mean": float(
                     extracted["features"][f"{sensor}__exposure_mean"]
                 ),
@@ -507,7 +667,7 @@ def predict(raw_path: Path, data_root: Path) -> dict[str, object]:
         )
     if (score >= 0) != (focused_score >= 0):
         warnings.append(
-            "Mô hình tổng và mô hình MQ135-1/MQ3-1 không đồng thuận; tín hiệu cảm biến đang mâu thuẫn"
+            "Mô hình tổng và mô hình MQ135-1/MQ3-1 không đồng thuận"
         )
     if out_of_distribution:
         warnings.append("Mẫu nằm xa miền đặc trưng của các phiên huấn luyện")
@@ -527,7 +687,8 @@ def predict(raw_path: Path, data_root: Path) -> dict[str, object]:
         "thresholds": {
             "coffee_broad": BROAD_POSITIVE_GATE,
             "coffee_focused_mq135_mq3": FOCUSED_POSITIVE_GATE,
-            "no_coffee": NEGATIVE_THRESHOLD,
+            "no_coffee_broad": NEGATIVE_BROAD_GATE,
+            "no_coffee_focused_mq135_mq3": NEGATIVE_FOCUSED_GATE,
         },
         "leave_one_out_for_known_file": leave_one_out,
         "out_of_distribution": out_of_distribution,
@@ -536,10 +697,14 @@ def predict(raw_path: Path, data_root: Path) -> dict[str, object]:
         "max_abs_z": max_abs_z,
         "row_count": extracted["row_count"],
         "features": extracted["features"],
+        "quality": quality,
         "feature_support": contributions,
         "sensor_support": sensor_support,
         "valid_fractions": extracted["valid_fractions"],
         "warnings": warnings,
+        "model_version": MODEL_VERSION,
+        "feature_version": FEATURE_VERSION,
+        "training_manifest_hash": training_manifest_hash(sessions),
         "training": {
             "sessions": len(sessions),
             "negative": int(np.sum(y_train == 0)),
@@ -561,13 +726,20 @@ def evaluate_scores(
     labels: np.ndarray,
     scores: np.ndarray,
     focused_scores: np.ndarray,
+    out_of_distribution: np.ndarray,
 ) -> dict[str, object]:
     raw_predictions = (scores >= 0).astype(int)
     decisions = [
-        classify_scores(float(score), float(focused_score))[0]
-        for score, focused_score in zip(scores, focused_scores)
+        classify_scores(float(score), float(focused_score), bool(is_ood))[0]
+        for score, focused_score, is_ood in zip(
+            scores, focused_scores, out_of_distribution
+        )
     ]
-    decisive_indices = [index for index, value in enumerate(decisions) if value != "UNCERTAIN"]
+    decisive_indices = [
+        index
+        for index, value in enumerate(decisions)
+        if value not in {"UNCERTAIN", "OUT_OF_DOMAIN"}
+    ]
     decisive_correct = sum(
         (decisions[index] == "COFFEE_ODOR_LIKELY") == bool(labels[index])
         for index in decisive_indices
@@ -597,6 +769,23 @@ def evaluate_scores(
         "accuracy_when_decisive": (
             decisive_correct / len(decisive_indices) if decisive_indices else None
         ),
+        "out_of_distribution_count": int(np.sum(out_of_distribution)),
+        "positive_detected": int(sum(
+            decision == "COFFEE_ODOR_LIKELY" and label == 1
+            for decision, label in zip(decisions, labels)
+        )),
+        "positive_missed_as_no_coffee": int(sum(
+            decision == "NO_COFFEE_ODOR_LIKELY" and label == 1
+            for decision, label in zip(decisions, labels)
+        )),
+        "positive_abstained": int(sum(
+            decision in {"UNCERTAIN", "OUT_OF_DOMAIN"} and label == 1
+            for decision, label in zip(decisions, labels)
+        )),
+        "negative_false_positive": int(sum(
+            decision == "COFFEE_ODOR_LIKELY" and label == 0
+            for decision, label in zip(decisions, labels)
+        )),
         "decisions": decisions,
     }
 
@@ -608,6 +797,7 @@ def self_test(data_root: Path) -> dict[str, object]:
     y = np.asarray([int(session["label"]) for session in sessions])
     loo_scores = []
     loo_focused_scores = []
+    loo_domains = []
     for index in range(len(sessions)):
         mask = np.arange(len(sessions)) != index
         model = build_model()
@@ -618,6 +808,7 @@ def self_test(data_root: Path) -> dict[str, object]:
         loo_focused_scores.append(
             float(focused_model.decision_function(x_focused[index : index + 1])[0])
         )
+        loo_domains.append(domain_diagnostics(model, x[mask], x[index : index + 1])[0])
     loo_scores_array = np.asarray(loo_scores)
     loo_focused_scores_array = np.asarray(loo_focused_scores)
 
@@ -631,17 +822,34 @@ def self_test(data_root: Path) -> dict[str, object]:
         focused_model = build_model(FOCUSED_MODEL_C, FOCUSED_MODEL_GAMMA)
         focused_model.fit(x_focused[train_mask], y[train_mask])
         focused_scores = focused_model.decision_function(x_focused[test_mask])
+        domains = domain_diagnostics(model, x[train_mask], x[test_mask])
+        ood_flags = np.asarray(
+            [bool(domain["out_of_distribution"]) for domain in domains]
+        )
         day_holdouts[day] = {
             "labels": y[test_mask].tolist(),
             "scores": [float(value) for value in scores],
             "focused_scores": [float(value) for value in focused_scores],
-            "evaluation": evaluate_scores(y[test_mask], scores, focused_scores),
+            "out_of_distribution": ood_flags.tolist(),
+            "evaluation": evaluate_scores(
+                y[test_mask], scores, focused_scores, ood_flags
+            ),
         }
 
     rows = []
-    evaluations = evaluate_scores(y, loo_scores_array, loo_focused_scores_array)
-    for session, truth, score, focused_score, decision in zip(
-        sessions, y, loo_scores, loo_focused_scores, evaluations["decisions"]
+    loo_ood_flags = np.asarray(
+        [bool(domain["out_of_distribution"]) for domain in loo_domains]
+    )
+    evaluations = evaluate_scores(
+        y, loo_scores_array, loo_focused_scores_array, loo_ood_flags
+    )
+    for session, truth, score, focused_score, domain, decision in zip(
+        sessions,
+        y,
+        loo_scores,
+        loo_focused_scores,
+        loo_domains,
+        evaluations["decisions"],
     ):
         rows.append(
             {
@@ -650,6 +858,9 @@ def self_test(data_root: Path) -> dict[str, object]:
                 "truth": int(truth),
                 "score": score,
                 "focused_score": focused_score,
+                "out_of_distribution": domain["out_of_distribution"],
+                "nearest_training_distance": domain["nearest_training_distance"],
+                "ood_threshold": domain["ood_threshold"],
                 "decision": decision,
             }
         )
@@ -661,6 +872,9 @@ def self_test(data_root: Path) -> dict[str, object]:
         "day_holdouts": day_holdouts,
         "rows": rows,
         "skipped": skipped,
+        "model_version": MODEL_VERSION,
+        "feature_version": FEATURE_VERSION,
+        "training_manifest_hash": training_manifest_hash(sessions),
         "warning": (
             "Không có positive ở ngày khác 2026-10-28, nên chưa thể đo khả năng "
             "phát hiện cà phê trên một ngày hoàn toàn mới."
@@ -674,6 +888,15 @@ def print_prediction(result: dict[str, object]) -> None:
     print("=" * 68)
     print(f"Kết luận       : {result['prediction_vi']}")
     print(f"Mã kết quả     : {result['prediction']}")
+    if result["prediction"] == "INVALID_MEASUREMENT":
+        if result["known_ground_truth"] is not None:
+            print(f"Ground truth   : {result['known_ground_truth_vi']}")
+        print("Chất lượng     : KHÔNG ĐẠT")
+        for error in result["quality"]["errors"]:
+            print(f"  - {error}")
+        print(f"Model version  : {result['model_version']}")
+        print(f"Feature version: {result['feature_version']}")
+        return
     if result["known_ground_truth"] is not None:
         print(f"Ground truth   : {result['known_ground_truth_vi']}")
         print(f"Đánh giá       : {result['evaluation_against_label']}")
@@ -687,9 +910,16 @@ def print_prediction(result: dict[str, object]) -> None:
         f"Ngưỡng CÓ      : tổng >= {BROAD_POSITIVE_GATE:.2f} VÀ "
         f"MQ135/MQ3 >= {FOCUSED_POSITIVE_GATE:.2f}"
     )
-    print(f"Ngưỡng KHÔNG   : tổng <= {NEGATIVE_THRESHOLD:.2f}")
+    print(
+        f"Ngưỡng KHÔNG   : tổng < {NEGATIVE_BROAD_GATE:.2f} VÀ "
+        f"MQ135/MQ3 < {NEGATIVE_FOCUSED_GATE:.2f}"
+    )
     print(f"Leave-one-out  : {'Có' if result['leave_one_out_for_known_file'] else 'Không'}")
     print(f"Ngoài miền học : {'Có' if result['out_of_distribution'] else 'Không'}")
+    print("Chất lượng     : ĐẠT")
+    print(f"Model version  : {result['model_version']}")
+    print(f"Feature version: {result['feature_version']}")
+    print(f"Manifest hash  : {result['training_manifest_hash']}")
     training = result["training"]
     print(
         f"Tập học        : {training['sessions']} phiên "
@@ -697,22 +927,21 @@ def print_prediction(result: dict[str, object]) -> None:
     )
     print("\nTổng hợp theo từng cảm biến (xấp xỉ):")
     for row in result["sensor_support"]:
-        support = float(row["support_for_coffee"])
-        direction = "CÓ" if support > 0 else "KHÔNG"
+        score_delta = float(row["score_delta_vs_reference"])
+        direction = "tăng" if score_delta > 0 else "giảm"
         print(
-            f"  - {row['sensor_label']:<10}: support {support:+.3f} -> {direction}; "
+            f"  - {row['sensor_label']:<10}: nhóm hiện tại làm score "
+            f"{direction} {abs(score_delta):.3f} so với median train; "
             f"mean {float(row['exposure_mean']):+.2f}%; "
             f"slope {float(row['slope_pct_per_min']):+.2f}%/min"
         )
     print("\nFeature ảnh hưởng mạnh nhất:")
     for row in result["feature_support"][:8]:
-        direction = (
-            "ủng hộ CÓ cà phê"
-            if float(row["support_for_coffee"]) > 0
-            else "ủng hộ KHÔNG cà phê"
-        )
+        score_delta = float(row["score_delta_vs_reference"])
+        direction = "làm tăng score" if score_delta > 0 else "làm giảm score"
         print(
-            f"  - {row['feature_label']}: {float(row['value']):.4f} – {direction}"
+            f"  - {row['feature_label']}: {float(row['value']):.4f} – "
+            f"{direction} {abs(score_delta):.3f} so với median train"
         )
     if result["warnings"]:
         print("\nCảnh báo:")
@@ -738,6 +967,14 @@ def print_self_test(result: dict[str, object]) -> None:
         f"accuracy khi dám kết luận: "
         f"{loo['accuracy_when_decisive']:.1%}" if loo["accuracy_when_decisive"] is not None else "Không có quyết định chắc chắn"
     )
+    print(f"Ngoài miền học trong LOOCV: {loo['out_of_distribution_count']}")
+    print(
+        "Dương tính: "
+        f"phát hiện {loo['positive_detected']}/{result['positive']}; "
+        f"kết luận nhầm KHÔNG {loo['positive_missed_as_no_coffee']}; "
+        f"từ chối {loo['positive_abstained']}"
+    )
+    print(f"Âm tính bị báo nhầm CÓ: {loo['negative_false_positive']}")
     print("\nNgày | Nhãn | Tổng | MQ135/MQ3 | Quyết định | Folder")
     for row in result["rows"]:
         print(
