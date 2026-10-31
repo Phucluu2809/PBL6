@@ -1,0 +1,497 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1300" height="627" viewBox="0 0 1300 627">
+<rect width="100%" height="100%" fill="white"/>
+<text x="650.0" y="36.0" font-size="23" text-anchor="middle" font-weight="bold" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif">Heatmap z-score của 25 đặc trưng</text>
+<rect x="290" y="58" width="190" height="25" fill="#eef2f7" stroke="white"/>
+<text x="385.0" y="76.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif">BME688 gas</text>
+<rect x="480" y="58" width="190" height="25" fill="#eef2f7" stroke="white"/>
+<text x="575.0" y="76.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif">MQ135-1</text>
+<rect x="670" y="58" width="190" height="25" fill="#eef2f7" stroke="white"/>
+<text x="765.0" y="76.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif">MQ3-1</text>
+<rect x="860" y="58" width="190" height="25" fill="#eef2f7" stroke="white"/>
+<text x="955.0" y="76.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif">MQ135-2</text>
+<rect x="1050" y="58" width="190" height="25" fill="#eef2f7" stroke="white"/>
+<text x="1145.0" y="76.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif">MQ3-2</text>
+<text x="309.0" y="122.0" font-size="11" text-anchor="start" font-weight="normal" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif" transform="rotate(-55.0 309.0 122.0)">mean</text>
+<text x="347.0" y="122.0" font-size="11" text-anchor="start" font-weight="normal" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif" transform="rotate(-55.0 347.0 122.0)">mid</text>
+<text x="385.0" y="122.0" font-size="11" text-anchor="start" font-weight="normal" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif" transform="rotate(-55.0 385.0 122.0)">Q10</text>
+<text x="423.0" y="122.0" font-size="11" text-anchor="start" font-weight="normal" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif" transform="rotate(-55.0 423.0 122.0)">Q90</text>
+<text x="461.0" y="122.0" font-size="11" text-anchor="start" font-weight="normal" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif" transform="rotate(-55.0 461.0 122.0)">slope</text>
+<text x="499.0" y="122.0" font-size="11" text-anchor="start" font-weight="normal" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif" transform="rotate(-55.0 499.0 122.0)">mean</text>
+<text x="537.0" y="122.0" font-size="11" text-anchor="start" font-weight="normal" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif" transform="rotate(-55.0 537.0 122.0)">mid</text>
+<text x="575.0" y="122.0" font-size="11" text-anchor="start" font-weight="normal" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif" transform="rotate(-55.0 575.0 122.0)">Q10</text>
+<text x="613.0" y="122.0" font-size="11" text-anchor="start" font-weight="normal" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif" transform="rotate(-55.0 613.0 122.0)">Q90</text>
+<text x="651.0" y="122.0" font-size="11" text-anchor="start" font-weight="normal" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif" transform="rotate(-55.0 651.0 122.0)">slope</text>
+<text x="689.0" y="122.0" font-size="11" text-anchor="start" font-weight="normal" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif" transform="rotate(-55.0 689.0 122.0)">mean</text>
+<text x="727.0" y="122.0" font-size="11" text-anchor="start" font-weight="normal" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif" transform="rotate(-55.0 727.0 122.0)">mid</text>
+<text x="765.0" y="122.0" font-size="11" text-anchor="start" font-weight="normal" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif" transform="rotate(-55.0 765.0 122.0)">Q10</text>
+<text x="803.0" y="122.0" font-size="11" text-anchor="start" font-weight="normal" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif" transform="rotate(-55.0 803.0 122.0)">Q90</text>
+<text x="841.0" y="122.0" font-size="11" text-anchor="start" font-weight="normal" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif" transform="rotate(-55.0 841.0 122.0)">slope</text>
+<text x="879.0" y="122.0" font-size="11" text-anchor="start" font-weight="normal" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif" transform="rotate(-55.0 879.0 122.0)">mean</text>
+<text x="917.0" y="122.0" font-size="11" text-anchor="start" font-weight="normal" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif" transform="rotate(-55.0 917.0 122.0)">mid</text>
+<text x="955.0" y="122.0" font-size="11" text-anchor="start" font-weight="normal" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif" transform="rotate(-55.0 955.0 122.0)">Q10</text>
+<text x="993.0" y="122.0" font-size="11" text-anchor="start" font-weight="normal" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif" transform="rotate(-55.0 993.0 122.0)">Q90</text>
+<text x="1031.0" y="122.0" font-size="11" text-anchor="start" font-weight="normal" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif" transform="rotate(-55.0 1031.0 122.0)">slope</text>
+<text x="1069.0" y="122.0" font-size="11" text-anchor="start" font-weight="normal" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif" transform="rotate(-55.0 1069.0 122.0)">mean</text>
+<text x="1107.0" y="122.0" font-size="11" text-anchor="start" font-weight="normal" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif" transform="rotate(-55.0 1107.0 122.0)">mid</text>
+<text x="1145.0" y="122.0" font-size="11" text-anchor="start" font-weight="normal" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif" transform="rotate(-55.0 1145.0 122.0)">Q10</text>
+<text x="1183.0" y="122.0" font-size="11" text-anchor="start" font-weight="normal" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif" transform="rotate(-55.0 1183.0 122.0)">Q90</text>
+<text x="1221.0" y="122.0" font-size="11" text-anchor="start" font-weight="normal" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif" transform="rotate(-55.0 1221.0 122.0)">slope</text>
+<text x="278.0" y="154.0" font-size="12" text-anchor="end" font-weight="bold" fill="#2878b5" font-family="DejaVu Sans, Arial, sans-serif">#3 · KHÔNG CF</text>
+<rect x="290" y="130" width="38" height="37" fill="#e9eef3" stroke="white"/>
+<rect x="328" y="130" width="38" height="37" fill="#dbe5ee" stroke="white"/>
+<rect x="366" y="130" width="38" height="37" fill="#d8e4ed" stroke="white"/>
+<rect x="404" y="130" width="38" height="37" fill="#f1f3f5" stroke="white"/>
+<rect x="442" y="130" width="38" height="37" fill="#e7a2a5" stroke="white"/>
+<text x="461.0" y="154.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">+1.2</text>
+<rect x="480" y="130" width="38" height="37" fill="#e0e9f0" stroke="white"/>
+<rect x="518" y="130" width="38" height="37" fill="#dde7ef" stroke="white"/>
+<rect x="556" y="130" width="38" height="37" fill="#e0e9f0" stroke="white"/>
+<rect x="594" y="130" width="38" height="37" fill="#dce7ee" stroke="white"/>
+<rect x="632" y="130" width="38" height="37" fill="#f4e9ea" stroke="white"/>
+<rect x="670" y="130" width="38" height="37" fill="#f6f2f2" stroke="white"/>
+<rect x="708" y="130" width="38" height="37" fill="#f5eeee" stroke="white"/>
+<rect x="746" y="130" width="38" height="37" fill="#f4eaea" stroke="white"/>
+<rect x="784" y="130" width="38" height="37" fill="#f6f2f2" stroke="white"/>
+<rect x="822" y="130" width="38" height="37" fill="#d1dfeb" stroke="white"/>
+<rect x="860" y="130" width="38" height="37" fill="#e9eef3" stroke="white"/>
+<rect x="898" y="130" width="38" height="37" fill="#dce6ee" stroke="white"/>
+<rect x="936" y="130" width="38" height="37" fill="#dee8ef" stroke="white"/>
+<rect x="974" y="130" width="38" height="37" fill="#e2eaf0" stroke="white"/>
+<rect x="1012" y="130" width="38" height="37" fill="#efcbcc" stroke="white"/>
+<rect x="1050" y="130" width="38" height="37" fill="#f3e3e3" stroke="white"/>
+<rect x="1088" y="130" width="38" height="37" fill="#f7f7f7" stroke="white"/>
+<rect x="1126" y="130" width="38" height="37" fill="#f6f4f4" stroke="white"/>
+<rect x="1164" y="130" width="38" height="37" fill="#f2dbdc" stroke="white"/>
+<rect x="1202" y="130" width="38" height="37" fill="#b3cde1" stroke="white"/>
+<text x="278.0" y="191.0" font-size="12" text-anchor="end" font-weight="bold" fill="#2878b5" font-family="DejaVu Sans, Arial, sans-serif">#4 · KHÔNG CF</text>
+<rect x="290" y="167" width="38" height="37" fill="#f3e1e2" stroke="white"/>
+<rect x="328" y="167" width="38" height="37" fill="#f3e2e3" stroke="white"/>
+<rect x="366" y="167" width="38" height="37" fill="#f1d8d9" stroke="white"/>
+<rect x="404" y="167" width="38" height="37" fill="#f5eced" stroke="white"/>
+<rect x="442" y="167" width="38" height="37" fill="#ccdce9" stroke="white"/>
+<rect x="480" y="167" width="38" height="37" fill="#d4e1ec" stroke="white"/>
+<rect x="518" y="167" width="38" height="37" fill="#d6e3ec" stroke="white"/>
+<rect x="556" y="167" width="38" height="37" fill="#ccdde9" stroke="white"/>
+<rect x="594" y="167" width="38" height="37" fill="#d5e2ec" stroke="white"/>
+<rect x="632" y="167" width="38" height="37" fill="#f2ddde" stroke="white"/>
+<rect x="670" y="167" width="38" height="37" fill="#e2eaf0" stroke="white"/>
+<rect x="708" y="167" width="38" height="37" fill="#e8eef2" stroke="white"/>
+<rect x="746" y="167" width="38" height="37" fill="#edf1f4" stroke="white"/>
+<rect x="784" y="167" width="38" height="37" fill="#dbe5ee" stroke="white"/>
+<rect x="822" y="167" width="38" height="37" fill="#f4f5f6" stroke="white"/>
+<rect x="860" y="167" width="38" height="37" fill="#d1dfeb" stroke="white"/>
+<rect x="898" y="167" width="38" height="37" fill="#d7e3ed" stroke="white"/>
+<rect x="936" y="167" width="38" height="37" fill="#c0d5e5" stroke="white"/>
+<rect x="974" y="167" width="38" height="37" fill="#d5e2ec" stroke="white"/>
+<rect x="1012" y="167" width="38" height="37" fill="#e8aaad" stroke="white"/>
+<text x="1031.0" y="191.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">+1.1</text>
+<rect x="1050" y="167" width="38" height="37" fill="#f6f2f2" stroke="white"/>
+<rect x="1088" y="167" width="38" height="37" fill="#f7f7f7" stroke="white"/>
+<rect x="1126" y="167" width="38" height="37" fill="#e4ecf1" stroke="white"/>
+<rect x="1164" y="167" width="38" height="37" fill="#f2dcdd" stroke="white"/>
+<rect x="1202" y="167" width="38" height="37" fill="#edc3c5" stroke="white"/>
+<text x="278.0" y="228.0" font-size="12" text-anchor="end" font-weight="bold" fill="#d1495b" font-family="DejaVu Sans, Arial, sans-serif">#7 · CÓ CF</text>
+<rect x="290" y="204" width="38" height="37" fill="#aac8de" stroke="white"/>
+<rect x="328" y="204" width="38" height="37" fill="#b2cce1" stroke="white"/>
+<rect x="366" y="204" width="38" height="37" fill="#a7c6dd" stroke="white"/>
+<rect x="404" y="204" width="38" height="37" fill="#b7d0e3" stroke="white"/>
+<rect x="442" y="204" width="38" height="37" fill="#e8a9ac" stroke="white"/>
+<text x="461.0" y="228.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">+1.1</text>
+<rect x="480" y="204" width="38" height="37" fill="#d2e0eb" stroke="white"/>
+<rect x="518" y="204" width="38" height="37" fill="#d3e1eb" stroke="white"/>
+<rect x="556" y="204" width="38" height="37" fill="#ccdde9" stroke="white"/>
+<rect x="594" y="204" width="38" height="37" fill="#d3e1eb" stroke="white"/>
+<rect x="632" y="204" width="38" height="37" fill="#f4e8e9" stroke="white"/>
+<rect x="670" y="204" width="38" height="37" fill="#edc3c5" stroke="white"/>
+<rect x="708" y="204" width="38" height="37" fill="#efcdcf" stroke="white"/>
+<rect x="746" y="204" width="38" height="37" fill="#e8aaac" stroke="white"/>
+<text x="765.0" y="228.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">+1.1</text>
+<rect x="784" y="204" width="38" height="37" fill="#edc5c6" stroke="white"/>
+<rect x="822" y="204" width="38" height="37" fill="#f1d7d8" stroke="white"/>
+<rect x="860" y="204" width="38" height="37" fill="#f6f6f7" stroke="white"/>
+<rect x="898" y="204" width="38" height="37" fill="#e9eff3" stroke="white"/>
+<rect x="936" y="204" width="38" height="37" fill="#e1eaf0" stroke="white"/>
+<rect x="974" y="204" width="38" height="37" fill="#f4eaea" stroke="white"/>
+<rect x="1012" y="204" width="38" height="37" fill="#a3c3dc" stroke="white"/>
+<text x="1031.0" y="228.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">-1.0</text>
+<rect x="1050" y="204" width="38" height="37" fill="#f0d4d5" stroke="white"/>
+<rect x="1088" y="204" width="38" height="37" fill="#f4e6e6" stroke="white"/>
+<rect x="1126" y="204" width="38" height="37" fill="#f3e2e3" stroke="white"/>
+<rect x="1164" y="204" width="38" height="37" fill="#eec7c8" stroke="white"/>
+<rect x="1202" y="204" width="38" height="37" fill="#f7f5f5" stroke="white"/>
+<text x="278.0" y="265.0" font-size="12" text-anchor="end" font-weight="bold" fill="#d1495b" font-family="DejaVu Sans, Arial, sans-serif">#8 · CÓ CF</text>
+<rect x="290" y="241" width="38" height="37" fill="#adcadf" stroke="white"/>
+<rect x="328" y="241" width="38" height="37" fill="#8bb4d4" stroke="white"/>
+<text x="347.0" y="265.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">-1.3</text>
+<rect x="366" y="241" width="38" height="37" fill="#8eb6d5" stroke="white"/>
+<text x="385.0" y="265.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">-1.3</text>
+<rect x="404" y="241" width="38" height="37" fill="#adcadf" stroke="white"/>
+<rect x="442" y="241" width="38" height="37" fill="#9abed9" stroke="white"/>
+<text x="461.0" y="265.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">-1.1</text>
+<rect x="480" y="241" width="38" height="37" fill="#cfdeea" stroke="white"/>
+<rect x="518" y="241" width="38" height="37" fill="#c5d8e7" stroke="white"/>
+<rect x="556" y="241" width="38" height="37" fill="#cfdeea" stroke="white"/>
+<rect x="594" y="241" width="38" height="37" fill="#d1e0eb" stroke="white"/>
+<rect x="632" y="241" width="38" height="37" fill="#f5eded" stroke="white"/>
+<rect x="670" y="241" width="38" height="37" fill="#e6a0a3" stroke="white"/>
+<text x="689.0" y="265.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">+1.2</text>
+<rect x="708" y="241" width="38" height="37" fill="#e38f92" stroke="white"/>
+<text x="727.0" y="265.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">+1.5</text>
+<rect x="746" y="241" width="38" height="37" fill="#e9acae" stroke="white"/>
+<text x="765.0" y="265.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">+1.1</text>
+<rect x="784" y="241" width="38" height="37" fill="#e69da0" stroke="white"/>
+<text x="803.0" y="265.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">+1.3</text>
+<rect x="822" y="241" width="38" height="37" fill="#e8a7aa" stroke="white"/>
+<text x="841.0" y="265.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">+1.1</text>
+<rect x="860" y="241" width="38" height="37" fill="#b7d0e3" stroke="white"/>
+<rect x="898" y="241" width="38" height="37" fill="#b4cee2" stroke="white"/>
+<rect x="936" y="241" width="38" height="37" fill="#a4c4dc" stroke="white"/>
+<text x="955.0" y="265.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">-1.0</text>
+<rect x="974" y="241" width="38" height="37" fill="#ceddea" stroke="white"/>
+<rect x="1012" y="241" width="38" height="37" fill="#c1d6e6" stroke="white"/>
+<rect x="1050" y="241" width="38" height="37" fill="#f6f0f0" stroke="white"/>
+<rect x="1088" y="241" width="38" height="37" fill="#ecf0f3" stroke="white"/>
+<rect x="1126" y="241" width="38" height="37" fill="#f7f5f5" stroke="white"/>
+<rect x="1164" y="241" width="38" height="37" fill="#f2dcdd" stroke="white"/>
+<rect x="1202" y="241" width="38" height="37" fill="#e9afb1" stroke="white"/>
+<text x="1221.0" y="265.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">+1.0</text>
+<text x="278.0" y="302.0" font-size="12" text-anchor="end" font-weight="bold" fill="#2878b5" font-family="DejaVu Sans, Arial, sans-serif">#9 · KHÔNG CF</text>
+<rect x="290" y="278" width="38" height="37" fill="#4489be" stroke="white"/>
+<text x="309.0" y="302.0" font-size="10" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">-2.2</text>
+<rect x="328" y="278" width="38" height="37" fill="#5b97c5" stroke="white"/>
+<text x="347.0" y="302.0" font-size="10" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">-1.9</text>
+<rect x="366" y="278" width="38" height="37" fill="#689fc9" stroke="white"/>
+<text x="385.0" y="302.0" font-size="10" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">-1.7</text>
+<rect x="404" y="278" width="38" height="37" fill="#468abe" stroke="white"/>
+<text x="423.0" y="302.0" font-size="10" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">-2.1</text>
+<rect x="442" y="278" width="38" height="37" fill="#5794c4" stroke="white"/>
+<text x="461.0" y="302.0" font-size="10" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">-1.9</text>
+<rect x="480" y="278" width="38" height="37" fill="#f1d8d9" stroke="white"/>
+<rect x="518" y="278" width="38" height="37" fill="#efcccd" stroke="white"/>
+<rect x="556" y="278" width="38" height="37" fill="#f5eaeb" stroke="white"/>
+<rect x="594" y="278" width="38" height="37" fill="#f1d8d9" stroke="white"/>
+<rect x="632" y="278" width="38" height="37" fill="#e39195" stroke="white"/>
+<text x="651.0" y="302.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">+1.4</text>
+<rect x="670" y="278" width="38" height="37" fill="#db666b" stroke="white"/>
+<text x="689.0" y="302.0" font-size="10" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">+2.0</text>
+<rect x="708" y="278" width="38" height="37" fill="#dd6d72" stroke="white"/>
+<text x="727.0" y="302.0" font-size="10" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">+1.9</text>
+<rect x="746" y="278" width="38" height="37" fill="#e49396" stroke="white"/>
+<text x="765.0" y="302.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">+1.4</text>
+<rect x="784" y="278" width="38" height="37" fill="#da5e63" stroke="white"/>
+<text x="803.0" y="302.0" font-size="10" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">+2.2</text>
+<rect x="822" y="278" width="38" height="37" fill="#d64b51" stroke="white"/>
+<text x="841.0" y="302.0" font-size="10" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">+2.4</text>
+<rect x="860" y="278" width="38" height="37" fill="#8fb7d6" stroke="white"/>
+<text x="879.0" y="302.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">-1.3</text>
+<rect x="898" y="278" width="38" height="37" fill="#8cb5d5" stroke="white"/>
+<text x="917.0" y="302.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">-1.3</text>
+<rect x="936" y="278" width="38" height="37" fill="#8cb5d5" stroke="white"/>
+<text x="955.0" y="302.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">-1.3</text>
+<rect x="974" y="278" width="38" height="37" fill="#b0cbe0" stroke="white"/>
+<rect x="1012" y="278" width="38" height="37" fill="#e9eef2" stroke="white"/>
+<rect x="1050" y="278" width="38" height="37" fill="#2978b5" stroke="white"/>
+<text x="1069.0" y="302.0" font-size="10" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">-2.7</text>
+<rect x="1088" y="278" width="38" height="37" fill="#4489be" stroke="white"/>
+<text x="1107.0" y="302.0" font-size="10" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">-2.2</text>
+<rect x="1126" y="278" width="38" height="37" fill="#2978b5" stroke="white"/>
+<text x="1145.0" y="302.0" font-size="10" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">-2.7</text>
+<rect x="1164" y="278" width="38" height="37" fill="#2978b5" stroke="white"/>
+<text x="1183.0" y="302.0" font-size="10" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">-2.8</text>
+<rect x="1202" y="278" width="38" height="37" fill="#e69ea1" stroke="white"/>
+<text x="1221.0" y="302.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">+1.3</text>
+<text x="278.0" y="339.0" font-size="12" text-anchor="end" font-weight="bold" fill="#2878b5" font-family="DejaVu Sans, Arial, sans-serif">#10 · KHÔNG CF</text>
+<rect x="290" y="315" width="38" height="37" fill="#efcecf" stroke="white"/>
+<rect x="328" y="315" width="38" height="37" fill="#eec9cb" stroke="white"/>
+<rect x="366" y="315" width="38" height="37" fill="#edc3c4" stroke="white"/>
+<rect x="404" y="315" width="38" height="37" fill="#f1dadb" stroke="white"/>
+<rect x="442" y="315" width="38" height="37" fill="#eef2f4" stroke="white"/>
+<rect x="480" y="315" width="38" height="37" fill="#f6f4f4" stroke="white"/>
+<rect x="518" y="315" width="38" height="37" fill="#f6f2f2" stroke="white"/>
+<rect x="556" y="315" width="38" height="37" fill="#f4e7e8" stroke="white"/>
+<rect x="594" y="315" width="38" height="37" fill="#f2f4f5" stroke="white"/>
+<rect x="632" y="315" width="38" height="37" fill="#f4eaea" stroke="white"/>
+<rect x="670" y="315" width="38" height="37" fill="#aac7de" stroke="white"/>
+<rect x="708" y="315" width="38" height="37" fill="#a7c5dd" stroke="white"/>
+<rect x="746" y="315" width="38" height="37" fill="#a1c2db" stroke="white"/>
+<text x="765.0" y="339.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">-1.0</text>
+<rect x="784" y="315" width="38" height="37" fill="#b2cde1" stroke="white"/>
+<rect x="822" y="315" width="38" height="37" fill="#c0d5e5" stroke="white"/>
+<rect x="860" y="315" width="38" height="37" fill="#c7dae8" stroke="white"/>
+<rect x="898" y="315" width="38" height="37" fill="#c7d9e7" stroke="white"/>
+<rect x="936" y="315" width="38" height="37" fill="#d6e2ec" stroke="white"/>
+<rect x="974" y="315" width="38" height="37" fill="#c1d6e6" stroke="white"/>
+<rect x="1012" y="315" width="38" height="37" fill="#f5eced" stroke="white"/>
+<rect x="1050" y="315" width="38" height="37" fill="#dbe6ee" stroke="white"/>
+<rect x="1088" y="315" width="38" height="37" fill="#d6e3ec" stroke="white"/>
+<rect x="1126" y="315" width="38" height="37" fill="#edf1f4" stroke="white"/>
+<rect x="1164" y="315" width="38" height="37" fill="#dee7ef" stroke="white"/>
+<rect x="1202" y="315" width="38" height="37" fill="#6da2cb" stroke="white"/>
+<text x="1221.0" y="339.0" font-size="10" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">-1.7</text>
+<text x="278.0" y="376.0" font-size="12" text-anchor="end" font-weight="bold" fill="#2878b5" font-family="DejaVu Sans, Arial, sans-serif">#11 · KHÔNG CF</text>
+<rect x="290" y="352" width="38" height="37" fill="#f7f5f5" stroke="white"/>
+<rect x="328" y="352" width="38" height="37" fill="#f5ebec" stroke="white"/>
+<rect x="366" y="352" width="38" height="37" fill="#dee7ef" stroke="white"/>
+<rect x="404" y="352" width="38" height="37" fill="#f2f4f5" stroke="white"/>
+<rect x="442" y="352" width="38" height="37" fill="#eec9ca" stroke="white"/>
+<rect x="480" y="352" width="38" height="37" fill="#d5464c" stroke="white"/>
+<text x="499.0" y="376.0" font-size="10" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">+2.9</text>
+<rect x="518" y="352" width="38" height="37" fill="#d5464c" stroke="white"/>
+<text x="537.0" y="376.0" font-size="10" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">+2.8</text>
+<rect x="556" y="352" width="38" height="37" fill="#d5464c" stroke="white"/>
+<text x="575.0" y="376.0" font-size="10" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">+2.9</text>
+<rect x="594" y="352" width="38" height="37" fill="#d5464c" stroke="white"/>
+<text x="613.0" y="376.0" font-size="10" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">+2.9</text>
+<rect x="632" y="352" width="38" height="37" fill="#2978b5" stroke="white"/>
+<text x="651.0" y="376.0" font-size="10" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">-2.7</text>
+<rect x="670" y="352" width="38" height="37" fill="#edf1f4" stroke="white"/>
+<rect x="708" y="352" width="38" height="37" fill="#e4ebf1" stroke="white"/>
+<rect x="746" y="352" width="38" height="37" fill="#f4e7e7" stroke="white"/>
+<rect x="784" y="352" width="38" height="37" fill="#e4ebf1" stroke="white"/>
+<rect x="822" y="352" width="38" height="37" fill="#c3d7e6" stroke="white"/>
+<rect x="860" y="352" width="38" height="37" fill="#db656a" stroke="white"/>
+<text x="879.0" y="376.0" font-size="10" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">+2.1</text>
+<rect x="898" y="352" width="38" height="37" fill="#df797e" stroke="white"/>
+<text x="917.0" y="376.0" font-size="10" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">+1.8</text>
+<rect x="936" y="352" width="38" height="37" fill="#de7378" stroke="white"/>
+<text x="955.0" y="376.0" font-size="10" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">+1.9</text>
+<rect x="974" y="352" width="38" height="37" fill="#d64c52" stroke="white"/>
+<text x="993.0" y="376.0" font-size="10" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">+2.4</text>
+<rect x="1012" y="352" width="38" height="37" fill="#4b8dc0" stroke="white"/>
+<text x="1031.0" y="376.0" font-size="10" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">-2.1</text>
+<rect x="1050" y="352" width="38" height="37" fill="#ebbbbd" stroke="white"/>
+<rect x="1088" y="352" width="38" height="37" fill="#efcdce" stroke="white"/>
+<rect x="1126" y="352" width="38" height="37" fill="#e7a3a6" stroke="white"/>
+<text x="1145.0" y="376.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">+1.2</text>
+<rect x="1164" y="352" width="38" height="37" fill="#ebbabc" stroke="white"/>
+<rect x="1202" y="352" width="38" height="37" fill="#a8c6de" stroke="white"/>
+<text x="278.0" y="413.0" font-size="12" text-anchor="end" font-weight="bold" fill="#2878b5" font-family="DejaVu Sans, Arial, sans-serif">#12 · KHÔNG CF</text>
+<rect x="290" y="389" width="38" height="37" fill="#e8a9ab" stroke="white"/>
+<text x="309.0" y="413.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">+1.1</text>
+<rect x="328" y="389" width="38" height="37" fill="#e6a0a3" stroke="white"/>
+<text x="347.0" y="413.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">+1.2</text>
+<rect x="366" y="389" width="38" height="37" fill="#e9adb0" stroke="white"/>
+<text x="385.0" y="413.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">+1.0</text>
+<rect x="404" y="389" width="38" height="37" fill="#e69ea1" stroke="white"/>
+<text x="423.0" y="413.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">+1.3</text>
+<rect x="442" y="389" width="38" height="37" fill="#e8a7aa" stroke="white"/>
+<text x="461.0" y="413.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">+1.1</text>
+<rect x="480" y="389" width="38" height="37" fill="#bdd3e4" stroke="white"/>
+<rect x="518" y="389" width="38" height="37" fill="#b9d1e3" stroke="white"/>
+<rect x="556" y="389" width="38" height="37" fill="#b2cde1" stroke="white"/>
+<rect x="594" y="389" width="38" height="37" fill="#cbdce9" stroke="white"/>
+<rect x="632" y="389" width="38" height="37" fill="#d3e1eb" stroke="white"/>
+<rect x="670" y="389" width="38" height="37" fill="#c3d7e6" stroke="white"/>
+<rect x="708" y="389" width="38" height="37" fill="#c0d5e5" stroke="white"/>
+<rect x="746" y="389" width="38" height="37" fill="#c6d9e7" stroke="white"/>
+<rect x="784" y="389" width="38" height="37" fill="#c4d7e7" stroke="white"/>
+<rect x="822" y="389" width="38" height="37" fill="#b8d0e3" stroke="white"/>
+<rect x="860" y="389" width="38" height="37" fill="#e18387" stroke="white"/>
+<text x="879.0" y="413.0" font-size="10" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">+1.6</text>
+<rect x="898" y="389" width="38" height="37" fill="#e18387" stroke="white"/>
+<text x="917.0" y="413.0" font-size="10" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">+1.6</text>
+<rect x="936" y="389" width="38" height="37" fill="#e07d81" stroke="white"/>
+<text x="955.0" y="413.0" font-size="10" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">+1.7</text>
+<rect x="974" y="389" width="38" height="37" fill="#e49699" stroke="white"/>
+<text x="993.0" y="413.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">+1.4</text>
+<rect x="1012" y="389" width="38" height="37" fill="#e2eaf0" stroke="white"/>
+<rect x="1050" y="389" width="38" height="37" fill="#e9b0b2" stroke="white"/>
+<text x="1069.0" y="413.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">+1.0</text>
+<rect x="1088" y="389" width="38" height="37" fill="#db6368" stroke="white"/>
+<text x="1107.0" y="413.0" font-size="10" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">+2.1</text>
+<rect x="1126" y="389" width="38" height="37" fill="#f1d8d9" stroke="white"/>
+<rect x="1164" y="389" width="38" height="37" fill="#f5eced" stroke="white"/>
+<rect x="1202" y="389" width="38" height="37" fill="#eab2b4" stroke="white"/>
+<text x="278.0" y="450.0" font-size="12" text-anchor="end" font-weight="bold" fill="#2878b5" font-family="DejaVu Sans, Arial, sans-serif">#13 · KHÔNG CF</text>
+<rect x="290" y="426" width="38" height="37" fill="#f2dcdd" stroke="white"/>
+<rect x="328" y="426" width="38" height="37" fill="#f2dfe0" stroke="white"/>
+<rect x="366" y="426" width="38" height="37" fill="#efd0d1" stroke="white"/>
+<rect x="404" y="426" width="38" height="37" fill="#f5eced" stroke="white"/>
+<rect x="442" y="426" width="38" height="37" fill="#f4f5f6" stroke="white"/>
+<rect x="480" y="426" width="38" height="37" fill="#d2e0eb" stroke="white"/>
+<rect x="518" y="426" width="38" height="37" fill="#d3e1ec" stroke="white"/>
+<rect x="556" y="426" width="38" height="37" fill="#dfe8ef" stroke="white"/>
+<rect x="594" y="426" width="38" height="37" fill="#cfdeea" stroke="white"/>
+<rect x="632" y="426" width="38" height="37" fill="#f5efef" stroke="white"/>
+<rect x="670" y="426" width="38" height="37" fill="#e8eef2" stroke="white"/>
+<rect x="708" y="426" width="38" height="37" fill="#e6edf2" stroke="white"/>
+<rect x="746" y="426" width="38" height="37" fill="#f6f0f1" stroke="white"/>
+<rect x="784" y="426" width="38" height="37" fill="#dae5ee" stroke="white"/>
+<rect x="822" y="426" width="38" height="37" fill="#e2eaf0" stroke="white"/>
+<rect x="860" y="426" width="38" height="37" fill="#d4e1ec" stroke="white"/>
+<rect x="898" y="426" width="38" height="37" fill="#d3e1eb" stroke="white"/>
+<rect x="936" y="426" width="38" height="37" fill="#f3f5f6" stroke="white"/>
+<rect x="974" y="426" width="38" height="37" fill="#c6d9e7" stroke="white"/>
+<rect x="1012" y="426" width="38" height="37" fill="#efcfd0" stroke="white"/>
+<rect x="1050" y="426" width="38" height="37" fill="#f0d1d2" stroke="white"/>
+<rect x="1088" y="426" width="38" height="37" fill="#f3e0e1" stroke="white"/>
+<rect x="1126" y="426" width="38" height="37" fill="#ecbcbe" stroke="white"/>
+<rect x="1164" y="426" width="38" height="37" fill="#f1d5d6" stroke="white"/>
+<rect x="1202" y="426" width="38" height="37" fill="#f0f3f5" stroke="white"/>
+<text x="278.0" y="487.0" font-size="12" text-anchor="end" font-weight="bold" fill="#d1495b" font-family="DejaVu Sans, Arial, sans-serif">#15 · CÓ CF</text>
+<rect x="290" y="463" width="38" height="37" fill="#e6a1a4" stroke="white"/>
+<text x="309.0" y="487.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">+1.2</text>
+<rect x="328" y="463" width="38" height="37" fill="#e6a1a3" stroke="white"/>
+<text x="347.0" y="487.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">+1.2</text>
+<rect x="366" y="463" width="38" height="37" fill="#e5999d" stroke="white"/>
+<text x="385.0" y="487.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">+1.3</text>
+<rect x="404" y="463" width="38" height="37" fill="#e5999c" stroke="white"/>
+<text x="423.0" y="487.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">+1.3</text>
+<rect x="442" y="463" width="38" height="37" fill="#f4e9e9" stroke="white"/>
+<rect x="480" y="463" width="38" height="37" fill="#d5e2ec" stroke="white"/>
+<rect x="518" y="463" width="38" height="37" fill="#d4e1ec" stroke="white"/>
+<rect x="556" y="463" width="38" height="37" fill="#dde7ef" stroke="white"/>
+<rect x="594" y="463" width="38" height="37" fill="#d4e2ec" stroke="white"/>
+<rect x="632" y="463" width="38" height="37" fill="#f2f4f6" stroke="white"/>
+<rect x="670" y="463" width="38" height="37" fill="#80aed1" stroke="white"/>
+<text x="689.0" y="487.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">-1.4</text>
+<rect x="708" y="463" width="38" height="37" fill="#86b1d3" stroke="white"/>
+<text x="727.0" y="487.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">-1.4</text>
+<rect x="746" y="463" width="38" height="37" fill="#5291c2" stroke="white"/>
+<text x="765.0" y="487.0" font-size="10" text-anchor="middle" font-weight="bold" fill="white" font-family="DejaVu Sans, Arial, sans-serif">-2.0</text>
+<rect x="784" y="463" width="38" height="37" fill="#95bbd8" stroke="white"/>
+<text x="803.0" y="487.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">-1.2</text>
+<rect x="822" y="463" width="38" height="37" fill="#aac7de" stroke="white"/>
+<rect x="860" y="463" width="38" height="37" fill="#e1e9f0" stroke="white"/>
+<rect x="898" y="463" width="38" height="37" fill="#dce6ee" stroke="white"/>
+<rect x="936" y="463" width="38" height="37" fill="#f5eeef" stroke="white"/>
+<rect x="974" y="463" width="38" height="37" fill="#d2e0eb" stroke="white"/>
+<rect x="1012" y="463" width="38" height="37" fill="#f2e0e0" stroke="white"/>
+<rect x="1050" y="463" width="38" height="37" fill="#dfe8ef" stroke="white"/>
+<rect x="1088" y="463" width="38" height="37" fill="#d0dfeb" stroke="white"/>
+<rect x="1126" y="463" width="38" height="37" fill="#f7f5f5" stroke="white"/>
+<rect x="1164" y="463" width="38" height="37" fill="#dee8ef" stroke="white"/>
+<rect x="1202" y="463" width="38" height="37" fill="#a0c1db" stroke="white"/>
+<text x="1221.0" y="487.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">-1.1</text>
+<text x="278.0" y="524.0" font-size="12" text-anchor="end" font-weight="bold" fill="#d1495b" font-family="DejaVu Sans, Arial, sans-serif">#16 · CÓ CF</text>
+<rect x="290" y="500" width="38" height="37" fill="#efd0d1" stroke="white"/>
+<rect x="328" y="500" width="38" height="37" fill="#f0d5d6" stroke="white"/>
+<rect x="366" y="500" width="38" height="37" fill="#f0d0d1" stroke="white"/>
+<rect x="404" y="500" width="38" height="37" fill="#eecacb" stroke="white"/>
+<rect x="442" y="500" width="38" height="37" fill="#cbdce9" stroke="white"/>
+<rect x="480" y="500" width="38" height="37" fill="#edf1f4" stroke="white"/>
+<rect x="518" y="500" width="38" height="37" fill="#eff2f4" stroke="white"/>
+<rect x="556" y="500" width="38" height="37" fill="#f6f6f7" stroke="white"/>
+<rect x="594" y="500" width="38" height="37" fill="#e8eef2" stroke="white"/>
+<rect x="632" y="500" width="38" height="37" fill="#f0d2d4" stroke="white"/>
+<rect x="670" y="500" width="38" height="37" fill="#ccdde9" stroke="white"/>
+<rect x="708" y="500" width="38" height="37" fill="#cddde9" stroke="white"/>
+<rect x="746" y="500" width="38" height="37" fill="#dee8ef" stroke="white"/>
+<rect x="784" y="500" width="38" height="37" fill="#c2d7e6" stroke="white"/>
+<rect x="822" y="500" width="38" height="37" fill="#e3ebf1" stroke="white"/>
+<rect x="860" y="500" width="38" height="37" fill="#f3e4e4" stroke="white"/>
+<rect x="898" y="500" width="38" height="37" fill="#eab5b7" stroke="white"/>
+<rect x="936" y="500" width="38" height="37" fill="#f3e3e4" stroke="white"/>
+<rect x="974" y="500" width="38" height="37" fill="#e3ebf1" stroke="white"/>
+<rect x="1012" y="500" width="38" height="37" fill="#e39195" stroke="white"/>
+<text x="1031.0" y="524.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#222" font-family="DejaVu Sans, Arial, sans-serif">+1.4</text>
+<rect x="1050" y="500" width="38" height="37" fill="#f7f6f6" stroke="white"/>
+<rect x="1088" y="500" width="38" height="37" fill="#f2f4f5" stroke="white"/>
+<rect x="1126" y="500" width="38" height="37" fill="#f4e6e7" stroke="white"/>
+<rect x="1164" y="500" width="38" height="37" fill="#f6f1f1" stroke="white"/>
+<rect x="1202" y="500" width="38" height="37" fill="#efcdce" stroke="white"/>
+<rect x="290.0" y="565" width="4.7" height="14" fill="#2978b5"/>
+<rect x="294.5" y="565" width="4.7" height="14" fill="#2d7bb6"/>
+<rect x="299.0" y="565" width="4.7" height="14" fill="#317db8"/>
+<rect x="303.5" y="565" width="4.7" height="14" fill="#3580b9"/>
+<rect x="308.0" y="565" width="4.7" height="14" fill="#3982ba"/>
+<rect x="312.5" y="565" width="4.7" height="14" fill="#3e85bc"/>
+<rect x="317.0" y="565" width="4.7" height="14" fill="#4287bd"/>
+<rect x="321.5" y="565" width="4.7" height="14" fill="#468abe"/>
+<rect x="326.0" y="565" width="4.7" height="14" fill="#4a8cc0"/>
+<rect x="330.5" y="565" width="4.7" height="14" fill="#4e8fc1"/>
+<rect x="335.0" y="565" width="4.7" height="14" fill="#5291c2"/>
+<rect x="339.5" y="565" width="4.7" height="14" fill="#5694c4"/>
+<rect x="344.0" y="565" width="4.7" height="14" fill="#5a96c5"/>
+<rect x="348.5" y="565" width="4.7" height="14" fill="#5f99c6"/>
+<rect x="353.0" y="565" width="4.7" height="14" fill="#639cc7"/>
+<rect x="357.5" y="565" width="4.7" height="14" fill="#679ec9"/>
+<rect x="362.0" y="565" width="4.7" height="14" fill="#6ba1ca"/>
+<rect x="366.5" y="565" width="4.7" height="14" fill="#6fa3cb"/>
+<rect x="371.0" y="565" width="4.7" height="14" fill="#73a6cd"/>
+<rect x="375.5" y="565" width="4.7" height="14" fill="#77a8ce"/>
+<rect x="380.0" y="565" width="4.7" height="14" fill="#7babcf"/>
+<rect x="384.5" y="565" width="4.7" height="14" fill="#80add1"/>
+<rect x="389.0" y="565" width="4.7" height="14" fill="#84b0d2"/>
+<rect x="393.5" y="565" width="4.7" height="14" fill="#88b2d3"/>
+<rect x="398.0" y="565" width="4.7" height="14" fill="#8cb5d5"/>
+<rect x="402.5" y="565" width="4.7" height="14" fill="#90b8d6"/>
+<rect x="407.0" y="565" width="4.7" height="14" fill="#94bad7"/>
+<rect x="411.5" y="565" width="4.7" height="14" fill="#98bdd9"/>
+<rect x="416.0" y="565" width="4.7" height="14" fill="#9cbfda"/>
+<rect x="420.5" y="565" width="4.7" height="14" fill="#a0c2db"/>
+<rect x="425.0" y="565" width="4.7" height="14" fill="#a5c4dd"/>
+<rect x="429.5" y="565" width="4.7" height="14" fill="#a9c7de"/>
+<rect x="434.0" y="565" width="4.7" height="14" fill="#adc9df"/>
+<rect x="438.5" y="565" width="4.7" height="14" fill="#b1cce1"/>
+<rect x="443.0" y="565" width="4.7" height="14" fill="#b5cee2"/>
+<rect x="447.5" y="565" width="4.7" height="14" fill="#b9d1e3"/>
+<rect x="452.0" y="565" width="4.7" height="14" fill="#bdd3e5"/>
+<rect x="456.5" y="565" width="4.7" height="14" fill="#c1d6e6"/>
+<rect x="461.0" y="565" width="4.7" height="14" fill="#c6d9e7"/>
+<rect x="465.5" y="565" width="4.7" height="14" fill="#cadbe8"/>
+<rect x="470.0" y="565" width="4.7" height="14" fill="#cedeea"/>
+<rect x="474.5" y="565" width="4.7" height="14" fill="#d2e0eb"/>
+<rect x="479.0" y="565" width="4.7" height="14" fill="#d6e3ec"/>
+<rect x="483.5" y="565" width="4.7" height="14" fill="#dae5ee"/>
+<rect x="488.0" y="565" width="4.7" height="14" fill="#dee8ef"/>
+<rect x="492.5" y="565" width="4.7" height="14" fill="#e2eaf0"/>
+<rect x="497.0" y="565" width="4.7" height="14" fill="#e7edf2"/>
+<rect x="501.5" y="565" width="4.7" height="14" fill="#ebeff3"/>
+<rect x="506.0" y="565" width="4.7" height="14" fill="#eff2f4"/>
+<rect x="510.5" y="565" width="4.7" height="14" fill="#f3f4f6"/>
+<rect x="515.0" y="565" width="4.7" height="14" fill="#f7f7f7"/>
+<rect x="519.5" y="565" width="4.7" height="14" fill="#f6f3f4"/>
+<rect x="524.0" y="565" width="4.7" height="14" fill="#f6f0f0"/>
+<rect x="528.5" y="565" width="4.7" height="14" fill="#f5eced"/>
+<rect x="533.0" y="565" width="4.7" height="14" fill="#f4e9e9"/>
+<rect x="537.5" y="565" width="4.7" height="14" fill="#f4e5e6"/>
+<rect x="542.0" y="565" width="4.7" height="14" fill="#f3e2e2"/>
+<rect x="546.5" y="565" width="4.7" height="14" fill="#f2dedf"/>
+<rect x="551.0" y="565" width="4.7" height="14" fill="#f2dbdc"/>
+<rect x="555.5" y="565" width="4.7" height="14" fill="#f1d7d8"/>
+<rect x="560.0" y="565" width="4.7" height="14" fill="#f0d4d5"/>
+<rect x="564.5" y="565" width="4.7" height="14" fill="#f0d0d1"/>
+<rect x="569.0" y="565" width="4.7" height="14" fill="#efcdce"/>
+<rect x="573.5" y="565" width="4.7" height="14" fill="#eec9cb"/>
+<rect x="578.0" y="565" width="4.7" height="14" fill="#edc5c7"/>
+<rect x="582.5" y="565" width="4.7" height="14" fill="#edc2c4"/>
+<rect x="587.0" y="565" width="4.7" height="14" fill="#ecbec0"/>
+<rect x="591.5" y="565" width="4.7" height="14" fill="#ebbbbd"/>
+<rect x="596.0" y="565" width="4.7" height="14" fill="#ebb7b9"/>
+<rect x="600.5" y="565" width="4.7" height="14" fill="#eab4b6"/>
+<rect x="605.0" y="565" width="4.7" height="14" fill="#e9b0b3"/>
+<rect x="609.5" y="565" width="4.7" height="14" fill="#e9adaf"/>
+<rect x="614.0" y="565" width="4.7" height="14" fill="#e8a9ac"/>
+<rect x="618.5" y="565" width="4.7" height="14" fill="#e7a6a8"/>
+<rect x="623.0" y="565" width="4.7" height="14" fill="#e7a2a5"/>
+<rect x="627.5" y="565" width="4.7" height="14" fill="#e69ea2"/>
+<rect x="632.0" y="565" width="4.7" height="14" fill="#e59b9e"/>
+<rect x="636.5" y="565" width="4.7" height="14" fill="#e5979b"/>
+<rect x="641.0" y="565" width="4.7" height="14" fill="#e49497"/>
+<rect x="645.5" y="565" width="4.7" height="14" fill="#e39094"/>
+<rect x="650.0" y="565" width="4.7" height="14" fill="#e38d90"/>
+<rect x="654.5" y="565" width="4.7" height="14" fill="#e2898d"/>
+<rect x="659.0" y="565" width="4.7" height="14" fill="#e1868a"/>
+<rect x="663.5" y="565" width="4.7" height="14" fill="#e18286"/>
+<rect x="668.0" y="565" width="4.7" height="14" fill="#e07f83"/>
+<rect x="672.5" y="565" width="4.7" height="14" fill="#df7b7f"/>
+<rect x="677.0" y="565" width="4.7" height="14" fill="#df787c"/>
+<rect x="681.5" y="565" width="4.7" height="14" fill="#de7478"/>
+<rect x="686.0" y="565" width="4.7" height="14" fill="#dd7075"/>
+<rect x="690.5" y="565" width="4.7" height="14" fill="#dc6d72"/>
+<rect x="695.0" y="565" width="4.7" height="14" fill="#dc696e"/>
+<rect x="699.5" y="565" width="4.7" height="14" fill="#db666b"/>
+<rect x="704.0" y="565" width="4.7" height="14" fill="#da6267"/>
+<rect x="708.5" y="565" width="4.7" height="14" fill="#da5f64"/>
+<rect x="713.0" y="565" width="4.7" height="14" fill="#d95b61"/>
+<rect x="717.5" y="565" width="4.7" height="14" fill="#d8585d"/>
+<rect x="722.0" y="565" width="4.7" height="14" fill="#d8545a"/>
+<rect x="726.5" y="565" width="4.7" height="14" fill="#d75156"/>
+<rect x="731.0" y="565" width="4.7" height="14" fill="#d64d53"/>
+<rect x="735.5" y="565" width="4.7" height="14" fill="#d64a4f"/>
+<rect x="740.0" y="565" width="4.7" height="14" fill="#d5464c"/>
+<text x="290.0" y="599.0" font-size="11" text-anchor="start" font-weight="normal" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif">−2,5 SD</text>
+<text x="515.0" y="599.0" font-size="11" text-anchor="middle" font-weight="normal" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif">median/mean nhóm</text>
+<text x="740.0" y="599.0" font-size="11" text-anchor="end" font-weight="normal" fill="#1f2937" font-family="DejaVu Sans, Arial, sans-serif">+2,5 SD</text>
+</svg>

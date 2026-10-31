@@ -1,5 +1,21 @@
 # BÁO CÁO XỬ LÝ DỮ LIỆU VÀ THỬ NGHIỆM PHÁT HIỆN MÙI CÀ PHÊ
 
+## Danh mục hình
+
+| Hình | Nội dung |
+|---:|---|
+| 1 | Ma trận kết quả phân loại có tính trạng thái từ chối |
+| 2 | Bản đồ điểm số Main–MQ của các phiên có nhãn |
+| 3 | Điểm số theo thứ tự thời gian thu mẫu |
+| 4 | Heatmap 25 đặc trưng chuẩn hóa theo phiên đo |
+| 5 | Phân bố đáp ứng của từng cảm biến theo nhãn |
+| 6 | Chuỗi thời gian trung vị theo lớp |
+| 7 | So sánh các mẫu dương buổi chiều và buổi tối |
+| 8 | Heatmap mức độ spike/outlier của từng cảm biến |
+| 9 | Chất lượng dữ liệu và lỗi đọc cảm biến |
+| 10 | Điều kiện môi trường theo thời gian thu mẫu |
+| 11 | Không gian PCA của các phiên đo có nhãn |
+
 ## 1. Mục tiêu
 
 Mục tiêu của thử nghiệm là xây dựng một pipeline có khả năng nhận biết liệu tín hiệu mùi thu từ một người có mang đặc trưng của cà phê hay không. Đầu vào của hệ thống là file `raw.csv` chứa chuỗi thời gian từ mảng cảm biến khí; đầu ra thuộc một trong các trạng thái:
@@ -238,6 +254,10 @@ Vì hệ thống có `UNCERTAIN` và `OUT_OF_DOMAIN`, không nên chỉ báo cá
 | Không cà phê | 0 | 4 | 3 | 7 |
 | **Tổng** | **1** | **6** | **4** | **11** |
 
+![Ma trận kết quả có vùng từ chối](data/2026-10-28/coffee_visual_analysis/06_confusion_co_tu_choi.svg)
+
+*Hình 1. Ma trận kết quả trên 11 mẫu eligible. Mỗi ô hiển thị số phiên và tỷ lệ trong chính lớp nhãn thật.*
+
 ### 8.2. Chỉ số tổng hợp
 
 | Chỉ số | Kết quả |
@@ -269,6 +289,12 @@ Bốn mẫu còn `UNCERTAIN` đều có hai mô hình không đồng thuận:
 
 Trước khi áp dụng quy tắc đồng thuận v4, phiên âm `Tai_132052` cũng bị từ chối. Hai score của phiên này đều âm (`main = -0,006`, `MQ = -0,203`), nên v4 đã chuyển nó thành kết luận KHÔNG và kết quả đúng. Bốn mẫu trong bảng vẫn không thể được giải quyết an toàn chỉ bằng cách đổi dấu hoặc hạ một ngưỡng, vì mẫu dương `TaivsCF_140100` có cùng kiểu bất đồng với hai mẫu âm buổi tối.
 
+![Bản đồ điểm hai mô hình](data/2026-10-28/coffee_visual_analysis/01_ban_do_score.svg)
+
+*Hình 2. Phân bố 11 mẫu eligible trong không gian Main score và MQ score. Màu xanh là nhãn không cà phê, màu đỏ là nhãn có cà phê.*
+
+Hình 2 cho thấy các mẫu `UNCERTAIN` không tập trung tại một khoảng score duy nhất mà nằm trong hai vùng hai mô hình trái dấu. Mẫu dương số 7 nằm gần các mẫu âm số 9 và 10 theo kiểu bất đồng này; do đó hạ một ngưỡng đơn lẻ có thể đồng thời giảm từ chối và tăng phân loại sai.
+
 ### 8.4. Hai mẫu dương bị phân loại sai
 
 Hai phiên sau bị cả hai mô hình kết luận mạnh về phía âm:
@@ -289,13 +315,84 @@ Một dấu hiệu cần kiểm tra trong quy trình thí nghiệm là phiên `C
 - điều kiện nhiệt độ, độ ẩm hoặc lưu lượng khí thay đổi;
 - nhãn tên phiên đúng về thao tác nhưng không phản ánh nồng độ mùi thực tế tại buồng đo.
 
-## 9. Vì sao chưa dùng PCA hoặc 1D-CNN làm mô hình chính
+![Diễn biến score theo thứ tự phiên](data/2026-10-28/coffee_visual_analysis/07_score_theo_thu_tu_phien.svg)
 
-### 9.1. PCA
+*Hình 3. Main score và MQ score theo thứ tự 17 phiên trong manifest. Nền màu nhạt biểu diễn nhóm thí nghiệm.*
+
+Hình 3 cho thấy score thay đổi mạnh giữa hai khối đo buổi chiều và buổi tối. Điểm đáng chú ý nhất là phiên coffee-only mức nhiều số 14 có score dương mạnh, nhưng phiên người mang cà phê mức nhiều số 15 ngay sau đó lại có cả hai score âm mạnh.
+
+## 9. Phân tích trực quan chi tiết
+
+### 9.1. Heatmap 25 đặc trưng
+
+![Heatmap 25 đặc trưng](data/2026-10-28/coffee_visual_analysis/02_heatmap_25_feature.svg)
+
+*Hình 4. Heatmap z-score của 25 đặc trưng trên 11 phiên eligible. Mỗi cột được chuẩn hóa riêng để quan sát các phiên lệch khỏi phân bố chung.*
+
+Hai mẫu dương buổi chiều số 7 và 8 tạo cụm biến đổi rõ hơn ở BME688 và MQ3-1. Ngược lại, hai mẫu dương buổi tối số 15 và 16 không tái tạo cùng fingerprint. Heatmap cũng cho thấy mẫu âm số 9 và số 11 có nhiều feature cực trị, làm tăng độ chồng lấn giữa hai lớp.
+
+### 9.2. Phân bố đáp ứng trung bình từng cảm biến
+
+![Phân bố cảm biến](data/2026-10-28/coffee_visual_analysis/03_phan_bo_cam_bien.svg)
+
+*Hình 5. Phân bố `exposure_mean` của năm cảm biến. Mỗi chấm là một phiên; đường ngang đậm là trung bình lớp.*
+
+Không cảm biến đơn lẻ nào tạo được ranh giới tách sạch hai lớp. BME688 và MQ3-1 có tín hiệu hữu ích ở một số phiên dương, nhưng khoảng giá trị của hai lớp vẫn chồng lấn mạnh. Điều này ủng hộ việc kết hợp nhiều feature thay vì đặt ngưỡng trực tiếp trên một cảm biến.
+
+### 9.3. Chuỗi thời gian theo lớp
+
+![Chuỗi thời gian theo lớp](data/2026-10-28/coffee_visual_analysis/04_chuoi_thoi_gian_theo_lop.svg)
+
+*Hình 6. Đáp ứng EXPOSURE trung bình theo thời gian. Đường đậm là trung bình lớp; vùng mờ là khoảng phân vị Q25–Q75.*
+
+Khoảng Q25–Q75 của hai lớp chồng lấn trên phần lớn thời gian exposure. Như vậy biến thiên giữa các phiên đang cùng cỡ hoặc lớn hơn khác biệt do cà phê. Chỉ dùng trung bình lớp có thể che khuất sự tồn tại của hai kiểu mẫu dương khác nhau.
+
+### 9.4. So sánh mẫu dương buổi chiều và buổi tối
+
+![So sánh batch dương](data/2026-10-28/coffee_visual_analysis/05_duong_chieu_vs_toi.svg)
+
+*Hình 7. So sánh đường đáp ứng trung bình của nhóm âm, hai mẫu dương buổi chiều và hai mẫu dương buổi tối.*
+
+Hình 7 là bằng chứng trực quan rõ nhất về batch effect. Nhóm dương buổi chiều có BME688 giảm và MQ3-1 tăng rõ hơn, trong khi nhóm dương buổi tối có hướng đáp ứng khác. Nếu gộp cả bốn mẫu thành một lớp duy nhất khi chưa xử lý batch effect, mô hình phải học một lớp dương có phương sai nội bộ rất lớn.
+
+### 9.5. Spike và ngoại lệ
+
+![Heatmap spike](data/2026-10-28/coffee_visual_analysis/08_heatmap_spike_outlier.svg)
+
+*Hình 8. Đỉnh tuyệt đối của đáp ứng chuẩn hóa trong EXPOSURE. Thang màu sử dụng logarit để đồng thời thể hiện giá trị bình thường và spike lớn.*
+
+Bốn spike nổi bật gồm:
+
+- BME688 phiên số 7: `−93,9%` tại khoảng giây 27;
+- BME688 phiên số 9: `−76,5%` tại khoảng giây 26;
+- MQ135-2 phiên số 16: `+21,4%` tại khoảng giây 73;
+- MQ3-2 phiên số 12: `+58,9%` tại khoảng giây 76.
+
+Các điểm này vẫn vượt quality gate vì cờ phần cứng báo hợp lệ, nhưng có thể làm lệch `mean` và `slope`. Đây là cơ sở để thử Hampel filter, median filter hoặc winsorization. Mọi bộ lọc phải được fit/chọn tham số chỉ trên train fold để tránh điều chỉnh riêng theo test.
+
+### 9.6. Chất lượng, môi trường và PCA
+
+![Chất lượng dữ liệu](data/2026-10-28/report_assets/04_chat_luong_va_loi_doc.svg)
+
+*Hình 9. Tỷ lệ dữ liệu hợp lệ và số lỗi đọc theo phiên.*
+
+![Điều kiện môi trường](data/2026-10-28/report_assets/05_moi_truong_theo_thoi_gian.svg)
+
+*Hình 10. Nhiệt độ, độ ẩm và áp suất baseline theo thời gian trong ngày.*
+
+![PCA các phiên của Tài](data/2026-10-28/coffee_difference_analysis/pca_scatter.svg)
+
+*Hình 11. PCA thăm dò trên các phiên của Tài. Hai mẫu dương buổi tối chồng lấn với vùng của nhóm không cà phê.*
+
+PCA cho thấy cấu trúc dữ liệu chịu ảnh hưởng đáng kể của thời điểm/batch. PCA chỉ mô tả các hướng có phương sai lớn và không sử dụng nhãn để tìm ranh giới, vì vậy không được xem là bằng chứng về accuracy phân loại.
+
+## 10. Vì sao chưa dùng PCA hoặc 1D-CNN làm mô hình chính
+
+### 10.1. PCA
 
 PCA phù hợp để trực quan hóa và giảm chiều, nhưng là phương pháp không giám sát: nó giữ các hướng có phương sai lớn nhất chứ không đảm bảo giữ hướng phân biệt cà phê. Với chỉ bốn mẫu dương, việc chọn số thành phần PCA dễ phụ thuộc mạnh vào một vài phiên. Vì vậy PCA nên được dùng để khảo sát cụm và phát hiện ngoại lệ, chưa nên dùng làm bước bắt buộc của classifier hiện tại.
 
-### 9.2. 1D-CNN
+### 10.2. 1D-CNN
 
 1D-CNN có thể học trực tiếp hình dạng chuỗi thời gian, nhưng số mẫu hiện quá nhỏ:
 
@@ -308,7 +405,7 @@ Nếu cắt một phiên thành nhiều cửa sổ rồi chia ngẫu nhiên trai
 
 RBF-SVM trên đặc trưng tóm tắt được chọn vì phù hợp hơn với tập nhỏ, vẫn biểu diễn quan hệ phi tuyến và dễ kiểm soát rò rỉ dữ liệu hơn.
 
-## 10. Hạn chế
+## 11. Hạn chế
 
 1. Chỉ có bốn mẫu dương, không đủ đại diện cho biến thiên thực tế.
 2. Các mẫu dương đều thuộc ngày 28/10 và chủ yếu từ một người.
@@ -319,9 +416,9 @@ RBF-SVM trên đặc trưng tóm tắt được chọn vì phù hợp hơn với
 7. `COFFEE_ONLY`, `AIR` và `PAIRED` khác miền bài toán “cà phê trên người”, nên không được dùng trực tiếp để tính accuracy nhị phân.
 8. Kết quả leave-one-out vẫn có thể lạc quan nếu các phiên gần nhau chịu cùng điều kiện môi trường hoặc cùng một lần chuẩn bị mẫu.
 
-## 11. Hướng cải tiến đề xuất
+## 12. Hướng cải tiến đề xuất
 
-### 11.1. Ưu tiên cải thiện dữ liệu
+### 12.1. Ưu tiên cải thiện dữ liệu
 
 - Thu tối thiểu 20–30 phiên dương và 20–30 phiên âm độc lập;
 - thu trên ít nhất 3–5 ngày và nhiều người;
@@ -332,7 +429,7 @@ RBF-SVM trên đặc trưng tóm tắt được chọn vì phù hợp hơn với
 - thêm một mẫu chuẩn coffee-only trước và sau mỗi nhóm đo để kiểm tra độ nhạy cảm biến;
 - quy định thời gian recovery hoặc điều kiện trở về baseline trước phiên tiếp theo.
 
-### 11.2. Cải thiện feature sau khi có thêm dữ liệu
+### 12.2. Cải thiện feature sau khi có thêm dữ liệu
 
 - mean ở các cửa sổ 0–20, 20–40, 40–80, 80–120 giây;
 - initial slope và late slope;
@@ -344,7 +441,7 @@ RBF-SVM trên đặc trưng tóm tắt được chọn vì phù hợp hơn với
 
 Các feature mới phải được lựa chọn trong tập train của từng fold; không chọn feature bằng toàn bộ dữ liệu rồi mới đánh giá.
 
-### 11.3. Cải thiện mô hình
+### 12.3. Cải thiện mô hình
 
 Sau khi dữ liệu đủ lớn, nên so sánh trên cùng một cách chia theo session/ngày/người:
 
@@ -357,7 +454,7 @@ Sau khi dữ liệu đủ lớn, nên so sánh trên cùng một cách chia theo
 
 Ngưỡng quyết định phải được chọn bằng validation nội bộ trong tập train, sau đó mới đánh giá một lần trên test độc lập.
 
-## 12. Kết luận
+## 13. Kết luận
 
 Pipeline hiện tại đã thực hiện đầy đủ các bước: kiểm tra chất lượng, chống trùng dữ liệu, chuẩn hóa theo baseline, trích 25 đặc trưng, chuẩn hóa z-score, phân loại bằng hai RBF-SVM, phát hiện ngoài miền và đưa ra vùng từ chối.
 
@@ -365,7 +462,7 @@ Trên 11 mẫu có nhãn ngày 28/10, hệ thống đạt coverage 63,6% và acc
 
 Kết quả cho thấy nút thắt lớn nhất chưa nằm ở việc chọn thêm một thuật toán phức tạp, mà nằm ở số lượng, độ đa dạng và độ tin cậy của dữ liệu dương. Việc ưu tiên chuẩn hóa quy trình thu mẫu và bổ sung các phiên dương độc lập sẽ có giá trị hơn việc tiếp tục hạ ngưỡng hoặc chuyển ngay sang 1D-CNN.
 
-## 13. Tệp chương trình và kết quả
+## 14. Tệp chương trình và kết quả
 
 | Tệp | Vai trò |
 |---|---|
@@ -374,6 +471,8 @@ Kết quả cho thấy nút thắt lớn nhất chưa nằm ở việc chọn th
 | `data/2026-10-28/label_manifest.csv` | Manifest và nhãn ngày 28/10 |
 | `data/2026-10-28/coffee_odor_batch_test/coffee_odor_batch_results.csv` | Kết quả batch dạng bảng |
 | `data/2026-10-28/coffee_odor_batch_test/coffee_odor_batch_results.json` | Kết quả batch đầy đủ |
+| `data/2026-10-28/coffee_visual_analysis/REPORT.md` | Báo cáo trực quan và 8 biểu đồ phân tích |
+| `analysis/visualize_2026_10_28_coffee.py` | Script tái tạo toàn bộ biểu đồ SVG |
 
 Lệnh chạy lại:
 
