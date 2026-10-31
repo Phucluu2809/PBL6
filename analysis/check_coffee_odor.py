@@ -69,10 +69,13 @@ DATA_ROOT = ROOT / "data"
 PHASES = ("BASELINE", "EXPOSURE")
 EXPECTED_ROWS = {"BASELINE": 60, "EXPOSURE": 120}
 MIN_VALID_FRACTION = 0.90
-POSITIVE_THRESHOLD = 0.75
+BROAD_POSITIVE_GATE = 0.25
+FOCUSED_POSITIVE_GATE = 0.60
 NEGATIVE_THRESHOLD = -0.75
 MODEL_C = 30.0
 MODEL_GAMMA = 0.1
+FOCUSED_MODEL_C = 10.0
+FOCUSED_MODEL_GAMMA = 0.1
 
 SENSORS = {
     "bme": {
@@ -120,6 +123,12 @@ FEATURES = (
 )
 FEATURE_NAMES = tuple(
     f"{sensor}__{feature}" for sensor in SENSORS for feature, _, _ in FEATURES
+)
+FOCUSED_SENSORS = ("mq135_1", "mq3_1")
+FOCUSED_FEATURE_NAMES = tuple(
+    f"{sensor}__{feature}"
+    for sensor in FOCUSED_SENSORS
+    for feature, _, _ in FEATURES
 )
 
 
@@ -346,25 +355,27 @@ def load_training_sessions(
     return sessions, skipped
 
 
-def feature_matrix(sessions: list[dict[str, object]]) -> np.ndarray:
+def feature_matrix(
+    sessions: list[dict[str, object]], feature_names: tuple[str, ...] = FEATURE_NAMES
+) -> np.ndarray:
     return np.asarray(
         [
-            [float(session["features"][name]) for name in FEATURE_NAMES]
+            [float(session["features"][name]) for name in feature_names]
             for session in sessions
         ],
         dtype=float,
     )
 
 
-def build_model() -> Pipeline:
+def build_model(c: float = MODEL_C, gamma: float = MODEL_GAMMA) -> Pipeline:
     return Pipeline(
         [
             ("scale", StandardScaler()),
             (
                 "svm",
                 SVC(
-                    C=MODEL_C,
-                    gamma=MODEL_GAMMA,
+                    C=c,
+                    gamma=gamma,
                     kernel="rbf",
                     class_weight="balanced",
                 ),
@@ -373,12 +384,19 @@ def build_model() -> Pipeline:
     )
 
 
-def classify_score(score: float, out_of_distribution: bool = False) -> tuple[str, str]:
+def classify_scores(
+    broad_score: float,
+    focused_score: float,
+    out_of_distribution: bool = False,
+) -> tuple[str, str]:
     if out_of_distribution:
         return "UNCERTAIN", "Chưa thể kết luận – mẫu ngoài miền học"
-    if score >= POSITIVE_THRESHOLD:
+    if (
+        broad_score >= BROAD_POSITIVE_GATE
+        and focused_score >= FOCUSED_POSITIVE_GATE
+    ):
         return "COFFEE_ODOR_LIKELY", "Có khả năng có mùi cà phê"
-    if score <= NEGATIVE_THRESHOLD:
+    if broad_score <= NEGATIVE_THRESHOLD:
         return "NO_COFFEE_ODOR_LIKELY", "Có khả năng không có mùi cà phê"
     return "UNCERTAIN", "Chưa thể kết luận"
 
@@ -397,13 +415,23 @@ def predict(raw_path: Path, data_root: Path) -> dict[str, object]:
     )
     extracted = extract_features(raw_path)
     x_train = feature_matrix(sessions)
+    x_focused_train = feature_matrix(sessions, FOCUSED_FEATURE_NAMES)
     y_train = np.asarray([int(session["label"]) for session in sessions])
     x_input = np.asarray(
         [[float(extracted["features"][name]) for name in FEATURE_NAMES]], dtype=float
     )
+    x_focused_input = np.asarray(
+        [
+            [float(extracted["features"][name]) for name in FOCUSED_FEATURE_NAMES]
+        ],
+        dtype=float,
+    )
     model = build_model()
     model.fit(x_train, y_train)
     score = float(model.decision_function(x_input)[0])
+    focused_model = build_model(FOCUSED_MODEL_C, FOCUSED_MODEL_GAMMA)
+    focused_model.fit(x_focused_train, y_train)
+    focused_score = float(focused_model.decision_function(x_focused_input)[0])
 
     scaler: StandardScaler = model.named_steps["scale"]
     standardized_train = scaler.transform(x_train)
@@ -417,7 +445,9 @@ def predict(raw_path: Path, data_root: Path) -> dict[str, object]:
     ood_threshold = float(max(train_nearest) * 1.5)
     max_abs_z = float(np.max(np.abs(standardized_input)))
     out_of_distribution = nearest_distance > ood_threshold or max_abs_z > 5.0
-    prediction, prediction_vi = classify_score(score, out_of_distribution)
+    prediction, prediction_vi = classify_scores(
+        score, focused_score, out_of_distribution
+    )
     if known_label is None:
         evaluation_against_label = None
     elif prediction == "UNCERTAIN":
@@ -444,6 +474,28 @@ def predict(raw_path: Path, data_root: Path) -> dict[str, object]:
     contributions.sort(
         key=lambda row: abs(float(row["support_for_coffee"])), reverse=True
     )
+    sensor_support = []
+    for sensor, config in SENSORS.items():
+        sensor_rows = [
+            row
+            for row in contributions
+            if str(row["feature"]).startswith(f"{sensor}__")
+        ]
+        sensor_support.append(
+            {
+                "sensor": sensor,
+                "sensor_label": config["label"],
+                "support_for_coffee": float(
+                    sum(float(row["support_for_coffee"]) for row in sensor_rows)
+                ),
+                "exposure_mean": float(
+                    extracted["features"][f"{sensor}__exposure_mean"]
+                ),
+                "slope_pct_per_min": float(
+                    extracted["features"][f"{sensor}__slope_pct_per_min"]
+                ),
+            }
+        )
     warnings = list(extracted["warnings"])
     if leave_one_out:
         warnings.append(
@@ -452,6 +504,10 @@ def predict(raw_path: Path, data_root: Path) -> dict[str, object]:
     if prediction == "UNCERTAIN":
         warnings.append(
             "Score nằm trong vùng từ chối; ép thành có/không sẽ làm tăng false positive"
+        )
+    if (score >= 0) != (focused_score >= 0):
+        warnings.append(
+            "Mô hình tổng và mô hình MQ135-1/MQ3-1 không đồng thuận; tín hiệu cảm biến đang mâu thuẫn"
         )
     if out_of_distribution:
         warnings.append("Mẫu nằm xa miền đặc trưng của các phiên huấn luyện")
@@ -467,8 +523,10 @@ def predict(raw_path: Path, data_root: Path) -> dict[str, object]:
         else None,
         "evaluation_against_label": evaluation_against_label,
         "decision_score": score,
+        "focused_mq135_mq3_score": focused_score,
         "thresholds": {
-            "coffee": POSITIVE_THRESHOLD,
+            "coffee_broad": BROAD_POSITIVE_GATE,
+            "coffee_focused_mq135_mq3": FOCUSED_POSITIVE_GATE,
             "no_coffee": NEGATIVE_THRESHOLD,
         },
         "leave_one_out_for_known_file": leave_one_out,
@@ -479,6 +537,7 @@ def predict(raw_path: Path, data_root: Path) -> dict[str, object]:
         "row_count": extracted["row_count"],
         "features": extracted["features"],
         "feature_support": contributions,
+        "sensor_support": sensor_support,
         "valid_fractions": extracted["valid_fractions"],
         "warnings": warnings,
         "training": {
@@ -489,15 +548,25 @@ def predict(raw_path: Path, data_root: Path) -> dict[str, object]:
             "model": "StandardScaler + RBF-SVM",
             "C": MODEL_C,
             "gamma": MODEL_GAMMA,
+            "focused_model": "RBF-SVM trên MQ135-1 + MQ3-1",
+            "focused_C": FOCUSED_MODEL_C,
+            "focused_gamma": FOCUSED_MODEL_GAMMA,
             "support_vectors": int(len(svm.support_)),
             "positive_sessions_note": "Tất cả positive hiện chỉ thuộc ngày 2026-10-28",
         },
     }
 
 
-def evaluate_scores(labels: np.ndarray, scores: np.ndarray) -> dict[str, object]:
+def evaluate_scores(
+    labels: np.ndarray,
+    scores: np.ndarray,
+    focused_scores: np.ndarray,
+) -> dict[str, object]:
     raw_predictions = (scores >= 0).astype(int)
-    decisions = [classify_score(float(score))[0] for score in scores]
+    decisions = [
+        classify_scores(float(score), float(focused_score))[0]
+        for score, focused_score in zip(scores, focused_scores)
+    ]
     decisive_indices = [index for index, value in enumerate(decisions) if value != "UNCERTAIN"]
     decisive_correct = sum(
         (decisions[index] == "COFFEE_ODOR_LIKELY") == bool(labels[index])
@@ -535,14 +604,22 @@ def evaluate_scores(labels: np.ndarray, scores: np.ndarray) -> dict[str, object]
 def self_test(data_root: Path) -> dict[str, object]:
     sessions, skipped = load_training_sessions(data_root)
     x = feature_matrix(sessions)
+    x_focused = feature_matrix(sessions, FOCUSED_FEATURE_NAMES)
     y = np.asarray([int(session["label"]) for session in sessions])
     loo_scores = []
+    loo_focused_scores = []
     for index in range(len(sessions)):
         mask = np.arange(len(sessions)) != index
         model = build_model()
         model.fit(x[mask], y[mask])
         loo_scores.append(float(model.decision_function(x[index : index + 1])[0]))
+        focused_model = build_model(FOCUSED_MODEL_C, FOCUSED_MODEL_GAMMA)
+        focused_model.fit(x_focused[mask], y[mask])
+        loo_focused_scores.append(
+            float(focused_model.decision_function(x_focused[index : index + 1])[0])
+        )
     loo_scores_array = np.asarray(loo_scores)
+    loo_focused_scores_array = np.asarray(loo_focused_scores)
 
     day_holdouts = {}
     for day in ("2026-10-25", "2026-10-29"):
@@ -551,16 +628,20 @@ def self_test(data_root: Path) -> dict[str, object]:
         model = build_model()
         model.fit(x[train_mask], y[train_mask])
         scores = model.decision_function(x[test_mask])
+        focused_model = build_model(FOCUSED_MODEL_C, FOCUSED_MODEL_GAMMA)
+        focused_model.fit(x_focused[train_mask], y[train_mask])
+        focused_scores = focused_model.decision_function(x_focused[test_mask])
         day_holdouts[day] = {
             "labels": y[test_mask].tolist(),
             "scores": [float(value) for value in scores],
-            "evaluation": evaluate_scores(y[test_mask], scores),
+            "focused_scores": [float(value) for value in focused_scores],
+            "evaluation": evaluate_scores(y[test_mask], scores, focused_scores),
         }
 
     rows = []
-    evaluations = evaluate_scores(y, loo_scores_array)
-    for session, truth, score, decision in zip(
-        sessions, y, loo_scores, evaluations["decisions"]
+    evaluations = evaluate_scores(y, loo_scores_array, loo_focused_scores_array)
+    for session, truth, score, focused_score, decision in zip(
+        sessions, y, loo_scores, loo_focused_scores, evaluations["decisions"]
     ):
         rows.append(
             {
@@ -568,6 +649,7 @@ def self_test(data_root: Path) -> dict[str, object]:
                 "folder": session["folder"],
                 "truth": int(truth),
                 "score": score,
+                "focused_score": focused_score,
                 "decision": decision,
             }
         )
@@ -597,9 +679,15 @@ def print_prediction(result: dict[str, object]) -> None:
         print(f"Đánh giá       : {result['evaluation_against_label']}")
     print(f"Decision score : {float(result['decision_score']):.3f}")
     print(
-        f"Ngưỡng          : có >= {POSITIVE_THRESHOLD:.2f}; "
-        f"không <= {NEGATIVE_THRESHOLD:.2f}; giữa hai ngưỡng = UNCERTAIN"
+        "MQ135/MQ3 score: "
+        f"{float(result['focused_mq135_mq3_score']):.3f} "
+        "(mô hình phụ MQ135-1 + MQ3-1)"
     )
+    print(
+        f"Ngưỡng CÓ      : tổng >= {BROAD_POSITIVE_GATE:.2f} VÀ "
+        f"MQ135/MQ3 >= {FOCUSED_POSITIVE_GATE:.2f}"
+    )
+    print(f"Ngưỡng KHÔNG   : tổng <= {NEGATIVE_THRESHOLD:.2f}")
     print(f"Leave-one-out  : {'Có' if result['leave_one_out_for_known_file'] else 'Không'}")
     print(f"Ngoài miền học : {'Có' if result['out_of_distribution'] else 'Không'}")
     training = result["training"]
@@ -607,8 +695,17 @@ def print_prediction(result: dict[str, object]) -> None:
         f"Tập học        : {training['sessions']} phiên "
         f"({training['negative']} âm, {training['positive']} dương)"
     )
+    print("\nTổng hợp theo từng cảm biến (xấp xỉ):")
+    for row in result["sensor_support"]:
+        support = float(row["support_for_coffee"])
+        direction = "CÓ" if support > 0 else "KHÔNG"
+        print(
+            f"  - {row['sensor_label']:<10}: support {support:+.3f} -> {direction}; "
+            f"mean {float(row['exposure_mean']):+.2f}%; "
+            f"slope {float(row['slope_pct_per_min']):+.2f}%/min"
+        )
     print("\nFeature ảnh hưởng mạnh nhất:")
-    for row in result["feature_support"][:5]:
+    for row in result["feature_support"][:8]:
         direction = (
             "ủng hộ CÓ cà phê"
             if float(row["support_for_coffee"]) > 0
@@ -641,11 +738,12 @@ def print_self_test(result: dict[str, object]) -> None:
         f"accuracy khi dám kết luận: "
         f"{loo['accuracy_when_decisive']:.1%}" if loo["accuracy_when_decisive"] is not None else "Không có quyết định chắc chắn"
     )
-    print("\nNgày | Nhãn | Score | Quyết định | Folder")
+    print("\nNgày | Nhãn | Tổng | MQ135/MQ3 | Quyết định | Folder")
     for row in result["rows"]:
         print(
             f"{str(row['day'])[-5:]:>5} | {row['truth']:>4} | "
-            f"{float(row['score']):>6.2f} | {row['decision']:<23} | {row['folder']}"
+            f"{float(row['score']):>5.2f} | {float(row['focused_score']):>9.2f} | "
+            f"{row['decision']:<23} | {row['folder']}"
         )
     print("\nHoldout theo ngày âm:")
     for day, details in result["day_holdouts"].items():
