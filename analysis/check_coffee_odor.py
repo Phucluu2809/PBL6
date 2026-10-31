@@ -1,9 +1,8 @@
 """Conservative coffee-odor checker trained from labelled session folders.
 
-The model uses 25 BASELINE-normalized EXPOSURE features and an RBF-SVM.  It
-automatically discovers labelled human sessions from 2026-10-25, 2026-10-28,
-and 2026-10-29.  A wide abstention region is intentional: the dataset contains
-only four positive sessions, all recorded on 2026-10-28.
+The model uses 25 BASELINE-normalized EXPOSURE features and an RBF-SVM. It
+automatically discovers labelled human sessions from 2026-10-28 and
+2026-10-30. Coffee-only and ambient-air sessions are outside the binary task.
 
 Usage:
     python analysis/check_coffee_odor.py path/to/raw.csv
@@ -72,7 +71,7 @@ EXPECTED_ROWS = {"BASELINE": 60, "EXPOSURE": 120}
 MIN_VALID_FRACTION = 0.90
 MAX_PHASE_GAP_S = 3.0
 MIN_PHASE_SPAN_S = {"BASELINE": 50.0, "EXPOSURE": 105.0}
-MODEL_VERSION = "coffee-rbf-ensemble-v4-consensus"
+MODEL_VERSION = "coffee-rbf-ensemble-v5-train-20261028-20261030"
 FEATURE_VERSION = "baseline-normalized-exposure-v2-time-window"
 BROAD_POSITIVE_GATE = 0.25
 FOCUSED_POSITIVE_GATE = 0.60
@@ -357,13 +356,6 @@ def metadata_status(directory: Path) -> str:
 
 def discover_training_rows(data_root: Path) -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
-    day25 = data_root / "2026-10-25"
-    for directory in day25.iterdir():
-        if not directory.is_dir() or not (directory / "raw.csv").is_file():
-            continue
-        if directory.name.lower().startswith(("tai_", "aminh_", "aquy_", "adung_")):
-            rows.append({"day": "2026-10-25", "directory": directory, "label": 0})
-
     day28 = data_root / "2026-10-28"
     with (day28 / "label_manifest.csv").open(encoding="utf-8-sig", newline="") as handle:
         for row in csv.DictReader(handle):
@@ -376,16 +368,16 @@ def discover_training_rows(data_root: Path) -> list[dict[str, object]]:
                     }
                 )
 
-    day29 = data_root / "2026-10-29"
-    for directory in day29.iterdir():
+    day30 = data_root / "2026-10-30"
+    for directory in day30.iterdir():
         if not directory.is_dir() or not (directory / "raw.csv").is_file():
             continue
-        if not directory.name.lower().startswith(
-            ("tai_", "aquy_", "dat_", "duong_", "phuc_")
-        ):
-            continue
         if metadata_status(directory) == "COMPLETE":
-            rows.append({"day": "2026-10-29", "directory": directory, "label": 0})
+            name = directory.name.lower()
+            if name.startswith("duongcaphe2_"):
+                rows.append({"day": "2026-10-30", "directory": directory, "label": 1})
+            elif name.startswith(("duong_", "dat_")):
+                rows.append({"day": "2026-10-30", "directory": directory, "label": 0})
     return rows
 
 
@@ -446,7 +438,7 @@ def load_training_sessions(
         )
     positive_count = sum(int(session["label"]) == 1 for session in sessions)
     negative_count = sum(int(session["label"]) == 0 for session in sessions)
-    if positive_count < 3 or negative_count < 10:
+    if positive_count < 3 or negative_count < 3:
         raise ValueError(
             f"Tập học không đủ: {negative_count} âm, {positive_count} dương"
         )
@@ -717,7 +709,7 @@ def predict(raw_path: Path, data_root: Path) -> dict[str, object]:
             "focused_C": FOCUSED_MODEL_C,
             "focused_gamma": FOCUSED_MODEL_GAMMA,
             "support_vectors": int(len(svm.support_)),
-            "positive_sessions_note": "Tất cả positive hiện chỉ thuộc ngày 2026-10-28",
+            "positive_sessions_note": "Positive hiện thuộc các ngày 2026-10-28 và 2026-10-30",
         },
     }
 
@@ -813,7 +805,7 @@ def self_test(data_root: Path) -> dict[str, object]:
     loo_focused_scores_array = np.asarray(loo_focused_scores)
 
     day_holdouts = {}
-    for day in ("2026-10-25", "2026-10-29"):
+    for day in ("2026-10-28", "2026-10-30"):
         train_mask = np.asarray([session["day"] != day for session in sessions])
         test_mask = ~train_mask
         model = build_model()
@@ -876,8 +868,8 @@ def self_test(data_root: Path) -> dict[str, object]:
         "feature_version": FEATURE_VERSION,
         "training_manifest_hash": training_manifest_hash(sessions),
         "warning": (
-            "Không có positive ở ngày khác 2026-10-28, nên chưa thể đo khả năng "
-            "phát hiện cà phê trên một ngày hoàn toàn mới."
+            "Tập học chỉ có hai ngày; holdout 2026-10-28 chỉ được huấn luyện từ "
+            "bốn phiên của 2026-10-30 nên kết quả theo ngày còn biến động lớn."
         ),
     }
 
@@ -982,7 +974,7 @@ def print_self_test(result: dict[str, object]) -> None:
             f"{float(row['score']):>5.2f} | {float(row['focused_score']):>9.2f} | "
             f"{row['decision']:<23} | {row['folder']}"
         )
-    print("\nHoldout theo ngày âm:")
+    print("\nHoldout theo ngày:")
     for day, details in result["day_holdouts"].items():
         evaluation = details["evaluation"]
         print(

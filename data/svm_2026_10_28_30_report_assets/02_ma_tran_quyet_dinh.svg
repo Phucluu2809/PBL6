@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="470" viewBox="0 0 900 470">
+<rect width="100%" height="100%" fill="white"/>
+<text x="450.0" y="40.0" font-family="Arial, sans-serif" font-size="23" text-anchor="middle" font-weight="bold" fill="#172033">Ma trận quyết định có tính trạng thái từ chối</text>
+<text x="342.5" y="88.0" font-family="Arial, sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#172033">Kết luận KHÔNG</text>
+<text x="527.5" y="88.0" font-family="Arial, sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#172033">Từ chối</text>
+<text x="712.5" y="88.0" font-family="Arial, sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#172033">Kết luận CÓ</text>
+<text x="236.0" y="177.5" font-family="Arial, sans-serif" font-size="13" text-anchor="end" font-weight="bold" fill="#172033">Nhãn 0 – không cà phê</text>
+<rect x="250" y="115" width="185" height="115" fill="rgb(130,135,165)" stroke="white" stroke-width="3"/>
+<text x="342.5" y="165.0" font-family="Arial, sans-serif" font-size="25" text-anchor="middle" font-weight="bold" fill="#13233a">4</text>
+<text x="342.5" y="193.0" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" font-weight="normal" fill="#13233a">44.4%</text>
+<rect x="435" y="115" width="185" height="115" fill="rgb(130,135,165)" stroke="white" stroke-width="3"/>
+<text x="527.5" y="165.0" font-family="Arial, sans-serif" font-size="25" text-anchor="middle" font-weight="bold" fill="#13233a">4</text>
+<text x="527.5" y="193.0" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" font-weight="normal" fill="#13233a">44.4%</text>
+<rect x="620" y="115" width="185" height="115" fill="rgb(216,221,251)" stroke="white" stroke-width="3"/>
+<text x="712.5" y="165.0" font-family="Arial, sans-serif" font-size="25" text-anchor="middle" font-weight="bold" fill="#13233a">1</text>
+<text x="712.5" y="193.0" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" font-weight="normal" fill="#13233a">11.1%</text>
+<text x="236.0" y="292.5" font-family="Arial, sans-serif" font-size="13" text-anchor="end" font-weight="bold" fill="#172033">Nhãn 1 – có cà phê</text>
+<rect x="250" y="230" width="185" height="115" fill="rgb(187,192,222)" stroke="white" stroke-width="3"/>
+<text x="342.5" y="280.0" font-family="Arial, sans-serif" font-size="25" text-anchor="middle" font-weight="bold" fill="#13233a">2</text>
+<text x="342.5" y="308.0" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" font-weight="normal" fill="#13233a">33.3%</text>
+<rect x="435" y="230" width="185" height="115" fill="rgb(158,163,193)" stroke="white" stroke-width="3"/>
+<text x="527.5" y="280.0" font-family="Arial, sans-serif" font-size="25" text-anchor="middle" font-weight="bold" fill="#13233a">3</text>
+<text x="527.5" y="308.0" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" font-weight="normal" fill="#13233a">50.0%</text>
+<rect x="620" y="230" width="185" height="115" fill="rgb(216,221,251)" stroke="white" stroke-width="3"/>
+<text x="712.5" y="280.0" font-family="Arial, sans-serif" font-size="25" text-anchor="middle" font-weight="bold" fill="#13233a">1</text>
+<text x="712.5" y="308.0" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" font-weight="normal" fill="#13233a">16.7%</text>
+<text x="527.5" y="405.0" font-family="Arial, sans-serif" font-size="15" text-anchor="middle" font-weight="bold" fill="#172033">Quyết định của pipeline</text>
+</svg>
