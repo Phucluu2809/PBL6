@@ -1,0 +1,33 @@
+D:\PBL6\build_robonose\core\WMath.cpp.o: \
+ D:\Arduino15\packages\esp32\hardware\esp32\3.3.12\cores\esp32\WMath.cpp \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/esp_system/include/esp_system.h \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/esp_common/include/esp_err.h \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/newlib/platform_include/stdio.h \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/esp_common/include/esp_compiler.h \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/esp_common/include/esp_attr.h \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/esp_common/include/esp_bit_defs.h \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/esp_common/include/esp_idf_version.h \
+ D:\Arduino15\packages\esp32\hardware\esp32\3.3.12\cores\esp32\esp32-hal-log.h \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/esp_timer/include/esp_timer.h \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/esp_hw_support/include/esp_etm.h \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/esp_rom/esp32s3/include/esp32s3/rom/ets_sys.h \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/soc/esp32s3/include/soc/soc.h \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/esp_common/include/esp_assert.h \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/soc/esp32s3/register/soc/reg_base.h \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/log/include/esp_log.h \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/esp_rom/include/esp_rom_sys.h \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/soc/esp32s3/include/soc/reset_reasons.h \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/soc/esp32s3/include/soc/soc_caps.h \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/log/include/esp_log_config.h \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/log/include/esp_log_level.h \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/log/include/esp_log_color.h \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/log/include/esp_log_buffer.h \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/log/include/esp_log_timestamp.h \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/log/include/esp_log_write.h \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/log/include/esp_log_format.h \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/log/include/esp_log_args.h \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/esp_common/include/esp_macros.h \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/esp_common/include/esp_assert.h \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/log/include/esp_log_attr.h \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/log/include/esp_private/log_attr.h \
+ D:\Arduino15\packages\esp32\tools\esp32s3-libs\3.3.12/include/esp_hw_support/include/esp_random.h

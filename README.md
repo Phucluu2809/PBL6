@@ -23,8 +23,7 @@ identity_accepted / identity_rejected / quality_rejected
 ```text
 analysis/
 ├── augment_and_extract_odor_features.py  # Làm giàu, trích đặc trưng, tạo model
-├── predict_odor_identity.py              # Kiểm tra một mẫu mới
-└── generate_2026_10_25_readme.py         # Tạo báo cáo và biểu đồ dữ liệu
+└── predict_odor_identity.py              # Kiểm tra một mẫu mới
 
 data/
 ├── 2026-10-25/                           # Dữ liệu thật ban đầu
@@ -177,14 +176,6 @@ Scaler chỉ được fit từ các phiên thật đạt chất lượng. Centro
 | `identity_profiles.csv` | Bản dạng bảng của profile để kiểm tra thủ công. |
 | `feature_vectors.csv` | Vector của toàn bộ mẫu thật và augmented. |
 | `run_quality.csv` | Phiên được giữ hoặc loại cùng lý do. |
-
-## Tạo lại báo cáo dữ liệu
-
-```powershell
-python analysis\generate_2026_10_25_readme.py
-```
-
-Báo cáo chi tiết, biểu đồ và đánh giá cảm biến nằm tại [`data/2026-10-25/README.md`](data/2026-10-25/README.md).
 
 ## Giới hạn hiện tại
 

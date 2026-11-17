@@ -1,0 +1,9 @@
+{
+  "additionalFiles": "..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..",
+  "compiler.optimization_flags": "-Os",
+  "customBuildProperties": "",
+  "fqbn": "esp32:esp32:esp32s3:FlashSize=16M,FlashMode=qio,PSRAM=opi,CDCOnBoot=cdc,PartitionScheme=app3M_fat9M_16MB,UploadSpeed=115200",
+  "hardwareFolders": "D:\\Arduino15\\packages\\esp32\\hardware\\esp32\\3.3.12,D:\\Arduino15\\packages\\esp32\\hardware\\esp32\\3.3.12",
+  "otherLibrariesFolders": "C:\\Users\\ADMIN\\Documents\\Arduino\\libraries",
+  "sketchLocation": "D:\\PBL6\\thudata\\PBL6\\firmware\\RoboNose_Dataset_S3"
+}
