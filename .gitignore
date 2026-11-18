@@ -3,3 +3,5 @@ __pycache__/
 myenv/
 .venv/
 data/
+frontend/
+thudata/

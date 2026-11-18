@@ -1,0 +1,159 @@
+{
+  "created_utc": "2026-11-17T08:18:29.616653+00:00",
+  "policy": {
+    "version": "raw-screening.v1",
+    "pass_min_coverage": 0.95,
+    "reject_below_coverage": 0.8,
+    "pass_max_gap_s": 3.0,
+    "baseline_tail_s": 30.0,
+    "analog_tail_max_abs_drift_pct_per_min": 5.0,
+    "analog_tail_max_robust_cv_pct": 2.0,
+    "temperature_tail_max_abs_slope_c_per_min": 0.3,
+    "temperature_tail_max_range_c": 0.2,
+    "humidity_tail_max_abs_slope_pct_per_min": 1.0,
+    "humidity_tail_max_range_pct": 1.0,
+    "analog_thresholds_validated": false,
+    "notes": "Screening only. Baseline warnings require review, never automatic rejection. Labels are not inferred from folder names. Containers are inventoried separately from collect/trial exports."
+  },
+  "raw_files": 238,
+  "unique_trial_files": 192,
+  "inventory_roles": {
+    "CONTAINER_OR_DIAGNOSTIC": 46,
+    "TRIAL": 192
+  },
+  "status_counts": {
+    "REJECT": 19,
+    "PASS": 143,
+    "REVIEW": 30
+  },
+  "by_group": [
+    {
+      "group": "2026-10-23",
+      "raw_files": 12,
+      "trials": 6,
+      "PASS": 0,
+      "REVIEW": 0,
+      "REJECT": 6,
+      "technical_PASS": 0
+    },
+    {
+      "group": "2026-10-25",
+      "raw_files": 7,
+      "trials": 7,
+      "PASS": 6,
+      "REVIEW": 0,
+      "REJECT": 1,
+      "technical_PASS": 6
+    },
+    {
+      "group": "2026-10-28",
+      "raw_files": 17,
+      "trials": 17,
+      "PASS": 15,
+      "REVIEW": 2,
+      "REJECT": 0,
+      "technical_PASS": 15
+    },
+    {
+      "group": "2026-10-29",
+      "raw_files": 26,
+      "trials": 18,
+      "PASS": 7,
+      "REVIEW": 4,
+      "REJECT": 7,
+      "technical_PASS": 7
+    },
+    {
+      "group": "2026-10-30",
+      "raw_files": 9,
+      "trials": 9,
+      "PASS": 6,
+      "REVIEW": 3,
+      "REJECT": 0,
+      "technical_PASS": 6
+    },
+    {
+      "group": "2026-11-06",
+      "raw_files": 14,
+      "trials": 8,
+      "PASS": 3,
+      "REVIEW": 1,
+      "REJECT": 4,
+      "technical_PASS": 3
+    },
+    {
+      "group": "2026-11-07",
+      "raw_files": 19,
+      "trials": 16,
+      "PASS": 16,
+      "REVIEW": 0,
+      "REJECT": 0,
+      "technical_PASS": 16
+    },
+    {
+      "group": "2026-11-09",
+      "raw_files": 15,
+      "trials": 12,
+      "PASS": 10,
+      "REVIEW": 1,
+      "REJECT": 1,
+      "technical_PASS": 11
+    },
+    {
+      "group": "2026-11-10",
+      "raw_files": 19,
+      "trials": 17,
+      "PASS": 16,
+      "REVIEW": 1,
+      "REJECT": 0,
+      "technical_PASS": 16
+    },
+    {
+      "group": "2026-11-12",
+      "raw_files": 10,
+      "trials": 8,
+      "PASS": 8,
+      "REVIEW": 0,
+      "REJECT": 0,
+      "technical_PASS": 8
+    },
+    {
+      "group": "2026-11-13",
+      "raw_files": 22,
+      "trials": 20,
+      "PASS": 16,
+      "REVIEW": 4,
+      "REJECT": 0,
+      "technical_PASS": 16
+    },
+    {
+      "group": "2026-11-14",
+      "raw_files": 28,
+      "trials": 26,
+      "PASS": 23,
+      "REVIEW": 3,
+      "REJECT": 0,
+      "technical_PASS": 24
+    },
+    {
+      "group": "chua_co_loc_khi_van_3_c",
+      "raw_files": 22,
+      "trials": 16,
+      "PASS": 7,
+      "REVIEW": 9,
+      "REJECT": 0,
+      "technical_PASS": 7
+    },
+    {
+      "group": "first_trial",
+      "raw_files": 18,
+      "trials": 12,
+      "PASS": 10,
+      "REVIEW": 2,
+      "REJECT": 0,
+      "technical_PASS": 10
+    }
+  ],
+  "sources_unchanged_sha256": true,
+  "hashed_source_files": 476
+}
