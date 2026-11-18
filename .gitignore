@@ -5,3 +5,26 @@ myenv/
 data/
 frontend/
 thudata/
+
+# Dữ liệu thu, bản nén và thư mục làm việc sinh khi chạy.
+/curated_raw/
+/curated_raw.zip
+/data.zip
+/coffee_ml/data/
+/coffee_ml/results/
+/analysis/results/
+/processing/reviews/
+/odor_embed/runs/
+/tmp/
+.ipynb_checkpoints/
+
+# Model đã train và bộ tensor xuất ra.
+/models/
+/checkpoints/
+*.pt
+*.pth
+*.joblib
+*.pkl
+*.onnx
+*.safetensors
+*.npz
