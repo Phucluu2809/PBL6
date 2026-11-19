@@ -1,8 +1,9 @@
-# Dependency host dự kiến; Codex resolve trong Python 3.11 x64 trên Windows,
-# smoke test rồi ghi phiên bản thực vào requirements-lock.txt.
+# Dependency host cho acquisition, web/Qt, model inference và test.
+# Cài requirements-lock.txt để tái lập đúng môi trường đã kiểm thử.
 PySide6
 pyqtgraph
 pyserial==3.5
 numpy
 matplotlib==3.10.8
+torch==2.15.0+cpu
 pytest

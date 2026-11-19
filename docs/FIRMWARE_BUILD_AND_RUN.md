@@ -1,6 +1,6 @@
 # Build firmware dataset ESP32-S3
 
-Sketch mới: `firmware/RoboNose_Dataset_S3/RoboNose_Dataset_S3.ino`, firmware 3.0.0, host 0.3.0. Reference ControlTest giữ nguyên ở `stage03_input/reference_s3/RoboNose_ControlTest_v2_1`; không dùng firmware/protocol A2 TGS cũ để thu dataset A0 TGS mới.
+Sketch mới: `firmware/RoboNose_Dataset_S3/RoboNose_Dataset_S3.ino`, firmware 3.0.0, host 0.4.0. Reference ControlTest giữ nguyên ở `stage03_input/reference_s3/RoboNose_ControlTest_v2_1`; không dùng firmware/protocol A2 TGS cũ để thu dataset A0 TGS mới. Host 0.4.0 chỉ bổ sung web local/mock inference, không đổi USB protocol hoặc firmware.
 
 ## Profile hiện tại
 

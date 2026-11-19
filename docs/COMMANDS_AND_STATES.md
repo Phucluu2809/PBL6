@@ -6,6 +6,16 @@ Chạy tại root bằng interpreter đã chuẩn bị:
 .\.venv\Scripts\python.exe -m robonose_s3 --demo
 ```
 
+Web local tùy chọn dùng cùng `Session` và command queue, không tạo phase owner
+thứ hai:
+
+```powershell
+.\.venv\Scripts\python.exe -m robonose_s3 --demo --web
+```
+
+Xem [WEB_DASHBOARD.md](WEB_DASHBOARD.md). Đóng/refresh browser không dừng phiên;
+nút web chỉ enqueue đúng các lệnh bên dưới và backend/MCU vẫn xác nhận trạng thái.
+
 Một engine mô phỏng sở hữu phase/deadline trong demo; Qt chỉ đọc snapshot và terminal gửi command queue. Bước 03 đã thêm backend USB: MCU sở hữu phase/deadline, host không chạy StateMachine/timer tự đổi pha. Demo vẫn không import/mở serial. Chọn hardware cần `--port` và `--serial-kind` rõ ràng; không mặc định chọn COM3. Xem [USB_PROTOCOL.md](USB_PROTOCOL.md) và [FIRMWARE_BUILD_AND_RUN.md](FIRMWARE_BUILD_AND_RUN.md).
 
 ## Chuỗi chính

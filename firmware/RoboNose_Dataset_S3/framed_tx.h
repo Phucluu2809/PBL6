@@ -21,7 +21,10 @@ inline bool transmitFrame(const uint8_t* bytes,size_t length,StreamIO io,uint32_
         int sent=io.write(bytes+offset,count,timeout);
         if(sent<0||static_cast<size_t>(sent)>count) return false;
         offset+=sent;
-        if(!sent) io.pause();
+        if(!sent) {
+            if(elapsedMs(io.now(),started)>=budgetMs) break;
+            io.pause();
+        }
     }
     if(offset!=length) return false;
     while(elapsedMs(io.now(),started)<budgetMs) {
@@ -29,6 +32,7 @@ inline bool transmitFrame(const uint8_t* bytes,size_t length,StreamIO io,uint32_
         if(age>=budgetMs) break;
         uint32_t timeout=budgetMs-static_cast<uint32_t>(age); if(timeout>20) timeout=20;
         if(io.drain(timeout)) return true;
+        if(elapsedMs(io.now(),started)>=budgetMs) break;
         io.pause();
     }
     return false;

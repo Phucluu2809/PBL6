@@ -99,12 +99,14 @@ def validate_hello(packet, initial=True):
     if packet.get('bme_address') not in (0x77,0x76):
         raise ProtocolError('Unexpected BME address')
     if initial:
+        if packet.get('fault_latched') or packet.get('phase')=='ERROR':
+            reason=packet.get('fault_reason')
+            detail=f': {reason}' if isinstance(reason,str) and reason else ''
+            raise ProtocolError(f'MCU fault latched{detail}; reset/readiness verification required')
         if not isinstance(packet.get('begin_ticket'),str) or not packet['begin_ticket']:
             raise ProtocolError('Missing one-use BEGIN handshake ticket')
         if packet.get('phase') not in ('OFF','CLOSED') or packet.get('pump_pwm_pct')!=0 or packet.get('valve_energized') is not False:
             raise ProtocolError('Handshake must report commanded OFF/FILTERED_AIR')
-        if packet.get('fault_latched'):
-            raise ProtocolError('MCU fault latched; reset/readiness verification required')
     if packet.get('sensors_initialized'):
         for key,value in {'profile_readback_ok':True,'os_t_applied':2,'os_h_applied':2,
                           'os_p_applied':4,'heater_applied_ms':100}.items():

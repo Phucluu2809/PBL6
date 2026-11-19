@@ -19,7 +19,11 @@ def main():
         parser.error('Use python_exe from paths.local.json')
     cli=paths['arduino_cli_exe']
     details=json.loads((ROOT/'runtime/stage03/board-details.json').read_text(encoding='utf-8-sig'))
-    assert details['fqbn']=='esp32:esp32:esp32s3' and details['version']=='3.3.12'
+    if details.get('fqbn')!='esp32:esp32:esp32s3':
+        parser.error(f"Unexpected generic board FQBN in board-details.json: {details.get('fqbn')!r}")
+    core=details.get('version')
+    if not core or core!=paths.get('arduino_esp32_core_version'):
+        parser.error(f"ESP32 core mismatch: board-details.json={core!r}, paths.local.json={paths.get('arduino_esp32_core_version')!r}")
     options={'CDCOnBoot':'cdc' if args.profile=='cdc_on' else 'default','USBMode':'hwcdc',
              'FlashSize':'4M','PSRAM':'disabled','PartitionScheme':'default'}
     available={item['option']:{v['value'] for v in item['values']} for item in details['config_options']}
@@ -30,7 +34,7 @@ def main():
     log=ROOT/'runtime/stage03'/f'build_{args.profile}.log'
     command=[cli,'compile','--fqbn',fqbn,'--jobs','2','--build-path',str(build),
              '--output-dir',str(output),str(ROOT/'firmware/RoboNose_Dataset_S3')]
-    profile={'status':'PROVISIONAL_COMPILE_ONLY','board_identified':False,'core':'3.3.12',
+    profile={'status':'PROVISIONAL_COMPILE_ONLY','board_identified':False,'core':core,
              'fqbn':fqbn,'options':options,'command':command,'log':str(log),'upload':False}
     profile['firmware_source_sha256']={str(p.relative_to(ROOT/'firmware/RoboNose_Dataset_S3')):
         hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted((ROOT/'firmware/RoboNose_Dataset_S3').iterdir()) if p.is_file()}

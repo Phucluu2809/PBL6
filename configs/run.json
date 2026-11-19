@@ -1,0 +1,20 @@
+{
+  "mode": "demo",
+  "interface": "web",
+  "hardware": {
+    "port": "COM_THUC_TE",
+    "serial_kind": "native-cdc"
+  },
+  "web": {
+    "host": "127.0.0.1",
+    "port": 8000
+  },
+  "model": {
+    "directory": "models/rescnn64/20261119_053351_6b8717",
+    "sample_roots": [
+      "data/hardware"
+    ],
+    "similarity_threshold": null,
+    "margin_threshold": null
+  }
+}

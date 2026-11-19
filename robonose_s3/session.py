@@ -125,7 +125,12 @@ class Engine:
                 "latest": latest, "history": tuple(self.history), "events": tuple(self.recent_events),
                 "quality": self.quality, "writer": health, "sample_count": self.device.seq,
                 "gaps": self.gaps, "errors": self.errors, "stale": self.stale,
-                "simulated_heartbeat_healthy": heartbeat}
+                "simulated_heartbeat_healthy": heartbeat,
+                "device_info": {"transport": "SIMULATED", "port": None, "boot_id": "simulation",
+                    "firmware_version": "simulation", "firmware_revision": "simulation",
+                    "profile_id": "s3_bringup_simulated", "ads_address": "0x48",
+                    "ads_bus": "GPIO10/GPIO11", "bme_address": "0x77",
+                    "bme_bus": "GPIO8/GPIO9", "sampling_hz": self.config.sampling_hz}}
 
     def shutdown(self, reason="quit"):
         if self.shutdown_count:
@@ -190,7 +195,8 @@ class Session:
     def _run(self):
         previous = self.engine.state.phase
         try:
-            while not self.stop_requested.is_set() and not self.engine.state.closed:
+            while (not self.stop_requested.is_set()
+                   and (not self.engine.state.closed or getattr(self.engine, "startup_pending", False))):
                 for _ in range(16):
                     if not getattr(self.engine, "command_ready", True):
                         break

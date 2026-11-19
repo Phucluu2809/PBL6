@@ -1,0 +1,54 @@
+{
+  "source": "D:\\PBL6\\curated_raw",
+  "qc": {
+    "PASS": 63,
+    "REJECT": 1,
+    "WARN": 36
+  },
+  "group_by": "day",
+  "mode": "full_fit",
+  "architecture": "rescnn64",
+  "baseline_warn": true,
+  "split": {
+    "train": 77,
+    "excluded": 1,
+    "control_same_group": 22
+  },
+  "train_groups": [
+    "2026-11-06",
+    "2026-11-07",
+    "2026-11-09",
+    "2026-11-10",
+    "2026-11-16",
+    "2026-11-17",
+    "2026-11-18"
+  ],
+  "test_groups": [],
+  "train_by_label": {
+    "Dương": 13,
+    "chau": 7,
+    "lam": 5,
+    "Phúc": 6,
+    "son": 10,
+    "Tài": 14,
+    "tan": 12,
+    "toan": 5,
+    "tuan": 5
+  },
+  "test_by_label": {},
+  "labels_without_holdout": [
+    "Dương",
+    "Phúc",
+    "Tài",
+    "chau",
+    "lam",
+    "son",
+    "tan",
+    "toan",
+    "tuan"
+  ],
+  "heldout_top1": null,
+  "epochs": 40,
+  "seed": 42,
+  "threshold": null
+}

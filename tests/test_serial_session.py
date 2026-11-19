@@ -59,6 +59,29 @@ def test_automatic_begin_follows_persisted_preflight_no_serial_import(tmp_path,m
     assert any(p['direction']=='tx' and b' OFF\n' in bytes.fromhex(p['bytes_hex']) for p in wire)
 
 
+def test_new_host_session_begins_from_clean_mcu_closed_state(tmp_path):
+    clock=Clock()
+    transport=EmulatedTransport(clock)
+    transport.state.start_session(clock.now())
+    transport.state.stop(clock.now())
+    transport.state.drain_events()
+    transport.session_id='previous-session'
+    assert transport.state.phase=='CLOSED'
+    options=SerialOptions('EMULATED','emulated',ack_timeout_s=.05,off_timeout_s=.15)
+    session=Session(tmp_path/'reopen',clock=clock,config=Config(checkpoint_s=.02),mode='EMULATED',
+        engine_factory=lambda config,host_clock,recorder:HardwareEngine(
+            config,host_clock,recorder,options,lambda:transport))
+    session.start()
+    try:
+        ready(session)
+        assert session.snapshot()['phase']=='MONITOR'
+        assert session.snapshot()['pump_pwm_pct']==80
+        assert sum(b' BEGIN ' in command for command in transport.writes)==1
+    finally:
+        session.request_stop('test'); assert session.finished.wait(4)
+    assert session.snapshot()['off_confirmed']
+
+
 def test_retry_same_request_does_not_create_second_trial(tmp_path):
     session,transport=make_session(tmp_path)
     try:

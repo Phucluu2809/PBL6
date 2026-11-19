@@ -1,3 +1,3 @@
-"""RoboNose dataset host. Stage 02 implements simulation only."""
+"""RoboNose ESP32-S3 dataset host, local dashboards and device adapters."""
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"

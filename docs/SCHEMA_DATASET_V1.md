@@ -1,6 +1,6 @@
 # RoboNose dataset v1 — stage 02
 
-Schema ID: **`robonose.dataset.v1`**. App `robonose_s3` 0.3.0 giữ demo SIMULATED và thêm adapter HARDWARE/EMULATED ở bước 03. Kết quả đã chạy hiện là phần mềm/emulator/offscreen; chưa đo ADC/BME/đầu ra thật. Không fallback mô phỏng khi hardware lỗi.
+Schema ID: **`robonose.dataset.v1`**. App `robonose_s3` 0.4.0 giữ demo SIMULATED, adapter HARDWARE/EMULATED bước 03 và bổ sung web local/mock inference mà không đổi raw schema. Kết quả đã chạy hiện là phần mềm/emulator/offscreen/web loopback; chưa đo ADC/BME/đầu ra thật trong đợt bổ sung web. Không fallback mô phỏng khi hardware lỗi.
 
 ## Mapping và đơn vị
 

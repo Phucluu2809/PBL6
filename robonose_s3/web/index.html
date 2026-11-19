@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>RoboNose Control</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">RN</span>
+        <div><strong>RoboNose</strong><small>Dataset S3</small></div>
+      </div>
+      <nav class="nav" aria-label="Chức năng chính">
+        <button class="nav-item active" type="button" data-page="realtime"><span>01</span>Tín hiệu & thiết bị</button>
+        <button class="nav-item" type="button" data-page="control"><span>02</span>Điều khiển thu mẫu</button>
+        <button class="nav-item" type="button" data-page="identity"><span>03</span>Dự đoán danh tính</button>
+        <button class="nav-item" type="button" data-page="comparison"><span>04</span>So sánh tham chiếu</button>
+        <button class="nav-item" type="button" data-page="library"><span>05</span>Danh sách mẫu</button>
+      </nav>
+      <div class="sidebar-note">
+        <span class="status-dot" id="sidebar-dot"></span>
+        <div><strong id="sidebar-status">Đang kết nối</strong><small>Web chỉ gửi lệnh qua core hiện có</small></div>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Bảng điều khiển cục bộ</p>
+          <h1 id="page-title">Tín hiệu realtime</h1>
+        </div>
+        <div class="top-status">
+          <span class="mode-badge" id="mode-badge">—</span>
+          <span class="phase-badge" id="phase-badge">ĐANG TẢI</span>
+        </div>
+      </header>
+
+      <div id="global-alert" class="global-alert" hidden></div>
+
+      <section class="page active" id="page-realtime" aria-labelledby="page-title">
+        <div class="summary-grid">
+          <article class="summary-card accent">
+            <span>Trạng thái hệ thống</span>
+            <strong id="device-status">Đang kết nối</strong>
+            <small id="device-detail">Chờ snapshot đầu tiên</small>
+          </article>
+          <article class="summary-card">
+            <span>Bơm</span>
+            <strong id="pump-value">—</strong>
+            <small>Trạng thái được ra lệnh</small>
+          </article>
+          <article class="summary-card">
+            <span>Đường khí</span>
+            <strong id="route-value">—</strong>
+            <small id="valve-value">Van —</small>
+          </article>
+          <article class="summary-card">
+            <span>Ghi dữ liệu</span>
+            <strong id="writer-status">—</strong>
+            <small id="writer-detail">—</small>
+          </article>
+        </div>
+
+        <div class="section-heading">
+          <div><p class="eyebrow">Realtime · 1 Hz</p><h2>5 cảm biến vật lý</h2><small>4 cảm biến analog + 1 BME688 (Gas, nhiệt độ, độ ẩm, áp suất)</small></div>
+          <div class="section-tools">
+            <span class="device-count" id="device-count">5 thiết bị · 8 đại lượng</span>
+            <label class="compact-field">Cửa sổ
+              <select id="window-select">
+                <option value="120">2 phút</option>
+                <option value="600" selected>10 phút</option>
+                <option value="1800">30 phút</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <div class="sensor-grid" id="sensor-grid" aria-live="polite"></div>
+
+        <div class="chart-grid">
+          <article class="panel chart-panel">
+            <div class="panel-head"><div><p class="eyebrow">ADS1115</p><h2>Bốn kênh analog</h2></div><span>V</span></div>
+            <canvas id="analog-chart" role="img" aria-label="Biểu đồ bốn kênh analog theo thời gian"></canvas>
+            <div class="legend" id="analog-legend"></div>
+          </article>
+          <article class="panel chart-panel">
+            <div class="panel-head"><div><p class="eyebrow">BME688</p><h2>Môi trường & khí</h2></div><span>Chuẩn hóa hiển thị</span></div>
+            <canvas id="environment-chart" role="img" aria-label="Biểu đồ dữ liệu BME688 theo thời gian"></canvas>
+            <div class="legend" id="environment-legend"></div>
+          </article>
+        </div>
+
+        <div class="lower-grid">
+          <article class="panel">
+            <div class="panel-head"><div><p class="eyebrow">Thiết bị</p><h2>Trạng thái chi tiết</h2></div></div>
+            <dl class="detail-list">
+              <div><dt>Heartbeat</dt><dd id="heartbeat-value">—</dd></div>
+              <div><dt>Số mẫu</dt><dd id="sample-count">—</dd></div>
+              <div><dt>Gap / stale / lỗi</dt><dd id="health-counts">—</dd></div>
+              <div><dt>Quality</dt><dd id="quality-value">—</dd></div>
+              <div><dt>Cổng / transport</dt><dd id="device-port">—</dd></div>
+              <div><dt>Firmware</dt><dd id="device-firmware">—</dd></div>
+              <div><dt>Boot ID</dt><dd class="path" id="device-boot">—</dd></div>
+              <div><dt>ADS1115</dt><dd id="device-ads">—</dd></div>
+              <div><dt>BME688</dt><dd id="device-bme">—</dd></div>
+              <div><dt>Profile / tần số</dt><dd id="device-profile">—</dd></div>
+              <div><dt>Thư mục phiên</dt><dd class="path" id="session-path">—</dd></div>
+            </dl>
+          </article>
+          <article class="panel">
+            <div class="panel-head"><div><p class="eyebrow">Giám sát</p><h2>Cảnh báo</h2></div><span id="warning-count">0</span></div>
+            <div class="warning-list" id="warning-list"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="page" id="page-control" aria-labelledby="page-title" hidden>
+        <article class="phase-hero panel">
+          <div>
+            <p class="eyebrow">Pha hiện tại</p>
+            <h2 id="control-phase">—</h2>
+            <p id="phase-guidance">Đang tải trạng thái thiết bị.</p>
+          </div>
+          <div class="countdown"><strong id="countdown-value">—</strong><span>thời gian còn lại</span></div>
+        </article>
+
+        <div class="phase-track" id="phase-track" aria-label="Tiến trình các giai đoạn"></div>
+
+        <div class="section-heading collection-heading">
+          <div><p class="eyebrow">Quan sát khi thu</p><h2>6 biểu đồ realtime</h2><small>4 kênh analog, BME688 Gas và Nhiệt độ. Độ ẩm/áp suất vẫn được ghi trong raw nhưng ẩn khỏi màn hình này.</small></div>
+          <label class="compact-field">Cửa sổ
+            <select id="control-window-select">
+              <option value="120">2 phút</option><option value="600" selected>10 phút</option><option value="1800">30 phút</option>
+            </select>
+          </label>
+        </div>
+        <div class="collection-chart-grid" id="collection-chart-grid"></div>
+
+        <article class="panel session-config">
+          <div class="panel-head"><div><p class="eyebrow">Cấu hình phiên</p><h2>Thông số đang được áp dụng</h2></div><span>Chỉ đọc · MCU/Core</span></div>
+          <div class="config-grid">
+            <div><span>Baseline</span><strong id="config-baseline">60 s</strong></div>
+            <div><span>Exposure</span><strong id="config-exposure">120 s</strong></div>
+            <div><span>Recovery</span><strong id="config-recovery">60 s</strong></div>
+            <div><span>Công suất bơm</span><strong id="config-pump">80%</strong></div>
+          </div>
+          <p class="config-note" id="config-note">Firmware hiện dùng thời lượng cố định; web không thay đổi thông số giữa phiên.</p>
+        </article>
+
+        <div class="control-layout">
+          <article class="panel">
+            <div class="panel-head"><div><p class="eyebrow">Điều khiển</p><h2>Chuyển giai đoạn</h2></div><span>MCU xác nhận</span></div>
+            <div class="command-grid">
+              <button class="primary" type="button" data-command="start">Bắt đầu baseline</button>
+              <button type="button" data-command="expose">Mẫu đã đặt · Exposure</button>
+              <button type="button" data-command="recover">Bắt đầu recovery</button>
+              <button type="button" data-command="finish">Hoàn thành lượt</button>
+            </div>
+            <div class="trial-end-row">
+              <div><strong>Kết thúc lượt hiện tại</strong><small>Lưu sau khi đã đặt tên/ghi chú, hoặc hủy sớm lượt thu.</small></div>
+              <div class="trial-end-buttons">
+                <button type="button" data-command="next">Lưu mẫu</button>
+                <button class="danger-ghost" type="button" data-command="abort">Hủy lượt</button>
+              </div>
+            </div>
+            <div class="stop-row">
+              <div><strong>Phần cứng</strong><small>Tắt/bật lại bơm và van; web server và log vẫn chạy.</small></div>
+              <div class="hardware-buttons">
+                <button class="danger" type="button" data-command="pause">Dừng hệ thống</button>
+                <button class="primary" type="button" data-command="resume">Bật lại hệ thống</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-head"><div><p class="eyebrow">Metadata</p><h2>Tên và ghi chú</h2></div><span>WAIT_NAME</span></div>
+            <label>Tên mẫu<input id="sample-name" type="text" maxlength="120" placeholder="Ví dụ: Mau1"></label>
+            <button type="button" id="name-button" data-command="name">Lưu tên mẫu</button>
+            <label>Ghi chú<textarea id="sample-notes" rows="4" maxlength="1000" placeholder="Điều kiện, người thao tác, quan sát..."></textarea></label>
+            <button type="button" id="notes-button" data-command="notes">Lưu ghi chú</button>
+          </article>
+        </div>
+
+        <article class="panel saved-sample" id="saved-sample-card" hidden>
+          <div><p class="eyebrow">Mẫu vừa lưu</p><h2 id="saved-sample-name">—</h2></div>
+          <div class="saved-id"><span>trial_id</span><code id="saved-sample-id">—</code></div>
+          <div class="saved-actions">
+            <span id="saved-sample-status">—</span>
+            <button type="button" id="copy-trial-button">Sao chép trial_id</button>
+            <button class="primary" type="button" id="predict-saved-button">Kiểm tra danh tính</button>
+          </div>
+        </article>
+
+        <div class="control-layout">
+          <article class="panel">
+            <div class="panel-head"><div><p class="eyebrow">Event</p><h2>Đánh dấu sự kiện</h2></div></div>
+            <div class="inline-form">
+              <label>Nội dung marker<input id="marker-text" type="text" maxlength="240" placeholder="Ví dụ: Đặt mẫu vào buồng"></label>
+              <button type="button" id="mark-button" data-command="mark">Ghi sự kiện</button>
+            </div>
+            <div class="timeline" id="event-timeline"></div>
+          </article>
+          <article class="panel">
+            <div class="panel-head"><div><p class="eyebrow">Xác nhận</p><h2>Phản hồi lệnh</h2></div><span id="message-sequence">0</span></div>
+            <div class="message-log" id="message-log" aria-live="polite"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="page" id="page-library" aria-labelledby="page-title" hidden>
+        <article class="panel library-head">
+          <div><p class="eyebrow">Sample Library · hardware ưu tiên</p><h2>Danh sách phiên và mẫu đã lưu</h2><small id="library-source">Đang đọc data/hardware trước các nguồn khác.</small></div>
+          <div class="library-tools">
+            <input id="library-search" type="search" placeholder="Tìm tên hoặc trial_id">
+            <select id="library-status" aria-label="Lọc trạng thái">
+              <option value="ALL">Tất cả trạng thái</option>
+              <option value="COMPLETE">COMPLETE</option>
+              <option value="ABORTED">ABORTED</option>
+            </select>
+          </div>
+        </article>
+        <article class="panel library-panel">
+          <div class="sample-table-wrap">
+            <table class="sample-table">
+              <thead><tr><th>Tên mẫu</th><th>Trial ID</th><th>Nguồn</th><th>Trạng thái</th><th>QC</th><th>Thời gian</th><th>Thao tác</th></tr></thead>
+              <tbody id="sample-library-body"></tbody>
+            </table>
+          </div>
+          <div class="empty-state library-empty" id="library-empty" hidden>Chưa tìm thấy mẫu phù hợp.</div>
+        </article>
+      </section>
+
+      <section class="page" id="page-identity" aria-labelledby="page-title" hidden>
+        <div class="mock-banner" id="identity-model-banner"><strong>ĐANG KIỂM TRA MODEL</strong><span>Chờ trạng thái backend.</span></div>
+        <div class="inference-layout">
+          <article class="panel inference-form">
+            <p class="eyebrow">Closed-set + Unknown</p>
+            <h2>Dự đoán danh tính mẫu ẩn danh</h2>
+            <p>Chọn UUID của một trial đã thu hoàn chỉnh. Backend thật chỉ xác nhận danh tính khi đã cấu hình ngưỡng Unknown.</p>
+            <label>Mã trial / mẫu
+              <input id="identity-sample" list="trial-options" placeholder="Trial UUID">
+            </label>
+            <datalist id="trial-options"></datalist>
+            <button class="primary" type="button" id="identity-button">Chạy dự đoán</button>
+          </article>
+          <article class="panel result-panel" id="identity-result">
+            <p class="eyebrow">Kết quả gần nhất</p>
+            <div class="empty-state">Chưa có lượt dự đoán.</div>
+          </article>
+        </div>
+        <article class="panel">
+          <div class="panel-head"><div><p class="eyebrow">Hợp đồng tích hợp</p><h2>Model thật sẽ thay ở đâu?</h2></div></div>
+          <div class="contract-flow"><span>Trial đã chốt</span><i></i><span>Preprocessor</span><i></i><span>Predictor</span><i></i><span>Unknown threshold</span><i></i><span>prediction.v1</span></div>
+        </article>
+      </section>
+
+      <section class="page" id="page-comparison" aria-labelledby="page-title" hidden>
+        <div class="mock-banner" id="comparison-model-banner"><strong>ĐANG KIỂM TRA MODEL</strong><span>Chờ trạng thái backend.</span></div>
+        <div class="inference-layout comparison-layout">
+          <article class="panel inference-form">
+            <p class="eyebrow">Reference retrieval</p>
+            <h2>So sánh X với 1–4 mẫu</h2>
+            <p>Điền từ một đến bốn mẫu khác nhau; các ô trống sẽ được bỏ qua.</p>
+            <label>Mùi tham chiếu X<input id="reference-id" list="trial-options" value="X" placeholder="Trial UUID tham chiếu"></label>
+            <div class="candidate-grid">
+              <label>Mẫu 1<input class="candidate-input" list="trial-options" placeholder="Trial UUID bắt buộc"></label>
+              <label>Mẫu 2<input class="candidate-input" list="trial-options" placeholder="Tùy chọn"></label>
+              <label>Mẫu 3<input class="candidate-input" list="trial-options" placeholder="Tùy chọn"></label>
+              <label>Mẫu 4<input class="candidate-input" list="trial-options" placeholder="Tùy chọn"></label>
+            </div>
+            <button class="primary" type="button" id="comparison-button">Xếp hạng tương đồng</button>
+          </article>
+          <article class="panel result-panel">
+            <p class="eyebrow">Xếp hạng gần nhất</p>
+            <div id="comparison-result" class="ranking-list"><div class="empty-state">Chưa có kết quả so sánh.</div></div>
+          </article>
+        </div>
+      </section>
+
+      <footer><span>RoboNose local control surface</span><span id="last-update">Chưa nhận dữ liệu</span></footer>
+    </main>
+  </div>
+  <script src="/app.js" defer></script>
+</body>
+</html>

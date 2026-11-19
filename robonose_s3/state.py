@@ -11,7 +11,7 @@ TIMED = {"BASELINE": "WAIT_EXPOSURE", "EXPOSURE": "WAIT_RECOVERY", "RECOVERY": "
 ACTIVE = set(TIMED) | set(TIMED.values())
 SAMPLE_STATES = {"MONITOR", "BASELINE", "WAIT_EXPOSURE", "EXPOSURE", "WAIT_RECOVERY"}
 HELP = ("start | expose | recover | finish | name <text> | notes <text> | next | "
-        "extend <seconds> | abort | mark <text> | status | info | durations | help | quit")
+        "extend <seconds> | abort | pause | resume | mark <text> | status | info | durations | help | quit")
 
 
 @dataclass
@@ -137,6 +137,15 @@ class StateMachine:
                 reason = f"baseline={self.config.baseline_s}s exposure={self.config.exposure_s}s recovery={self.config.recovery_s}s"
         elif command == "quit" and not arg:
             self.stop(now)
+        elif command == "pause" and not arg and self.phase == "MONITOR":
+            self.pwm = 0
+            self._transition("OFF", now)
+            self.emit("hardware_paused", now, server_running=True)
+        elif command == "resume" and not arg and self.phase == "OFF":
+            self.pwm = 80
+            self.pump_start_count += 1
+            self._transition("MONITOR", now)
+            self.emit("hardware_resumed", now, pwm=80)
         elif command == "start" and not arg and self.phase == "MONITOR":
             self.trial_count += 1
             self.trial = Trial(str(uuid.uuid4()), self.trial_count, now)

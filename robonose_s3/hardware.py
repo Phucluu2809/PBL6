@@ -53,6 +53,10 @@ class HardwareEngine:
     def command_ready(self):
         return self.startup=='ACTIVE' and self.pending is None and not self.quit_requested
 
+    @property
+    def startup_pending(self):
+        return self.startup!='ACTIVE' and not self.fault_reason and not self.quit_requested
+
     def healthy(self):
         now=self.clock.now(); health=self.recorder.health()
         return bool(self.device.last_sample_at is not None and now-self.device.last_sample_at<3
@@ -294,7 +298,8 @@ class HardwareEngine:
                 self.quit_requested=True; self.device.priority_off()
                 return {**result,'accepted':None,'reason':'priority OFF requested; awaiting MCU confirmation'}
             verbs={'start':'BASELINE','expose':'EXPOSURE','recover':'RECOVERY','finish':'WAIT_NAME',
-                   'abort':'WAIT_NAME','next':'MONITOR','extend':'RECOVERY','mark':None}
+                   'abort':'WAIT_NAME','next':'MONITOR','pause':'OFF','resume':'MONITOR',
+                   'extend':'RECOVERY','mark':None}
             if command not in verbs or (command not in ('extend','mark') and argument):
                 return result
             wire_argument=''
@@ -327,6 +332,14 @@ class HardwareEngine:
         packet=self.context; now=self.device_now()
         trial=self.trials.get(packet.get('trial_id'))
         deadline=packet.get('deadline_ms')
+        hello=self.device.hello or {}
+        device_info={'transport':self.device.options.kind,'port':self.device.options.port,
+            'boot_id':hello.get('boot_id'),'firmware_version':hello.get('firmware_version'),
+            'firmware_revision':hello.get('firmware_revision'),'profile_id':hello.get('profile_id'),
+            'ads_address':hello.get('ads_address'),'ads_bus':f"GPIO{hello.get('ads_sda','?')}/GPIO{hello.get('ads_scl','?')}",
+            'bme_address':hello.get('bme_address'),'bme_bus':f"GPIO{hello.get('bme_sda','?')}/GPIO{hello.get('bme_scl','?')}",
+            'bme_chip_id':hello.get('bme_chip_id'),'sampling_hz':self.config.sampling_hz,
+            'profile_readback_ok':hello.get('profile_readback_ok')}
         return {'mode':self.mode,'now':now,'phase':self.state.phase,'context_epoch':packet['context_epoch'],
             'segment_id':packet['segment_id'],'trial_id':packet.get('trial_id'),
             'phase_elapsed_s':max(0,now-packet['phase_started_ms']/1000),
@@ -338,7 +351,8 @@ class HardwareEngine:
             'writer':self.recorder.health(),'sample_count':self.highest_ingested,'gaps':self.device.gaps+self.skipped_cycles,
             'errors':self.errors,'stale':self.stale,'heartbeat_healthy':self.healthy(),
             'simulated_heartbeat_healthy':False,'startup':self.startup,
-            'off_confirmed':self.device.off_acknowledged,'fault':self.fault_reason}
+            'off_confirmed':self.device.off_acknowledged,'fault':self.fault_reason,
+            'device_info':device_info}
 
     def note_ui_read(self):
         self.last_ui_read=self.clock.now()

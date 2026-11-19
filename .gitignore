@@ -6,6 +6,9 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.hypothesis/
+.tox/
+.nox/
 *.egg-info/
 .eggs/
 build/
@@ -21,6 +24,8 @@ htmlcov/
 # Collected/demo datasets and archives; keep the layout documentation
 /data/*
 !/data/README.md
+*.csv~
+*.parquet
 
 # Local runtime output, logs and toolchain artifacts; keep Markdown reports
 /runtime/*
@@ -32,6 +37,14 @@ htmlcov/
 .env.*
 !.env.example
 !.env.template
+
+# Local model experiments and downloaded archives. The reviewed model under
+# models/rescnn64 is intentionally versioned; do not add a blanket *.pt rule.
+/models/imports/
+/models/scratch/
+*.zip
+*.7z
+*.rar
 
 # Arduino / ESP32 / PlatformIO compiled output (including nested sketch builds)
 .pio/
@@ -60,4 +73,6 @@ Desktop.ini
 *.log
 *.tmp
 *.bak
+*.swp
+*.swo
 *~

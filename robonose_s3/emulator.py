@@ -128,7 +128,7 @@ class EmulatedTransport:
             accepted=True; reason='accepted'
         elif session!=self.session_id:
             reason='session_mismatch'
-        elif verb=='PING' and self.state.pwm==80:
+        elif verb=='PING' and (self.state.pwm==80 or self.state.phase=='OFF'):
             self.heartbeat=now; accepted=True; reason='accepted'
         elif verb=='STATUS':
             accepted=True; reason='accepted'
@@ -148,6 +148,12 @@ class EmulatedTransport:
                     result=self.state.command(f'extend {int(argument)/1000}',now)
                 except ValueError:
                     result={'accepted':False,'reason':'extend_out_of_bounds'}
+            elif verb=='PAUSE':
+                result=self.state.command('pause',now)
+            elif verb=='RESUME':
+                result=self.state.command('resume',now)
+                if result['accepted']:
+                    self.heartbeat=now
             else:
                 result=self.state.command(command,now)
             accepted=result['accepted']; reason='accepted' if accepted else result['reason']

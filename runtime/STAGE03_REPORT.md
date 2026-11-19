@@ -240,3 +240,53 @@ riêng, không điền thành cấu hình board đã xác minh.
 
 Chi tiết: [USB_ISR_REPORT.md](USB_ISR_REPORT.md),
 [evidence](USB_ISR_EVIDENCE.json), [validation](USB_ISR_VALIDATION.json).
+
+## 14. Điều khiển web: lưu trial và tạm dừng phần cứng (19/11/2026)
+
+Theo yêu cầu mới nhất, giao diện tách chuỗi pha khỏi hai thao tác kết thúc lượt:
+`Lưu mẫu` và `Hủy lượt`. Sau khi lưu, web hiện tên, trạng thái và `trial_id`,
+cho phép sao chép hoặc chuyển sang trang dự đoán. Trial `ABORTED` vẫn được lưu
+tên/ghi chú nhưng được đánh dấu không phải mẫu model hoàn chỉnh.
+
+Đã bổ sung `PAUSE`/`RESUME`: chỉ `PAUSE` ở MONITOR, đưa bơm/van về OFF nhưng
+giữ USB, writer và web server; `RESUME` là thao tác rõ ràng để trở lại MONITOR
+và bật PWM 80%. PAUSE bị từ chối khi trial đang chạy; người dùng phải hủy/lưu
+lượt trước. Nhánh khẩn cấp OFF/FAULT và quit terminal vẫn giữ nguyên.
+
+Kiểm thử: 78 test state/protocol/serial đạt; 38 test state/web đạt; kiểm tra
+JavaScript và `git diff --check` đạt. G++ `-fsyntax-only` cho trial engine đạt;
+test native link tổng hợp còn thất bại không có stderr ở bước tạo executable
+trong môi trường hiện tại. Không mở COM, upload firmware hoặc tác động tải thật.
+
+## 15. Giám sát, Sample Library và cấu hình chạy (19/11/2026)
+
+Dashboard đã bổ sung chi tiết cổng/transport, firmware/revision, boot ID,
+ADS1115/BME688 bus và địa chỉ, profile/tần số. Trang điều khiển có biểu đồ
+chuẩn hóa theo thời gian cho đúng 5 cảm biến vật lý. Trang Sample Library đọc
+catalog theo thứ tự `data/hardware` trước, hiển thị tên, UUID, nguồn, trạng thái,
+QC, thời gian và thao tác sao chép/dự đoán. Predictor và so sánh cũng nhận
+hardware root trước simulation/additional roots.
+
+Đã thêm `configs/run.json` và `scripts/run_robonose.py`; mặc định demo an toàn,
+cho phép chọn mode, COM, serial kind, web/Qt, model và threshold bằng JSON.
+Kiểm thử web 7 passed; JS syntax, Python compileall, config-to-argv và diff check
+đạt. Không mở COM, upload firmware hoặc bật tải.
+
+## 16. So sánh linh hoạt và biểu đồ thu riêng (19/11/2026)
+
+So sánh tham chiếu nhận 1–4 candidate, bỏ qua ô trống và từ chối UUID trùng
+trước khi tạo inference job. Giao diện đổi từ một chart chuẩn hóa chung thành
+5 chart riêng (TGS2602, MQ3 #1, MQ135 #2, MQ3 #2, BME688 Gas), đồng bộ cửa
+sổ 2/10/30 phút với snapshot backend. Catalog refresh 2 giây; writer hiện có
+vẫn flush mỗi scan vào raw phiên và raw trial ngay trong `data/hardware`.
+
+Kiểm thử web/model **13 passed**; JS syntax, Python compileall và diff check đạt.
+Không mở COM, upload firmware hoặc bật tải trong thay đổi này.
+
+## 17. Đồng bộ input validity từ processing/core/signals.py (19/11/2026)
+
+Đã đọc trực tiếp source GitHub và bổ sung `robonose_s3/signals.py` với CHANNELS,
+`number`, `flag`, `validity` tương thích cả modern/legacy. ResCNN64 dùng module
+chung thay cho bản cục bộ; giữ riêng INVALID/UNKNOWN, BME prefix và các cờ gas,
+không sửa/fill raw. Bộ test signals/model/web **33 passed**; compileall và diff
+check đạt. Không mở COM, upload firmware hoặc tác động tải.

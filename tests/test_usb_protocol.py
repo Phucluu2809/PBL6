@@ -33,6 +33,15 @@ def test_incompatible_handshake_rejected_before_begin(key,value):
         validate_hello(hello)
 
 
+def test_latched_mcu_fault_is_reported_before_missing_begin_ticket():
+    hello=EmulatedTransport(FakeClock()).hello()
+    hello.update(phase='ERROR',pump_pwm_pct=0,valve_energized=False,
+                 fault_latched=True,fault_reason='usb_task_stalled_or_queue_full',
+                 begin_ticket='')
+    with pytest.raises(ProtocolError,match='usb_task_stalled_or_queue_full'):
+        validate_hello(hello)
+
+
 def test_strict_split_frames_oversized_chatter_duplicate_keys_and_nan():
     framer=Framer(100)
     data=b'ROM boot\n{"type":"ok","value":3}\r\n'

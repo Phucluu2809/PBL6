@@ -116,9 +116,19 @@ Reply Engine::command(const Request& r,uint64_t now,bool sensorsReady) {
             if(applyOutputs(now)) { ++pumpStarts; transition(Phase::MONITOR,now,now); reason="accepted"; }
             else reason="output_fault"; }
     } else if(strcmp(session,r.session)) reason="session_mismatch";
-    else if(!strcmp(r.verb,"PING")&&!r.arg[0]&&state.pwm==80) { heartbeat_=now; reason="accepted"; }
+    else if(!strcmp(r.verb,"PING")&&!r.arg[0]&&(state.pwm==80||state.phase==Phase::OFF)) { heartbeat_=now; reason="accepted"; }
     else if(!strcmp(r.verb,"STATUS")&&!r.arg[0]) reason="accepted";
     else if(!strcmp(r.verb,"MARK")&&!r.arg[0]&&state.pwm) reason="accepted";
+    else if(!strcmp(r.verb,"PAUSE")&&!r.arg[0]&&state.phase==Phase::MONITOR) {
+        state.pwm=0; state.valve=false; state.deadline=0;
+        if(applyOutputs(now)) { transition(Phase::OFF,now,now); reason="accepted"; }
+        else reason="output_fault";
+    } else if(!strcmp(r.verb,"RESUME")&&!r.arg[0]&&state.phase==Phase::OFF) {
+        if(!ready||!sensorsReady) reason="preflight_not_ready";
+        else { state.pwm=80; state.valve=true; heartbeat_=now;
+            if(applyOutputs(now)) { ++pumpStarts; transition(Phase::MONITOR,now,now); reason="accepted"; }
+            else reason="output_fault"; }
+    }
     else if(!strcmp(r.verb,"START")&&identifier(r.arg,36)&&state.phase==Phase::MONITOR) {
         strcpy(state.trial,r.arg); strcpy(state.status,"ACTIVE"); ++state.trialIndex;
         transition(Phase::BASELINE,now,now,60000); reason="accepted";

@@ -28,7 +28,7 @@ def test_shared_phase_fixture_matches_python_reference_model():
             assert model.command(verb.lower(),now)['accepted']
         assert (model.phase,model.pwm,int(model.route=='SAMPLE'))==(phase,int(pwm),int(valve))
         model.drain_events(); count+=1
-    assert count==116 and model.pump_start_count==1
+    assert count==121 and model.pump_start_count==1
 
 
 @pytest.mark.skipif(not (shutil.which('g++') or shutil.which('clang++')),reason='No native C++ compiler; Xtensa mock object compilation is reported separately, not execution')

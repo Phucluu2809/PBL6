@@ -1,0 +1,38 @@
+{
+  "schema": "robonose.model_artifact.v1",
+  "model_id": "rescnn64:20261119_053351_6b8717",
+  "source_archive": {
+    "name": "odor_embed (1).zip",
+    "sha256": "B390598ABF58F32C539397E6B57B82E1343438829252508E56ED76F0EDC5ACC1"
+  },
+  "files": {
+    "model.json": "D5674A73901B1662F8E19CC9FB8C227D74153625966DAAE9146DC5F1A78ED064",
+    "model.pt": "50E0D6EE1C2A3EDD3C0B1F2CD794E83ADFFE6202395789190D7BB5A3C3D2EA4A",
+    "report.json": "F20B681B58D7F675DA8D05E65961DE4DAE690590D63D4DF7BF510374BA5CB7FD",
+    "training_history.json": "8E961844BCA0E1FCA190501ED30C00726FD333A9EB61408BC6944D2B0EB62558"
+  },
+  "unknown_calibration": {
+    "similarity_threshold": null,
+    "margin_threshold": null,
+    "status": "NOT_CALIBRATED"
+  },
+  "compatibility": {
+    "schema": "robonose.dataset.v1",
+    "sampling_hz": 1,
+    "pump_pwm_pct": 80,
+    "channel_map": {
+      "A0": "tgs2602",
+      "A1": "mq3_1",
+      "A2": "mq135_2",
+      "A3": "mq3_2"
+    },
+    "ads_lsb_v": 0.0001875,
+    "divider_factor": 1,
+    "profile_id": "s3_bringup_300_100_t2h2p4.v1",
+    "heater_requested_c": 300,
+    "heater_requested_ms": 100,
+    "os_t_applied": 2,
+    "os_h_applied": 2,
+    "os_p_applied": 4
+  }
+}

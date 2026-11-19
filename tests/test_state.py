@@ -136,6 +136,20 @@ def test_stop_is_idempotent_and_fault_is_latched(fault):
     assert state.pwm == 0
 
 
+def test_pause_resume_stops_outputs_but_keeps_session_reusable():
+    state = machine()
+    assert state.command("pause", 1)["accepted"]
+    assert state.phase == "OFF" and state.pwm == 0 and state.route == "FILTERED_AIR"
+    assert not state.closed
+    assert not state.command("start", 2)["accepted"]
+    assert state.command("resume", 3)["accepted"]
+    assert state.phase == "MONITOR" and state.pwm == 80 and state.route == "SAMPLE"
+    assert state.pump_start_count == 2
+    state.command("start", 4)
+    assert not state.command("pause", 5)["accepted"]
+    assert state.phase == "BASELINE" and state.pwm == 80
+
+
 @pytest.mark.parametrize("kwargs", [{"sampling_hz": math.nan}, {"checkpoint_s": 0}, {"writer_queue_size": 1.5}, {"min_coverage": 2}])
 def test_config_rejects_nonfinite_or_invalid_limits(kwargs):
     with pytest.raises(ValueError):
