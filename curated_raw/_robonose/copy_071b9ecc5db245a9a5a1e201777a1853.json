@@ -1,0 +1,31 @@
+{
+  "id": "071b9ecc5db245a9a5a1e201777a1853",
+  "sample_id": "f03c3f79515ba7d31543223f",
+  "source_path": "Phien_173826_2026-11-17_adf04d420239/trials/Lam_phongTai_182101_2026-11-17_52ac7fddba1f/raw.csv",
+  "source_name": "Lam_phongTai_182101_2026-11-17_52ac7fddba1f",
+  "group": "Lam",
+  "folder": "Lam_phongTai_182101_2026-11-17_52ac7fddba1f",
+  "target": "D:\\PBL6\\curated_raw",
+  "raw_hash": "26da8534393eeb8ed1468bda80968c9148ca5109a1541fcfad941a0f29264b02",
+  "files": [
+    {
+      "path": "metadata.json",
+      "size": 4399,
+      "sha256": "5dce11ce71bdf35675cf30ba619addec6da19d5b1234a430a6da8c2e2f0e27ad"
+    },
+    {
+      "path": "raw.csv",
+      "size": 274578,
+      "sha256": "26da8534393eeb8ed1468bda80968c9148ca5109a1541fcfad941a0f29264b02"
+    },
+    {
+      "path": "summary.json",
+      "size": 28865,
+      "sha256": "7918b392bc2cc0fcfc21a8ca3eaced1b534cbc9f12a61bb531f1a15133a9d71b"
+    }
+  ],
+  "directories": [],
+  "time": "2026-11-18T20:04:03.424907+00:00",
+  "status": "complete",
+  "verified_at": "2026-11-18T20:04:03.470386+00:00"
+}

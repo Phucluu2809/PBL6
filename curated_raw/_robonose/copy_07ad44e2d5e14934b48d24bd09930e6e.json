@@ -1,0 +1,36 @@
+{
+  "id": "07ad44e2d5e14934b48d24bd09930e6e",
+  "sample_id": "8ae45641c6f474127d557a99",
+  "source_path": "Phien_200707_2026-11-06_20c1efbb3143/trials/Tai_204448_2026-11-06_b8396a74cc66/raw.csv",
+  "source_name": "Tai_204448_2026-11-06_b8396a74cc66",
+  "group": "Tài",
+  "folder": "Tai_204448_2026-11-06_b8396a74cc66",
+  "target": "D:\\PBL6\\curated_raw",
+  "raw_hash": "6caaa0e98d9a74ab0691d432508ab089fb8911f4a73472184d59a97284758dc4",
+  "files": [
+    {
+      "path": "chart.svg",
+      "size": 71965,
+      "sha256": "df826bf8b38798d075233bc9ffad387ebf91b8fa77b950f505575af4fb01a464"
+    },
+    {
+      "path": "metadata.json",
+      "size": 4249,
+      "sha256": "731578a5005b1c48823476bef6a8d29224af29d6d98c513a3d914b09b0274259"
+    },
+    {
+      "path": "raw.csv",
+      "size": 261032,
+      "sha256": "6caaa0e98d9a74ab0691d432508ab089fb8911f4a73472184d59a97284758dc4"
+    },
+    {
+      "path": "summary.json",
+      "size": 29005,
+      "sha256": "90e36f15b65be0e3c5d2d7cb217dc919f9646cf720f28066a58b5680c91c8178"
+    }
+  ],
+  "directories": [],
+  "time": "2026-11-18T10:00:00.268623+00:00",
+  "status": "complete",
+  "verified_at": "2026-11-18T10:00:00.315311+00:00"
+}

@@ -1,0 +1,31 @@
+{
+  "id": "2a55eab0bcb443459ed41e07d51e4f2c",
+  "sample_id": "0adc9d110b0b41b382ca9d5f",
+  "source_path": "Phien_171528_2026-11-16_936f83f1d395/trials/Son_175047_2026-11-16_14b38d5f1756/raw.csv",
+  "source_name": "Son_175047_2026-11-16_14b38d5f1756",
+  "group": "Son",
+  "folder": "Son_175047_2026-11-16_14b38d5f1756",
+  "target": "D:\\PBL6\\curated_raw",
+  "raw_hash": "f55585451711ddfc2551a85616c3682ce03fed2e58eeabfc218a37bd639eb465",
+  "files": [
+    {
+      "path": "metadata.json",
+      "size": 4383,
+      "sha256": "e055c8fe53c7ae51306c883d1fddb2fda65944068c463aa37f6e2c333fd895c6"
+    },
+    {
+      "path": "raw.csv",
+      "size": 450732,
+      "sha256": "f55585451711ddfc2551a85616c3682ce03fed2e58eeabfc218a37bd639eb465"
+    },
+    {
+      "path": "summary.json",
+      "size": 29446,
+      "sha256": "7f14851f1bb25dbea22b57f919becde1a09206a45c2567a1cf565fc170ac6ee2"
+    }
+  ],
+  "directories": [],
+  "time": "2026-11-18T20:01:19.236209+00:00",
+  "status": "complete",
+  "verified_at": "2026-11-18T20:01:19.274261+00:00"
+}

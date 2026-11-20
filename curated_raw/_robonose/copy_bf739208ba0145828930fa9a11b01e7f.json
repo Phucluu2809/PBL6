@@ -1,0 +1,36 @@
+{
+  "id": "bf739208ba0145828930fa9a11b01e7f",
+  "sample_id": "e5c290e930730119272c8d1b",
+  "source_path": "Phien_192357_2026-11-10_b86b16075175/trials/Duong_KTX_202410_2026-11-10_6209dffdc68b/raw.csv",
+  "source_name": "Duong_KTX_202410_2026-11-10_6209dffdc68b",
+  "group": "Dương",
+  "folder": "Duong_KTX_202410_2026-11-10_6209dffdc68b",
+  "target": "D:\\PBL6\\curated_raw",
+  "raw_hash": "7acad1a19e8f52c0d4789f1fd4dc3613d021284de2d3fe507f12a84e0eed7643",
+  "files": [
+    {
+      "path": "chart.svg",
+      "size": 98842,
+      "sha256": "913a131c1f756a4be1620741c4d143fa1f2f6d3eaed22497af28b7cff00ea1a3"
+    },
+    {
+      "path": "metadata.json",
+      "size": 4395,
+      "sha256": "24542b285944c25d052c6f08a7f2b8435685035d9a62cb44fdf74dc4a6e57a0b"
+    },
+    {
+      "path": "raw.csv",
+      "size": 404703,
+      "sha256": "7acad1a19e8f52c0d4789f1fd4dc3613d021284de2d3fe507f12a84e0eed7643"
+    },
+    {
+      "path": "summary.json",
+      "size": 29137,
+      "sha256": "572fd7db6c97330d805db6cd2b8f4da93d762b5801707f9a37377276b7c0cbee"
+    }
+  ],
+  "directories": [],
+  "time": "2026-11-18T10:58:43.431546+00:00",
+  "status": "complete",
+  "verified_at": "2026-11-18T10:58:43.471777+00:00"
+}

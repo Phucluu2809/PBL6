@@ -1,0 +1,36 @@
+{
+  "id": "9aa03e7682cd4ebb8eb7fa624ecb24ac",
+  "sample_id": "590012b0f7ab9edc6fb31be6",
+  "source_path": "Phien_160658_2026-11-10_6d3de71122cb/trials/khongkhi_KTX_164347_2026-11-10_62f68654454a/raw.csv",
+  "source_name": "khongkhi_KTX_164347_2026-11-10_62f68654454a",
+  "group": "kk_baseline",
+  "folder": "khongkhi_KTX_164347_2026-11-10_62f68654454a",
+  "target": "D:\\PBL6\\curated_raw",
+  "raw_hash": "28a86275ad15e9054fb5456a26a97e826b4471e81a4d7e92f779b6e215c5be72",
+  "files": [
+    {
+      "path": "chart.svg",
+      "size": 58544,
+      "sha256": "42e4ae7be7becf72cc0c42b86834f9648ae3b6283afbfdddbea8d431caa3a315"
+    },
+    {
+      "path": "metadata.json",
+      "size": 4401,
+      "sha256": "70bfba6611d14006efc63b1e78397fec91507294244eb171f5634ac39f4b2ac1"
+    },
+    {
+      "path": "raw.csv",
+      "size": 189273,
+      "sha256": "28a86275ad15e9054fb5456a26a97e826b4471e81a4d7e92f779b6e215c5be72"
+    },
+    {
+      "path": "summary.json",
+      "size": 29146,
+      "sha256": "649824af8b88b28a797c7990482ec18b0163146effa83612468f15f5cfe8ee9d"
+    }
+  ],
+  "directories": [],
+  "time": "2026-11-18T10:59:15.846951+00:00",
+  "status": "complete",
+  "verified_at": "2026-11-18T10:59:15.931916+00:00"
+}

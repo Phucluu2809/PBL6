@@ -1,0 +1,36 @@
+{
+  "id": "76c7f15aeec74c11887703069f8a47ee",
+  "sample_id": "7fd9858caa030eb87e6a8d46",
+  "source_path": "Phien_014532_2026-11-14_e052adcf7fe8/trials/phucluu_021717_2026-11-14_a9cd65587ade/raw.csv",
+  "source_name": "phucluu_021717_2026-11-14_a9cd65587ade",
+  "group": "Phúc",
+  "folder": "phucluu_021717_2026-11-14_a9cd65587ade",
+  "target": "D:\\PBL6\\curated_raw",
+  "raw_hash": "e96b2725c8d564ec2cadba0b8ec205873f5912cffa2150e65df11ced6973c07c",
+  "files": [
+    {
+      "path": "chart.png",
+      "size": 365554,
+      "sha256": "4af24f29c20e04eef35b7fff2d778a944c29cd8b03887f7897f3c2931daff3fa"
+    },
+    {
+      "path": "metadata.json",
+      "size": 4391,
+      "sha256": "fea74677ffcbb9e61ba0b2c80253dfe9327bf5bf2a5450bb04ae2d15e5e2105f"
+    },
+    {
+      "path": "raw.csv",
+      "size": 203998,
+      "sha256": "e96b2725c8d564ec2cadba0b8ec205873f5912cffa2150e65df11ced6973c07c"
+    },
+    {
+      "path": "summary.json",
+      "size": 29423,
+      "sha256": "ad6ce2fcc4a85adf46f87a6d4af63af915607b3f1a6e30dbc491403801651ad2"
+    }
+  ],
+  "directories": [],
+  "time": "2026-11-18T11:47:27.587783+00:00",
+  "status": "complete",
+  "verified_at": "2026-11-18T11:47:27.656788+00:00"
+}

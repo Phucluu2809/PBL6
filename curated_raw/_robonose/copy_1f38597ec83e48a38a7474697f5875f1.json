@@ -1,0 +1,36 @@
+{
+  "id": "1f38597ec83e48a38a7474697f5875f1",
+  "sample_id": "11444349d63635c03cf50c7a",
+  "source_path": "Phien_014532_2026-11-14_e052adcf7fe8/trials/phuc_coffeee_030631_2026-11-14_a2be2a6d0b79/raw.csv",
+  "source_name": "phuc_coffeee_030631_2026-11-14_a2be2a6d0b79",
+  "group": "phuc_cf",
+  "folder": "phuc_coffeee_030631_2026-11-14_a2be2a6d0b79",
+  "target": "D:\\PBL6\\curated_raw",
+  "raw_hash": "473f0337344477355b3a3ced8c4684e5fca963820e4399efdc27d64b463d5b2c",
+  "files": [
+    {
+      "path": "chart.png",
+      "size": 363872,
+      "sha256": "c82f72e4e148f92f8b29c48e578a1fed48ab82f3f8e6d31a0b7a9fc40e351b76"
+    },
+    {
+      "path": "metadata.json",
+      "size": 4402,
+      "sha256": "6fd99e8b78530da02e2c7bbe2dddab6378a76b7565929a11171b245c32a366bb"
+    },
+    {
+      "path": "raw.csv",
+      "size": 350067,
+      "sha256": "473f0337344477355b3a3ced8c4684e5fca963820e4399efdc27d64b463d5b2c"
+    },
+    {
+      "path": "summary.json",
+      "size": 29304,
+      "sha256": "aed7aef746cc13b6ee4d9d8ec6538b5916b74dd856a620eeb4f256c0c0186ea4"
+    }
+  ],
+  "directories": [],
+  "time": "2026-11-18T11:49:22.008550+00:00",
+  "status": "complete",
+  "verified_at": "2026-11-18T11:49:22.082735+00:00"
+}

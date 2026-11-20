@@ -1,0 +1,31 @@
+{
+  "id": "ea66314310e6403b8661b5b65545c94f",
+  "sample_id": "9a70626a85a322517d59d172",
+  "source_path": "Phien_201516_2026-11-16_be1b32360e58/trials/Tai_phongTai_220202_2026-11-16_4d7bd16bc290/raw.csv",
+  "source_name": "Tai_phongTai_220202_2026-11-16_4d7bd16bc290",
+  "group": "Tài",
+  "folder": "Tai_phongTai_220202_2026-11-16_4d7bd16bc290",
+  "target": "D:\\PBL6\\curated_raw",
+  "raw_hash": "a8225d696835cafd8d4f17fee2928891249087dc93a0e6bef5bda62ecae0d2f2",
+  "files": [
+    {
+      "path": "metadata.json",
+      "size": 4401,
+      "sha256": "016355704e5c8e200f31bcfea0aa3c0e6858dddf7602ebaaa639e2be6315d47b"
+    },
+    {
+      "path": "raw.csv",
+      "size": 450297,
+      "sha256": "a8225d696835cafd8d4f17fee2928891249087dc93a0e6bef5bda62ecae0d2f2"
+    },
+    {
+      "path": "summary.json",
+      "size": 29280,
+      "sha256": "67bf490887bec0503d3f3104cfe85e49819a6dca43c6ade46108605e142aa84a"
+    }
+  ],
+  "directories": [],
+  "time": "2026-11-18T19:55:08.071997+00:00",
+  "status": "complete",
+  "verified_at": "2026-11-18T19:55:08.113471+00:00"
+}

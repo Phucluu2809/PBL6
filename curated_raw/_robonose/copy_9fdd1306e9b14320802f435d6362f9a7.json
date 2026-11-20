@@ -1,0 +1,36 @@
+{
+  "id": "9fdd1306e9b14320802f435d6362f9a7",
+  "sample_id": "9b754db84c31d7f4cc1b031e",
+  "source_path": "Phien_192357_2026-11-10_b86b16075175/trials/CF_KTX_215301_2026-11-10_ed319df2db69/raw.csv",
+  "source_name": "CF_KTX_215301_2026-11-10_ed319df2db69",
+  "group": "CF",
+  "folder": "CF_KTX_215301_2026-11-10_ed319df2db69",
+  "target": "D:\\PBL6\\curated_raw",
+  "raw_hash": "4cfcebf8f254a94a75aba1a2a59e35f81d1dee1ecdc92852d71d063a4e067b0b",
+  "files": [
+    {
+      "path": "chart.svg",
+      "size": 126295,
+      "sha256": "5fd4081e0c0f712bb48fe40035659d205e6e7e4ccc488200f5ae857333765e12"
+    },
+    {
+      "path": "metadata.json",
+      "size": 4386,
+      "sha256": "2488739d081c503c0f7f31b39aae043b2a7edc78c1a94c359a0f6b67386766c7"
+    },
+    {
+      "path": "raw.csv",
+      "size": 550502,
+      "sha256": "4cfcebf8f254a94a75aba1a2a59e35f81d1dee1ecdc92852d71d063a4e067b0b"
+    },
+    {
+      "path": "summary.json",
+      "size": 29236,
+      "sha256": "29c4e3d65edef546aaba5bf0eee388fc6d7a204331274d475bcc6c6d032dd545"
+    }
+  ],
+  "directories": [],
+  "time": "2026-11-18T10:58:12.511878+00:00",
+  "status": "complete",
+  "verified_at": "2026-11-18T10:58:12.592796+00:00"
+}

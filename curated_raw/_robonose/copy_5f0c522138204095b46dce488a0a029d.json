@@ -1,0 +1,36 @@
+{
+  "id": "5f0c522138204095b46dce488a0a029d",
+  "sample_id": "7ea52b3b70fe80e64a159121",
+  "source_path": "Phien_153729_2026-11-09_e8feac3db2e6/trials/Duong_161028_2026-11-09_f37741eb1c65/raw.csv",
+  "source_name": "Duong_161028_2026-11-09_f37741eb1c65",
+  "group": "Dương",
+  "folder": "Duong_161028_2026-11-09_f37741eb1c65",
+  "target": "D:\\PBL6\\curated_raw",
+  "raw_hash": "6fe766071ee8d72f374422411aa9d4590aff70ebd897ecac1cea8f1525e04e0d",
+  "files": [
+    {
+      "path": "chart.svg",
+      "size": 79944,
+      "sha256": "f3045acdaf59d5cb2fa629e7aaab70556260ffc77b172c74e4236961c1d91035"
+    },
+    {
+      "path": "metadata.json",
+      "size": 4386,
+      "sha256": "916306818cc4f7e352862456e60093a6331c9eaccd31835fdb25859f68ced060"
+    },
+    {
+      "path": "raw.csv",
+      "size": 303861,
+      "sha256": "6fe766071ee8d72f374422411aa9d4590aff70ebd897ecac1cea8f1525e04e0d"
+    },
+    {
+      "path": "summary.json",
+      "size": 29123,
+      "sha256": "ab11b003aaa3d81a9ddf55c1a2434b89b81e9cc6598eaa54dcfd26aacbf8fdc7"
+    }
+  ],
+  "directories": [],
+  "time": "2026-11-18T10:57:17.339522+00:00",
+  "status": "complete",
+  "verified_at": "2026-11-18T10:57:17.396166+00:00"
+}
