@@ -49,7 +49,8 @@ def write_recognition_tables(output, rows, embeddings, labels, *, include_contro
     counts = np.zeros(len(labels), dtype=int)
     for row, vector in zip(rows, embeddings):
         if row['split'] == 'train' or (include_controls and (
-                row['split'] == 'control_same_group' or full_fit and row['split'] == 'control_heldout')):
+                row['split'] in ('control_reference', 'control_same_group')
+                or full_fit and row['split'] == 'control_heldout')):
             index = indices[actual_label(row)]
             sums[index] += vector
             counts[index] += 1

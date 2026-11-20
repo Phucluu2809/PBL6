@@ -3,3 +3,6 @@ __pycache__/
 myenv/
 .venv/
 data/
+odor_embed/
+thudata/
+tmp/

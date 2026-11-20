@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 RUNS = ROOT / 'odor_embed' / 'runs'
 
 
-def inventory(source, *, baseline_warn=False):
+def inventory(source, *, baseline_warn=False, exclude_days=()):
     records = []
     for raw in sorted(source.rglob('raw.csv')):
         relative = raw.relative_to(source)
@@ -30,6 +30,9 @@ def inventory(source, *, baseline_warn=False):
             record['qc'] = 'WARN' if record.get('warnings') else 'PASS'
         except (ValueError, TypeError, OSError, KeyError, csv.Error) as exc:
             record.update(qc='REJECT', reason=str(exc))
+        if record.get('day') in exclude_days:
+            record.pop('tensor', None)
+            record.update(qc='EXCLUDED_DAY', reason=f'Bỏ ngày {record["day"]} theo cấu hình.')
         records.append(record)
     for key in ('trial_id', 'sha256'):
         matches = defaultdict(list)
@@ -81,34 +84,102 @@ def dump(path, data):
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2, allow_nan=False), encoding='utf-8')
 
 
+def per_label_holdout(records, *, one_per_day=False):
+    """Choose a deterministic holdout per label, optionally one recording per day."""
+    by_label = defaultdict(list)
+    for row in records:
+        by_label[row['label'] or row['condition']].append(row)
+    held = set()
+    for rows in by_label.values():
+        if len(rows) == 1:
+            continue
+        rows.sort(key=lambda r: (r['day'], r['path']), reverse=True)
+        if one_per_day:
+            by_day = {}
+            for row in rows:
+                by_day.setdefault(row['day'], row['path'])
+            candidates = list(by_day.values())
+            # If every day contains a single recording, retain the oldest one.
+            held.update(candidates[:len(rows)-1])
+            continue
+        target = max(1, len(rows) // 5)
+        sessions = defaultdict(list)
+        for row in rows:
+            sessions[row['session']].append(row['path'])
+        # Select whole sessions when they add up to the desired count.
+        choices = {0: []}
+        for paths in sessions.values():
+            for count, selected in list(choices.items()):
+                total = count + len(paths)
+                if total <= target and total not in choices:
+                    choices[total] = selected + paths
+        held.update(choices.get(target, [r['path'] for r in rows[:target]]))
+    return held
+
+
 def train(args):
     source = args.data.resolve(strict=True)
     output_base = RUNS.resolve()
     if output_base != RUNS or source == output_base or source in output_base.parents or output_base in source.parents:
         raise ValueError('Nguồn và thư mục kết quả phải nằm ở hai cây riêng.')
-    records = inventory(source, baseline_warn=args.baseline_warn)
+    exclude_days = set(getattr(args, 'exclude_days', ()))
+    test_days = set(getattr(args, 'test_days', ()))
+    one_per_day = getattr(args, 'per_label_day', False)
+    split_per_label = getattr(args, 'per_label', False) or one_per_day
+    if split_per_label and (args.all_data or test_days):
+        raise ValueError('Chia theo nhãn cần all_data=False và không dùng ngày test cố định.')
+    if test_days & exclude_days:
+        raise ValueError('Ngày test không được trùng với ngày bỏ qua.')
+    if test_days and (args.all_data or args.group_by != 'day'):
+        raise ValueError('Ngày test cố định cần group_by=day và all_data=False.')
+    records = inventory(source, baseline_warn=args.baseline_warn, exclude_days=exclude_days)
     people = [r for r in records if 'tensor' in r and r['label']]
     labels = sorted({r['label'] for r in people})
     rng = np.random.default_rng(args.seed)
     key = args.group_by
-    held = grouped_split(people, key, rng) if people and not args.all_data else set()
+    if split_per_label:
+        held = set()
+    elif test_days:
+        missing_days = test_days - {row['day'] for row in people}
+        if missing_days:
+            raise ValueError('Ngày test không có lượt người hợp lệ: ' + ', '.join(sorted(missing_days)))
+        held = test_days
+        missing_labels = set(labels) - {row['label'] for row in people if row['day'] not in held}
+        if missing_labels:
+            raise ValueError('Các nhãn sau chỉ có trong ngày test: ' + ', '.join(sorted(missing_labels)))
+    else:
+        held = grouped_split(people, key, rng) if people and not args.all_data else set()
     train_groups = {p[key] for p in people if p[key] not in held}
+    held_paths = (per_label_holdout([r for r in records if 'tensor' in r], one_per_day=one_per_day)
+                  if split_per_label else set())
     for r in records:
         if 'tensor' not in r:
             r['split'] = 'excluded'
+        elif split_per_label:
+            if r['label']:
+                r['split'] = 'test' if r['path'] in held_paths else 'train'
+            else:
+                r['split'] = 'control_test' if r['path'] in held_paths else 'control_reference'
         elif r['label']:
             r['split'] = 'test' if r[key] in held else 'train'
         else:
             r['split'] = 'control_heldout' if r[key] not in train_groups else 'control_same_group'
+    if split_per_label:
+        enrollment_sessions = {r['session'] for r in records if r['split'] in ('train', 'control_reference')}
+        for r in records:
+            if r['split'] in ('test', 'control_test'):
+                r['session_in_train'] = r['session'] in enrollment_sessions
     run = output_base / (datetime.now().strftime('%Y%m%d_%H%M%S') + '_' + uuid4().hex[:6])
     run.mkdir(parents=True, exist_ok=False)
     dump(run / 'manifest.json', [{k: v for k, v in r.items() if k != 'tensor'} for r in records])
     report = dict(source=str(source), qc=dict(Counter(r['qc'] for r in records)), group_by=key,
-                  mode='full_fit' if args.all_data else 'grouped_holdout', architecture=args.arch,
+                  mode=('per_label_day_holdout' if one_per_day else 'per_label_holdout' if split_per_label else
+                        'full_fit' if args.all_data else 'fixed_holdout' if test_days else 'grouped_holdout'),
+                  architecture=args.arch, excluded_days=sorted(exclude_days),
                   baseline_warn=args.baseline_warn,
                   split=dict(Counter(r['split'] for r in records)),
                   train_groups=sorted({r[key] for r in people if r['split'] == 'train'}),
-                  test_groups=sorted(held),
+                  test_groups=sorted({r[key] for r in people if r['split'] == 'test'}),
                   train_by_label=dict(Counter(r['label'] for r in people if r['split'] == 'train')),
                   test_by_label=dict(Counter(r['label'] for r in people if r['split'] == 'test')))
     report['labels_without_holdout'] = sorted(set(labels) - set(report['test_by_label']))
@@ -167,7 +238,7 @@ def train(args):
         gallery = F.normalize(torch.stack([vectors[y == i].mean(0) for i in range(len(labels))]), dim=1)
         results = []
         for r in records:
-            if r['split'] not in ('test', 'control_heldout', 'control_same_group'):
+            if r['split'] not in ('test', 'control_heldout', 'control_same_group', 'control_test'):
                 continue
             vector = model.encode(scaled(r['tensor'][None]))
             similarity = (vector @ gallery.T).flatten().tolist()
@@ -258,6 +329,10 @@ def main():
     fit.add_argument('--baseline-warn', action='store_true', help='Giữ lượt hợp lệ có nền trôi và ghi cảnh báo.')
     fit.add_argument('--arch', choices=('simple16', 'rescnn64'), default='simple16')
     fit.add_argument('--group-by', choices=('day', 'session'), default='day')
+    fit.add_argument('--test-day', dest='test_days', action='append', default=[], help='Ngày test cố định YYYY-MM-DD.')
+    fit.add_argument('--per-label', action='store_true', help='Giữ riêng 10–20% từng nhãn, ít nhất một lượt nếu có thể.')
+    fit.add_argument('--per-label-day', action='store_true', help='Chừa một lượt cho mỗi nhãn và ngày, giữ ít nhất một mẫu gốc mỗi nhãn.')
+    fit.add_argument('--exclude-day', dest='exclude_days', action='append', default=[], help='Bỏ ngày YYYY-MM-DD khỏi cả train và test.')
     fit.add_argument('--seed', type=int, default=42)
     fit.add_argument('--epochs', type=int, default=40)
     infer = commands.add_parser('predict')

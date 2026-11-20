@@ -160,7 +160,7 @@ flowchart TD
 
 **Kết quả QC của bản thử:** 100 lượt → 63 PASS, 33 WARN, 4 REJECT. Bốn lượt ra khỏi tập gồm `anhDuong_phongTai_100728` bị ABORTED và `Chau_phongTai_165004`, `Son_175047`, `Tuan_phongTai_210818` vượt ngưỡng nền. Lần tiếp theo đề xuất tách rõ **lỗi kỹ thuật bắt buộc loại** và **cảnh báo chất lượng cần duyệt**. Với MQ3, MQ135 hoặc BME đang trôi nhưng vẫn có dữ liệu hợp lệ, ghi tên kênh, pha và chỉ số rồi xem lại lượt trước khi quyết định giữ hay loại. Giữ sáu kênh cho cấu hình chính và dùng thử nghiệm bỏ riêng RH để kiểm tra lợi ích của nó qua các phiên.
 
-### Kiến trúc encoder đang có và đề xuất cho vòng tiếp theo
+### Kiến trúc Simple16 đã thử ban đầu
 
 ```mermaid
 flowchart LR
@@ -186,11 +186,11 @@ flowchart LR
     D --> E["Ngưỡng từ validation → cùng người, khác người hoặc chưa chắc"]
 ```
 
-- **So 1:1:** lấy hai vector và trả điểm cosine. Cần bổ sung lệnh so cặp dùng cùng pipeline hiện tại. Lệnh `predict` hiện so lượt mới với các vector đăng ký theo người.
+- **So 1:1:** lệnh `compare` encode hai lượt bằng cùng model và scaler rồi in cosine. Lệnh `predict` so lượt mới với các vector đăng ký theo người.
 - **Tìm 1:N:** lấy trung bình các embedding đã đăng ký của mỗi người, chuẩn hóa lại và tìm người có cosine cao nhất. Chỉ trả danh tính khi điểm đạt ngưỡng đã hiệu chuẩn. Các mẫu không khí, cà phê và người ngoài danh sách giúp đo tỷ lệ nhận nhầm.
 - **Train vòng đầu sau khi duyệt:** giữ CNN nhỏ và dùng nhãn người để học encoder. Đánh giá chất lượng embedding trực tiếp từ phân bố điểm của cặp cùng người/khác người. Chỉ cân nhắc loss contrastive theo cặp nếu đã có đủ cặp cùng người **khác phiên** và cách train bằng nhãn chưa tách được hai nhóm điểm.
 
-### Kết quả thử và phần cần duyệt
+### Kết quả thử Simple16 và đề xuất ban đầu
 
 Lần chạy trước dùng **59 lượt train và 15 lượt test theo ngày**. Kết quả nhận diện 1:N đứng đầu đúng **5/15**. Tập test chỉ có Tài và Dương, còn Phúc có sáu lượt từ một phiên. Kết quả này kiểm được luồng chạy, chưa xác nhận chất lượng so cặp hay khả năng nhận ra Phúc ở buổi khác. Chưa có ngưỡng cosine được hiệu chuẩn.
 
@@ -200,15 +200,62 @@ Lần chạy trước dùng **59 lượt train và 15 lượt test theo ngày**.
 2. **Model:** giữ CNN 16 chiều ở sơ đồ trên, thêm so cặp 1:1 và xuất điểm theo từng cặp. Chạy thêm một cấu hình bỏ RH với cùng cách chia để xem độ ẩm thực sự giúp trên phiên độc lập hay chỉ giúp nhận điều kiện đo.
 3. **Đánh giá:** chia ngày/phiên trước khi tạo cặp. Dùng validation độc lập để chọn ngưỡng, giữ test cho báo cáo cuối. Báo tỷ lệ nhận nhầm người khác và bỏ sót người đúng cùng kết quả đối chứng. Thu thêm phiên trước khi đánh giá những người hiện chỉ có một phiên.
 
-Các mục trên là đề xuất để duyệt. Phần bên dưới ghi lệnh và hành vi của bản thử hiện có.
+Các mục trên ghi lại đề xuất ở giai đoạn Simple16. Kiến trúc ResCNN-64 thực tế và kết quả gần đây nằm ở phần tiếp theo.
 
-### ResCNN-64 và lệnh huấn luyện
+### Kiến trúc ResCNN-64 đang dùng
+
+```mermaid
+flowchart LR
+    A["Exposure sau hiệu chỉnh và scale · 6 × 120"] --> B["Stem Conv1d · 32 × 120"]
+    B --> C["Residual block 1 · 32 × 120"]
+    C --> D["Residual block 2 · 64 × 60"]
+    D --> E["Residual block 3 · 128 × 30"]
+    E --> F["Trung bình + cực đại theo thời gian · 256"]
+    F --> G["Linear 256 → 128 → 64, chuẩn hóa L2"]
+    G --> H["Train · đầu cosine theo nhãn người"]
+    G --> I["Test · so điểm với vector mẫu gốc"]
+```
+
+**Đầu vào:** `[batch, 6, 120]`. Thứ tự kênh là TGS2602, MQ3 #1, MQ135 #2, MQ3 #2, BME gas và RH. Pipeline lấy 120 điểm `EXPOSURE` ở khoảng 1 Hz. Median 30 điểm cuối `BASELINE` là mốc để tính `ΔV`, `ln(R/R₀)` và `RH − RH₀`. Mỗi kênh sau đó được scale bằng median và IQR tính từ tập train. CNN nhận exposure đã biến đổi. Các pha còn lại giúp lấy mốc và xem QC.
+
+| Thành phần | Cấu hình thực tế | Kích thước ra mỗi lượt |
+| --- | --- | --- |
+| Stem | Conv1d 6 → 32, kernel 7, stride 1, padding 3. GroupNorm 8 nhóm, GELU | 32 × 120 |
+| Residual block 1 | 32 → 32, kernel 5, stride 1. Nhánh tắt giữ nguyên | 32 × 120 |
+| Residual block 2 | 32 → 64, kernel 5, stride 2. Nhánh tắt Conv1d kernel 1, stride 2 | 64 × 60 |
+| Residual block 3 | 64 → 128, kernel 3, stride 2. Nhánh tắt Conv1d kernel 1, stride 2 | 128 × 30 |
+| Global pooling | Tính trung bình và cực đại của từng kênh ẩn theo thời gian rồi ghép | 256 |
+| Embedding head | Linear 256 → 128, GELU, dropout 0,2 khi train, linear 128 → 64, chuẩn hóa L2 | Vector 64 chiều |
+| Đầu huấn luyện | Linear 64 → số người, không bias. Chuẩn hóa trọng số từng lớp. Logit là cosine nhân 12 | Một logit cho mỗi người |
+
+Mỗi residual block gồm hai lớp Conv1d. Lớp đầu dùng stride trong bảng, theo sau là GroupNorm và GELU. Lớp hai dùng stride 1 và GroupNorm. Cuối block cộng nhánh tắt rồi áp GELU. Với 9 nhãn người, ResCNN-64 có **168.960 tham số**, trong đó đầu phân loại có **576**. Mã nguồn nằm trong [model.py](../odor_embed/model.py).
+
+**Lúc train**, encoder tạo vector đơn vị `z`. Với lớp `j`, logit là `12 × dot(z, normalize(wⱼ))`. Model tối ưu cross-entropy với trọng số lớp nghịch với số lượt train. Notebook dùng AdamW, learning rate 0,001, weight decay 0,0001, batch tối đa 16 và 40 epoch.
+
+**Lúc dự đoán**, vector mẫu gốc của một người là trung bình các embedding train của người đó, rồi chuẩn hóa L2 lại. `predict` xếp hạng các mẫu gốc theo cosine. `compare` tính cosine trực tiếp giữa hai lượt. Nếu chưa áp ngưỡng đã hiệu chuẩn, người đứng đầu chỉ là ứng viên gần nhất. `CF` và `kk_baseline` có thể có vector mẫu gốc riêng trong bảng đánh giá mở rộng. Encoder hiện học từ nhãn người.
+
+### Kết quả và hướng cải tiến ResCNN-64
+
+| Bài thử | Kết quả | Phạm vi |
+| --- | --- | --- |
+| Chấm lại các lượt người đã train | 77/77 | Dữ liệu encoder đã thấy |
+| Chừa một lượt mỗi nhãn và ngày, bỏ 19/11/2026 | 8/17 khi chỉ xét người; 10/25 khi thêm CF và không khí | 21/25 lượt test cùng phiên với ít nhất một lượt train hoặc mẫu gốc |
+| Model full fit cũ thử ngày 19/11/2026 | 0/5 | Hai lượt Dương và ba lượt Toàn ngoài train |
+
+So các thay đổi sau trên cùng danh sách test:
+
+1. **Căn pha và mốc nền:** kiểm tín hiệu thay đổi trước exposure. Chỉ căn lại cửa sổ khi có mốc thao tác đã ghi. Dùng 19/11 để theo dõi lỗi và giữ nguyên một buổi mới cho lần chấm cuối.
+2. **Pooling:** global average/max gom cả 30 bước thời gian cuối encoder. Thử pooling theo vài vùng để giữ riêng đáp ứng đầu, giữa và cuối. Có thể dùng `simple16` làm bản đối chiếu vì model đó giữ bốn vùng thời gian.
+3. **Mẫu gốc:** so một trung bình mỗi người với nhiều mẫu gốc theo buổi. Kiểm cặp cùng người khác phiên và cặp khác người trong điều kiện đo tương tự.
+4. **Kênh và loss:** so với baseline đặc trưng cảm biến, rồi thử bật/tắt RH trên cùng tập. Cân nhắc loss theo cặp như SupCon khi đủ cặp cùng người khác phiên. Dùng validation độc lập để chọn ngưỡng từ chối.
+
+### Lệnh huấn luyện và kiểm tra
 
 Trong VS Code, mở [train_rescnn64.ipynb](../odor_embed/train_rescnn64.ipynb), chọn kernel `.venv\Scripts\python.exe` và bấm **Run All**. Notebook mặc định chạy ResCNN-64 trên toàn bộ lượt người hợp lệ trong 40 epoch. Mỗi epoch in loss trung bình, thời gian đã chạy và thời gian còn lại dự kiến. Sau khi lưu, notebook in đường dẫn model, embedding và `training_history.json` để xem lại loss từng epoch. Nếu kernel chưa có Jupyter, cài `ipykernel` trong cùng venv.
 
 Phần **Random Forest · Cà phê và không khí** ở cuối notebook có thể chạy riêng. Phần này đọc hai nhóm đối chứng, dùng 10 đặc trưng BME gas/MQ3 #1 của `coffee_ml` và đánh giá theo ngày đo giữ riêng. Notebook hiện ma trận nhầm lẫn, tầm quan trọng của đặc trưng và bảng dự đoán từng lượt. Có thể điền `RF_SAMPLE` để thử một lượt đối chứng mới. Bài thử chỉ có hai nhãn CF và kk_baseline.
 
-Đã thêm kiến trúc trong tài liệu bạn gửi. Input **6 × 120** → stem Conv1d **32 × 120** → ba residual block lần lượt **32 × 120**, **64 × 60**, **128 × 30** → global average và max pooling **256** → linear **128 → 64** → chuẩn hóa L2. Dùng GroupNorm cho batch nhỏ, GELU và dropout 0.2 ở embedding head. Vòng thử này dùng cross-entropy với đầu cosine, AdamW và 40 epoch cố định. SupCon là thử nghiệm tiếp theo cần batch có cặp cùng người, ưu tiên khác phiên.
+Để chừa một lượt test cho từng nhãn và ngày, dùng [train_rescnn64_80_20.ipynb](../odor_embed/train_rescnn64_80_20.ipynb). Notebook này bỏ ngày 19/11/2026 khỏi cả train và test.
 
 Để train và tạo gallery từ **toàn bộ lượt người hợp lệ**, chạy tại `D:\PBL6`:
 
