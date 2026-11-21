@@ -78,20 +78,7 @@
             </label>
           </div>
         </div>
-        <div class="sensor-grid" id="sensor-grid" aria-live="polite"></div>
-
-        <div class="chart-grid">
-          <article class="panel chart-panel">
-            <div class="panel-head"><div><p class="eyebrow">ADS1115</p><h2>Bốn kênh analog</h2></div><span>V</span></div>
-            <canvas id="analog-chart" role="img" aria-label="Biểu đồ bốn kênh analog theo thời gian"></canvas>
-            <div class="legend" id="analog-legend"></div>
-          </article>
-          <article class="panel chart-panel">
-            <div class="panel-head"><div><p class="eyebrow">BME688</p><h2>Môi trường & khí</h2></div><span>Chuẩn hóa hiển thị</span></div>
-            <canvas id="environment-chart" role="img" aria-label="Biểu đồ dữ liệu BME688 theo thời gian"></canvas>
-            <div class="legend" id="environment-legend"></div>
-          </article>
-        </div>
+        <div class="signal-chart-grid" id="realtime-chart-grid" aria-live="polite"></div>
 
         <div class="lower-grid">
           <article class="panel">
@@ -130,7 +117,7 @@
         <div class="phase-track" id="phase-track" aria-label="Tiến trình các giai đoạn"></div>
 
         <div class="section-heading collection-heading">
-          <div><p class="eyebrow">Quan sát khi thu</p><h2>6 biểu đồ realtime</h2><small>4 kênh analog, BME688 Gas và Nhiệt độ. Độ ẩm/áp suất vẫn được ghi trong raw nhưng ẩn khỏi màn hình này.</small></div>
+          <div><p class="eyebrow">Quan sát khi thu</p><h2>8 biểu đồ realtime</h2><small>4 kênh analog và đầy đủ BME688 Gas, nhiệt độ, độ ẩm, áp suất.</small></div>
           <label class="compact-field">Cửa sổ
             <select id="control-window-select">
               <option value="120">2 phút</option><option value="600" selected>10 phút</option><option value="1800">30 phút</option>
@@ -140,14 +127,21 @@
         <div class="collection-chart-grid" id="collection-chart-grid"></div>
 
         <article class="panel session-config">
-          <div class="panel-head"><div><p class="eyebrow">Cấu hình phiên</p><h2>Thông số đang được áp dụng</h2></div><span>Chỉ đọc · MCU/Core</span></div>
+          <div class="panel-head"><div><p class="eyebrow">Cấu hình phiên</p><h2>Thời gian các giai đoạn</h2></div><span>Áp dụng tại MONITOR</span></div>
           <div class="config-grid">
             <div><span>Baseline</span><strong id="config-baseline">60 s</strong></div>
             <div><span>Exposure</span><strong id="config-exposure">120 s</strong></div>
             <div><span>Recovery</span><strong id="config-recovery">60 s</strong></div>
             <div><span>Công suất bơm</span><strong id="config-pump">80%</strong></div>
           </div>
-          <p class="config-note" id="config-note">Firmware hiện dùng thời lượng cố định; web không thay đổi thông số giữa phiên.</p>
+          <div class="duration-form">
+            <label>Baseline (giây)<input id="duration-baseline" type="number" min="1" max="3600" step="1" value="60"></label>
+            <label>Exposure (giây)<input id="duration-exposure" type="number" min="1" max="3600" step="1" value="120"></label>
+            <label>Recovery (giây)<input id="duration-recovery" type="number" min="1" max="3600" step="1" value="60"></label>
+            <button class="primary" type="button" id="duration-save">Áp dụng thời gian</button>
+          </div>
+          <p class="config-note" id="config-note">Chỉ đổi khi đang MONITOR và MCU/core phải xác nhận.</p>
+          <div class="action-feedback" id="duration-feedback" aria-live="polite"></div>
         </article>
 
         <div class="control-layout">
@@ -166,6 +160,7 @@
                 <button class="danger-ghost" type="button" data-command="abort">Hủy lượt</button>
               </div>
             </div>
+            <div class="action-feedback" id="collection-feedback" aria-live="polite"></div>
             <div class="stop-row">
               <div><strong>Phần cứng</strong><small>Tắt/bật lại bơm và van; web server và log vẫn chạy.</small></div>
               <div class="hardware-buttons">
@@ -181,6 +176,7 @@
             <button type="button" id="name-button" data-command="name">Lưu tên mẫu</button>
             <label>Ghi chú<textarea id="sample-notes" rows="4" maxlength="1000" placeholder="Điều kiện, người thao tác, quan sát..."></textarea></label>
             <button type="button" id="notes-button" data-command="notes">Lưu ghi chú</button>
+            <div class="action-feedback" id="metadata-feedback" aria-live="polite"></div>
           </article>
         </div>
 
@@ -192,6 +188,7 @@
             <button type="button" id="copy-trial-button">Sao chép trial_id</button>
             <button class="primary" type="button" id="predict-saved-button">Kiểm tra danh tính</button>
           </div>
+            <div class="action-feedback" id="saved-feedback" aria-live="polite"></div>
         </article>
 
         <div class="control-layout">

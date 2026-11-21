@@ -1,8 +1,8 @@
 {
-  "mode": "demo",
+  "mode": "hardware",
   "interface": "web",
   "hardware": {
-    "port": "COM_THUC_TE",
+    "port": "COM11",
     "serial_kind": "native-cdc"
   },
   "web": {

@@ -61,31 +61,6 @@ function initNavigation() {
   });
 }
 
-function renderSensors(snapshot) {
-  const grid = byId("sensor-grid");
-  const analogCards = snapshot.sensors.slice(0, 4).map(sensor => {
-    const card = document.createElement("article");
-    card.className = "sensor-card";
-    const quality = sensor.quality?.status || "—";
-    const decimals = sensor.unit === "hPa" ? 1 : sensor.unit === "%RH" || sensor.unit === "°C" ? 2 : 4;
-    card.innerHTML = `<header><span>${escapeHtml(sensor.label)}</span><span class="quality-pill ${quality === "STABLE" ? "" : "warn"}">${escapeHtml(quality)}</span></header>
-      <strong>${formatNumber(sensor.value, decimals)} <small>${escapeHtml(sensor.unit)}</small></strong>
-      <small>${sensor.adc_count !== null && sensor.adc_count !== undefined ? `${escapeHtml(sensor.adc_count)} count · ` : ""}valid ${escapeHtml(sensor.quality?.valid_n ?? 0)}/${escapeHtml(sensor.quality?.n ?? 0)}</small>`;
-    return card;
-  });
-  const bmeSignals = snapshot.sensors.slice(4);
-  const bme = document.createElement("article");
-  bme.className = "sensor-card bme-card";
-  const qualityStates = bmeSignals.map(sensor => sensor.quality?.status || "—");
-  const bmeQuality = qualityStates.every(value => value === "STABLE") ? "STABLE" : qualityStates.find(value => value !== "STABLE") || "—";
-  const metrics = bmeSignals.map(sensor => {
-    const decimals = sensor.unit === "hPa" ? 1 : sensor.unit === "%RH" || sensor.unit === "°C" ? 2 : 3;
-    return `<div class="bme-metric"><span>${escapeHtml(sensor.label.replace("BME688 · ", ""))}</span><strong>${formatNumber(sensor.value, decimals)} <small>${escapeHtml(sensor.unit)}</small></strong><small>valid ${escapeHtml(sensor.quality?.valid_n ?? 0)}/${escapeHtml(sensor.quality?.n ?? 0)}</small></div>`;
-  }).join("");
-  bme.innerHTML = `<header><span>BME688 · cảm biến thứ 5 · I²C</span><span class="quality-pill ${bmeQuality === "STABLE" ? "" : "warn"}">${escapeHtml(bmeQuality)}</span></header><div class="bme-metrics">${metrics}</div>`;
-  grid.replaceChildren(...analogCards, bme);
-}
-
 function renderWarnings(snapshot) {
   byId("warning-count").textContent = String(snapshot.warnings.length);
   const list = byId("warning-list");
@@ -136,6 +111,12 @@ function renderConfiguration(snapshot) {
   byId("config-exposure").textContent = `${formatNumber(config.exposure_s, 0)} s`;
   byId("config-recovery").textContent = `${formatNumber(config.recovery_s, 0)} s`;
   byId("config-pump").textContent = `${formatNumber(config.pump_pwm_pct, 0)}%`;
+  [["duration-baseline", config.baseline_s], ["duration-exposure", config.exposure_s],
+   ["duration-recovery", config.recovery_s]].forEach(([id, value]) => {
+    const input = byId(id);
+    if (input && document.activeElement !== input && value !== null && value !== undefined) input.value = String(value);
+  });
+  byId("duration-save").disabled = !config.runtime_editable;
   byId("config-note").textContent = config.runtime_editable
     ? "Cấu hình chỉ được áp dụng khi core/MCU xác nhận trước khi bắt đầu lượt."
     : `Cấu hình ${config.source || "core"} đang khóa; web không thay đổi thời gian hoặc PWM giữa phiên.`;
@@ -214,7 +195,6 @@ function renderOverview(snapshot) {
   byId("session-path").textContent = snapshot.writer?.path || "—";
   byId("last-update").textContent = `Cập nhật ${new Date().toLocaleTimeString("vi-VN")}`;
   renderModelStatus(snapshot.model);
-  renderSensors(snapshot);
   renderWarnings(snapshot);
   renderPhase(snapshot);
   renderConfiguration(snapshot);
@@ -306,34 +286,29 @@ function drawChart(canvas, definitions, normalized, showPhases = false) {
 
 function drawCharts(snapshot) {
   state.snapshot = snapshot;
-  const analog = snapshot.sensors.slice(0, 4).map(item => ({signal: item.signal, label: item.label}));
-  const environment = snapshot.sensors.slice(4).map(item => ({signal: item.signal, label: item.label}));
-  chartLegend("analog-legend", analog);
-  chartLegend("environment-legend", environment);
-  drawChart(byId("analog-chart"), analog, false);
-  drawChart(byId("environment-chart"), environment, true);
-  const visibleSignals = new Set(["tgs2602_voltage_v", "mq3_1_voltage_v", "mq135_2_voltage_v",
-    "mq3_2_voltage_v", "gas_resistance_ohm", "temperature_c"]);
-  const collectionSignals = snapshot.sensors.filter(item => visibleSignals.has(item.signal))
-    .map((item, index) => ({...item, colorIndex: index}));
-  const grid = byId("collection-chart-grid");
-  if (grid.children.length !== collectionSignals.length) {
-    grid.innerHTML = collectionSignals.map((item, index) => `<article class="panel chart-panel mini-chart" id="collection-card-${index}">
+  renderSignalCharts("realtime-chart-grid", "realtime", snapshot.sensors);
+  renderSignalCharts("collection-chart-grid", "collection", snapshot.sensors);
+}
+
+function renderSignalCharts(gridId, prefix, signals) {
+  const grid = byId(gridId);
+  if (!grid) return;
+  if (grid.children.length !== signals.length) {
+    grid.innerHTML = signals.map((item, index) => `<article class="panel chart-panel mini-chart" id="${prefix}-card-${index}">
       <div class="panel-head"><h2>${escapeHtml(item.label)}</h2><span>${escapeHtml(item.unit)}</span></div>
-      <div class="mini-reading"><strong id="collection-value-${index}">—</strong><span>${escapeHtml(item.unit)}</span></div>
-      <div class="mini-quality" id="collection-quality-${index}">Đang chờ dữ liệu</div>
-      <canvas id="collection-chart-${index}" role="img" aria-label="Biểu đồ ${escapeHtml(item.label)}"></canvas>
+      <div class="mini-reading"><strong id="${prefix}-value-${index}">—</strong><span>${escapeHtml(item.unit)}</span></div>
+      <div class="mini-quality" id="${prefix}-quality-${index}">Đang chờ dữ liệu</div>
+      <canvas id="${prefix}-chart-${index}" role="img" aria-label="Biểu đồ ${escapeHtml(item.label)}"></canvas>
     </article>`).join("");
   }
-  collectionSignals.forEach((definition, index) => {
-    const card = byId(`collection-card-${index}`);
-    card.style.setProperty("--sensor-color", chartColors[index]);
+  signals.forEach((definition, index) => {
+    byId(`${prefix}-card-${index}`).style.setProperty("--sensor-color", chartColors[index % chartColors.length]);
     const decimals = definition.unit === "hPa" ? 2 : definition.unit === "%RH" || definition.unit === "°C" ? 3 : 4;
-    byId(`collection-value-${index}`).textContent = formatNumber(definition.value, decimals);
+    byId(`${prefix}-value-${index}`).textContent = formatNumber(definition.value, decimals);
     const quality = definition.quality || {};
     const count = definition.adc_count !== null && definition.adc_count !== undefined ? ` · ${definition.adc_count} ct` : "";
-    byId(`collection-quality-${index}`).textContent = `${quality.status || "—"}${count} · valid ${quality.valid_n ?? 0}/${quality.n ?? 0}`;
-    drawChart(byId(`collection-chart-${index}`), [definition], false, true);
+    byId(`${prefix}-quality-${index}`).textContent = `${quality.status || "—"}${count} · valid ${quality.valid_n ?? 0}/${quality.n ?? 0}`;
+    drawChart(byId(`${prefix}-chart-${index}`), [{...definition, colorIndex: index}], false, false);
   });
 }
 
@@ -377,6 +352,27 @@ function renderIdentity(result) {
   const scoreText = result.confidence !== undefined
     ? `Độ tin cậy giả lập ${Math.round(Number(rawScore) * 100)}%`
     : `Cosine ${formatNumber(result.similarity, 4)} · margin ${formatNumber(result.margin, 4)}`;
+  const ranking = Array.isArray(result.ranking) ? result.ranking.map((item, index) => {
+    const score = Number(item.similarity);
+    const bounded = Math.max(-1, Math.min(1, Number.isFinite(score) ? score : 0));
+    const position = (bounded + 1) * 50;
+    const segmentLeft = bounded < 0 ? position : 50;
+    const segmentWidth = Math.abs(bounded) * 50;
+    const direction = bounded < 0 ? "negative" : "positive";
+    const rank = Number.isInteger(item.rank) ? item.rank : index + 1;
+    return `<div class="identity-rank-item ${rank === 1 ? "top" : ""}">
+      <span class="rank-number">${rank}</span>
+      <strong>${escapeHtml(item.label)}</strong>
+      <div class="score-scale ${direction}" aria-label="${escapeHtml(item.label)}: cosine ${formatNumber(score, 4)} trên thang âm 1 đến 1">
+        <div class="score-scale-head"><span>Cosine</span><strong>${formatNumber(score, 4)}</strong></div>
+        <div class="rank-track"><em></em><i style="left:${segmentLeft}%;width:${segmentWidth}%"></i><b style="left:${position}%"></b></div>
+        <div class="score-scale-labels"><span>-1</span><span>0</span><span>1</span></div>
+      </div>
+    </div>`;
+  }).join("") : "";
+  const allLabels = ranking
+    ? `<section class="identity-ranking"><div class="identity-ranking-head"><h3>Điểm của tất cả label</h3><span>${result.ranking.length} label · cao đến thấp</span></div>${ranking}</section>`
+    : "";
   byId("identity-result").innerHTML = `<p class="eyebrow">Kết quả gần nhất · ${escapeHtml(result.model_backend)}</p>
     <div class="identity-answer ${unknown || rankedOnly ? "unknown" : ""}">
       <strong>${escapeHtml(answer)}</strong>
@@ -384,7 +380,7 @@ function renderIdentity(result) {
       <div class="confidence-meter"><i style="width:${width}%"></i></div>
       <span>${escapeHtml(scoreText)} · ${escapeHtml(result.reason)}</span>
       <small>Model ${escapeHtml(result.model_id)} · ${escapeHtml((result.warnings || []).length)} cảnh báo tiền xử lý</small>
-    </div>`;
+    </div>${allLabels}`;
 }
 
 function renderComparison(result) {
@@ -431,9 +427,15 @@ async function loadTrials() {
     const payload = await api("/api/trials");
     state.trials = payload.trials;
     const eligible = payload.trials.filter(item => item.status === "COMPLETE" && item.export_finalized);
+    if (state.savedTrial) {
+      const finalized = payload.trials.find(item => item.trial_id === state.savedTrial.trial_id);
+      if (finalized) state.savedTrial = finalized;
+    }
     byId("trial-options").innerHTML = eligible.map(item => `<option value="${escapeHtml(item.trial_id)}">${escapeHtml(item.name || "Chưa đặt tên")} · COMPLETE · QC ${escapeHtml(item.quality || "NOT_EVALUATED")}</option>`).join("");
     renderLibrary();
-  } catch { /* Catalog may be empty while the first trial is open. */ }
+    if (state.savedTrial) renderSavedTrial();
+    return payload.trials;
+  } catch { return state.trials; /* Catalog may be empty while the first trial is open. */ }
 }
 
 function renderLibrary() {
@@ -467,6 +469,13 @@ async function sendCommand(action, argument = "") {
   return result;
 }
 
+function feedback(id, message, error = false) {
+  const target = byId(id);
+  if (!target) return;
+  target.textContent = message;
+  target.classList.toggle("error", error);
+}
+
 function initControls() {
   document.querySelectorAll("[data-command]").forEach(button => {
     button.addEventListener("click", async () => {
@@ -479,14 +488,33 @@ function initControls() {
       if (action === "next" && state.snapshot?.trial) {
         state.pendingSavedTrial = {...state.snapshot.trial};
       }
-      try { await sendCommand(action, argument); }
-      catch (error) { byId("global-alert").hidden = false; byId("global-alert").textContent = error.message; }
+      const feedbackId = ["name", "notes"].includes(action) ? "metadata-feedback" : "collection-feedback";
+      try {
+        await sendCommand(action, argument);
+        const messages = {name: "Đã gửi yêu cầu lưu tên mẫu.", notes: "Đã gửi yêu cầu lưu ghi chú.",
+          next: "Đã gửi yêu cầu lưu mẫu; đang chờ core xác nhận.", abort: "Đã gửi yêu cầu hủy lượt."};
+        feedback(feedbackId, messages[action] || `Đã gửi lệnh ${action}.`);
+      } catch (error) {
+        feedback(feedbackId, error.message, true);
+        byId("global-alert").hidden = false; byId("global-alert").textContent = error.message;
+      }
     });
+  });
+  byId("duration-save").addEventListener("click", async () => {
+    const values = ["duration-baseline", "duration-exposure", "duration-recovery"].map(id => Number(byId(id).value));
+    if (values.some(value => !Number.isFinite(value) || value < 1 || value > 3600)) {
+      feedback("duration-feedback", "Mỗi thời gian phải nằm trong khoảng 1–3600 giây.", true); return;
+    }
+    try {
+      await sendCommand("configure", values.join(","));
+      const modelWarning = values[0] === 60 && values[1] === 120 ? "" : " Lưu ý: model hiện tại chỉ nhận baseline 60 s và exposure 120 s.";
+      feedback("duration-feedback", `Đã gửi cấu hình ${values.join(" / ")} giây; đang chờ MCU/core xác nhận.${modelWarning}`);
+    } catch (error) { feedback("duration-feedback", error.message, true); }
   });
   byId("copy-trial-button").addEventListener("click", async () => {
     const value = state.savedTrial?.trial_id || "";
-    try { await navigator.clipboard.writeText(value); byId("copy-trial-button").textContent = "Đã sao chép"; }
-    catch { byId("identity-sample").value = value; }
+    try { await navigator.clipboard.writeText(value); byId("copy-trial-button").textContent = "Đã sao chép"; feedback("saved-feedback", "Đã sao chép trial_id vào clipboard."); }
+    catch { byId("identity-sample").value = value; feedback("saved-feedback", "Không truy cập được clipboard; trial_id đã được điền vào ô dự đoán.", true); }
   });
   byId("predict-saved-button").addEventListener("click", () => {
     byId("identity-sample").value = state.savedTrial?.trial_id || "";

@@ -3,6 +3,7 @@ from collections import deque
 from copy import deepcopy
 import hashlib
 import json
+import math
 import queue
 import uuid
 
@@ -26,8 +27,8 @@ class DeviceState:
 class HardwareEngine:
     def __init__(self,config,clock,recorder,options,transport_factory=None):
         self.config,self.clock,self.recorder=config,clock,recorder
-        if (config.baseline_s,config.exposure_s,config.recovery_s,config.sampling_hz)!=(60,120,60,1):
-            raise ValueError('Hardware firmware v1 requires the approved 60/120/60 s, 1 Hz profile')
+        if config.sampling_hz != 1:
+            raise ValueError('Hardware firmware v1 requires the approved 1 Hz profile')
         self.mode=recorder.mode
         self.state=DeviceState()
         self.context={'phase':'OFF','context_epoch':0,'segment_id':0,'trial_id':None,
@@ -62,7 +63,7 @@ class HardwareEngine:
         return bool(self.device.last_sample_at is not None and now-self.device.last_sample_at<3
             and health['last_written_seq'] is not None and health['last_written_seq']>=self.device.last_seq-1
             and health['last_sync_mono_s'] is not None and now-health['last_sync_mono_s']<=max(3,self.config.checkpoint_s*2)
-            and now-self.last_control_tick<1 and now-self.last_ui_read<3
+            and now-self.last_control_tick<1
             and not self.fault_reason and self.startup=='ACTIVE')
 
     def _event(self,event,effective_mono_s=None,**details):
@@ -92,7 +93,7 @@ class HardwareEngine:
                     'os_t_requested','os_h_requested','os_p_requested','os_t_applied','os_h_applied','os_p_applied',
                     'heater_res_heat_readback','heater_gas_wait_readback','heater_idac_readback','heater_applied_ms',
                     'bme_chip_id','bme_variant_id','pump_pin','valve_pin','pump_pwm_hz','pump_pwm_bits',
-                    'sample_interval_ms','lease_ms')
+                     'sample_interval_ms','lease_ms','baseline_s','exposure_s','recovery_s')
             config['device_configuration']={key:packet.get(key) for key in fields}
             self.hardware_config_hash=hashlib.sha256(json.dumps(config,sort_keys=True).encode()).hexdigest()
             self.recorder.submit('session_metadata',{'device_hello':packet,'config':config,
@@ -286,7 +287,10 @@ class HardwareEngine:
                          'serial_irq_enabled_before','serial_irq_pending_before','serial_irq_enabled_after_init','serial_irq_owned_mask')})
                     reason+=f' | port={self.device.options.port} kind={self.device.options.kind} | state={self.context}'
                 else:
-                    reason=HELP if command=='help' else str(self.context) if command!='durations' else 'baseline=60s exposure=120s recovery=60s'
+                    reason=HELP if command=='help' else str(self.context) if command!='durations' else (
+                        f"baseline={self.context.get('baseline_s', self.config.baseline_s)}s "
+                        f"exposure={self.context.get('exposure_s', self.config.exposure_s)}s "
+                        f"recovery={self.context.get('recovery_s', self.config.recovery_s)}s")
                 return {**result,'accepted':True,'reason':reason}
             if command in ('name','notes') and argument:
                 trial=self.trials.get(self.context.get('trial_id'))
@@ -299,14 +303,13 @@ class HardwareEngine:
                 return {**result,'accepted':None,'reason':'priority OFF requested; awaiting MCU confirmation'}
             verbs={'start':'BASELINE','expose':'EXPOSURE','recover':'RECOVERY','finish':'WAIT_NAME',
                    'abort':'WAIT_NAME','next':'MONITOR','pause':'OFF','resume':'MONITOR',
-                   'extend':'RECOVERY','mark':None}
-            if command not in verbs or (command not in ('extend','mark') and argument):
+                    'extend':'RECOVERY','mark':None,'configure':'MONITOR'}
+            if command not in verbs or (command not in ('extend','mark','configure') and argument):
                 return result
             wire_argument=''
             if command=='start':
                 wire_argument=str(uuid.uuid4())
             elif command=='extend':
-                import math
                 try:
                     seconds=float(argument)
                     if not math.isfinite(seconds) or not 0<seconds<=self.config.max_extend_s:
@@ -316,9 +319,17 @@ class HardwareEngine:
                         raise ValueError()
                 except ValueError:
                     return {**result,'reason':'extend needs finite positive seconds <= 3600'}
+            elif command=='configure':
+                try:
+                    values=[float(value) for value in argument.split(',')]
+                    if len(values)!=3 or any(not math.isfinite(value) or not 1<=value<=3600 for value in values):
+                        raise ValueError()
+                    wire_argument=','.join(str(round(value*1000)) for value in values)
+                except ValueError:
+                    return {**result,'reason':'configure needs baseline,exposure,recovery in [1, 3600] seconds'}
             elif command=='mark' and not argument:
                 return result
-            self.pending=self.device.request(command.upper(),wire_argument,verbs[command])
+            self.pending=self.device.request('CONFIG' if command=='configure' else command.upper(),wire_argument,verbs[command])
             self.pending_text=text
             return {**result,'accepted':None,'reason':f'queued request {self.pending.request_id}; awaiting MCU ACK'}
         except Exception as error:
@@ -342,6 +353,8 @@ class HardwareEngine:
             'profile_readback_ok':hello.get('profile_readback_ok')}
         return {'mode':self.mode,'now':now,'phase':self.state.phase,'context_epoch':packet['context_epoch'],
             'segment_id':packet['segment_id'],'trial_id':packet.get('trial_id'),
+            'baseline_s':packet.get('baseline_s'),'exposure_s':packet.get('exposure_s'),
+            'recovery_s':packet.get('recovery_s'),
             'phase_elapsed_s':max(0,now-packet['phase_started_ms']/1000),
             'pump_pwm_pct':packet['pump_pwm_pct'],'valve_energized':packet['valve_energized'],
             'air_path_commanded':packet['air_path_commanded'],

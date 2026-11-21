@@ -179,19 +179,32 @@ def test_reset_and_handshake_failures_never_auto_restart(tmp_path):
     assert not any(b' BEGIN ' in w for w in bad.writes)
 
 
-def test_health_requires_ui_receive_write_and_sync(tmp_path,monkeypatch):
+def test_health_does_not_depend_on_browser_but_requires_receive_write_and_sync(tmp_path,monkeypatch):
     session,transport=make_session(tmp_path)
     try:
         ready(session)
         wait_until(lambda: session.engine.healthy())
         session.engine.last_ui_read=-100
-        assert not session.engine.healthy()
-        session.engine.note_ui_read()
+        assert session.engine.healthy()  # Closing the browser must not stop MCU PING.
         health=session.engine.recorder.health()
         monkeypatch.setattr(session.engine.recorder,'health',lambda:{**health,'last_sync_mono_s':-100})
         assert not session.engine.healthy()
     finally:
         session.request_stop('test'); assert session.finished.wait(4)
+
+
+def test_hardware_duration_configuration_is_sent_and_acknowledged(tmp_path):
+    session, transport = make_session(tmp_path)
+    try:
+        ready(session)
+        assert session.post("configure 2,3,4")
+        wait_until(lambda: session.commands.unfinished_tasks == 0 and session.engine.pending is None
+                   and session.snapshot().get("baseline_s") == 2)
+        snapshot = session.snapshot()
+        assert (snapshot["baseline_s"], snapshot["exposure_s"], snapshot["recovery_s"]) == (2, 3, 4)
+        assert any(b" CONFIG 2000,3000,4000\n" in command for command in transport.writes)
+    finally:
+        session.request_stop("test"); assert session.finished.wait(4)
 
 
 def test_emulated_two_trials_feed_existing_qt_and_recorder(qapp,tmp_path):

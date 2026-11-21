@@ -1,6 +1,11 @@
 # USB dataset protocol v1
 
-Firmware kind `robonose_dataset_s3`, version `3.0.0`; wire **`robonose.usb.v1`**; CSV schema **`robonose.dataset.v1`**. ControlTest 2.1 is a historical reference, not a compatible protocol. Hardware has one phase/deadline owner: the MCU. Host hardware code projects `DeviceState` and never runs the simulation StateMachine.
+Firmware kind `robonose_dataset_s3`, current version `3.1.0`; host also accepts
+the existing `3.0.0` firmware in legacy hardware mode. Both use wire
+**`robonose.usb.v1`** and CSV schema **`robonose.dataset.v1`**. ControlTest 2.1
+is a historical reference, not a compatible protocol. Hardware has one
+phase/deadline owner: the MCU. Host hardware code projects `DeviceState` and
+never runs the simulation StateMachine.
 
 ## Framing
 
@@ -30,6 +35,7 @@ Host → device: bounded ASCII, normally fewer than 192 bytes including LF. Firm
 ```text
 HELLO
 @<id> <boot> <session_uuid> BEGIN <begin_ticket>
+@<id> <boot> <session_uuid> CONFIG <baseline_ms>,<exposure_ms>,<recovery_ms>
 @<id> <boot> <session_uuid> START <trial_uuid>
 @<id> <boot> <session_uuid> EXPOSE
 @<id> <boot> <session_uuid> RECOVER
@@ -47,6 +53,19 @@ ALL_OFF
 
 OFF/FAULT bypass boot/session/ID checks and the normal RX queue. OFF ends a clean session; FAULT/emergency ALL_OFF latch error. Unbound ALL_OFF is a last best effort and cannot provide a normal correlated OFF ACK.
 
+`CONFIG` chỉ được chấp nhận ở `MONITOR`, trước khi bắt đầu lượt. Ba thời lượng
+đều là millisecond nguyên trong khoảng 1000–3600000. ACK/state sau đó công bố
+`baseline_s`, `exposure_s`, `recovery_s`; cấu hình giữ nguyên cho các lượt sau
+trong cùng phiên nhưng trở về mặc định 60/120/60 sau khi MCU reset. Firmware cũ
+không có ba trường này sẽ khiến web khóa phần chỉnh thời gian thay vì giả định
+đã áp dụng. ResCNN64 hiện tại vẫn yêu cầu cửa sổ 60 s baseline và 120 s exposure;
+cấu hình khác chỉ dùng để thu/thử nghiệm cho đến khi model tương ứng được train.
+Firmware 3.0.0 revision an toàn `usb_irq_handoff.v3` hoặc revision đang có trên
+board người dùng `session_durations.v4` không công bố hợp đồng `CONFIG` mới;
+host vẫn cho phép thu hardware bằng chuỗi pha do firmware cũ sở hữu,
+khóa form chỉnh thời gian và không gửi lệnh cấu hình tự động. Revision v2 có
+lỗi USB ISR đã biết và các version ngoài allowlist vẫn bị từ chối trước BEGIN.
+
 ## Handshake and automatic BEGIN
 
 1. MCU boot/reset sets commanded outputs OFF before USB/sensors/tasks. Serial Monitor/HELLO alone cannot start the pump.
@@ -58,7 +77,7 @@ OFF/FAULT bypass boot/session/ID checks and the normal RX queue. OFF ends a clea
 Full HELLO is metadata. Configuration hash excludes connection ticket/boot/time/session identity and includes requested/applied measurement settings. Board/flash/PSRAM are never inferred from this handshake.
 
 The current fix identifies itself in HELLO as
-`firmware_revision="usb_irq_handoff.v3"`, retaining firmware version 3.0.0
+`firmware_revision="usb_irq_handoff.v3"`, using firmware version 3.1.0
 and the v1 wire/CSV schema. It includes the earlier watchdog timing and IDF
 stream fixes. Hardware `info` displays revision, actual serial transport,
 initialization status and IRQ snapshots so the loaded build can be checked.
@@ -92,7 +111,7 @@ fields do not identify physical flash/PSRAM or guarantee electrical USB health.
 
 ## ACK, events, retry and context
 
-ACK fields: type, request_id, accepted/reason, applied_ms, barrier_seq and state snapshot: phase, context_epoch, segment_id, phase_started_ms, deadline_ms/null, trial_id/null/index/status, PWM, valve, air_path_commanded. `device_ms` is serialization time; applied_ms is command effect time. Acceptance is not reported before ACK. Invalid commands leave route/deadline unchanged apart from natural timer expiry.
+ACK fields: type, request_id, accepted/reason, applied_ms, barrier_seq and state snapshot: phase, context_epoch, segment_id, phase_started_ms, deadline_ms/null, trial_id/null/index/status, PWM, valve, air_path_commanded, baseline_s, exposure_s and recovery_s. `device_ms` is serialization time; applied_ms is command effect time. Acceptance is not reported before ACK. Invalid commands leave route/deadline unchanged apart from natural timer expiry.
 
 Correlated ACKs require a positive 32-bit integer request_id, boolean accepted, string reason and nonnegative integer applied_ms/barrier_seq. applied_ms cannot be later than device_ms. Ordinary ACKs and active telemetry require the exact host session UUID; empty/missing session IDs are not active-session wildcards. Idle preflight and old idle uncorrelated ACKs retain their documented exception. During priority OFF, terminal CLOSED/ERROR events and the correlated OFF ACK may report the MCU's preceding/unbound session, because OFF itself bypasses that scope; boot identity and OFF output/context checks still apply.
 
@@ -121,7 +140,7 @@ Increasing seq is canonical. Gaps are logged without backfill. Duplicate/reorder
 
 ## Health/failure policy
 
-PING every 2 s requires valid receive, writer progress, recent sync, controller and UI snapshot access. Invalid commands never renew the 15 s MCU lease. Expired lease, output failure, task stall or queue failure latch OFF. Firmware watches sensor/TX progress at 2 s and three consecutive bad required scans. These are configured software thresholds, not measured timing guarantees.
+PING every 2 s requires valid receive, writer progress, recent sync and controller access. Browser polling is not part of this health contract: closing or refreshing the web tab does not stop heartbeat/acquisition. Invalid commands never renew the 15 s MCU lease. Expired lease, output failure, task stall or queue failure latch OFF. Firmware watches sensor/TX progress at 2 s and three consecutive bad required scans. These are configured software thresholds, not measured timing guarantees.
 
 The control loop refreshes its timestamp after command handling and the TX
 progress snapshot. Age checks guard against a newer timestamp from another

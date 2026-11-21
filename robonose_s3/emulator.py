@@ -33,7 +33,9 @@ class EmulatedTransport:
         return {**self.state.context(self.clock.now()),'device_ms':round(self.clock.now()*1000),
             'phase_started_ms':round(self.state.phase_started*1000),
             'deadline_ms':None if self.state.deadline is None else round(self.state.deadline*1000),
-            'trial_index':self.state.trial_count,'trial_status':self.state.trial.status if self.state.trial else 'ACTIVE'}
+            'trial_index':self.state.trial_count,'trial_status':self.state.trial.status if self.state.trial else 'ACTIVE',
+            'baseline_s':self.state.durations['baseline'],'exposure_s':self.state.durations['exposure'],
+            'recovery_s':self.state.durations['recovery']}
 
     def hello(self):
         return {**self._common('hello'),**self.context(),'firmware_version':FIRMWARE,
@@ -136,7 +138,13 @@ class EmulatedTransport:
             accepted=True; reason='accepted'
         else:
             command=verb.lower()
-            if verb=='START':
+            if verb=='CONFIG':
+                try:
+                    values=[int(value)/1000 for value in argument.split(',')]
+                    result=self.state.command('configure '+','.join(str(value) for value in values),now)
+                except ValueError:
+                    result={'accepted':False,'reason':'duration_config_out_of_bounds'}
+            elif verb=='START':
                 result=self.state.command('start',now)
                 if result['accepted']:
                     old=self.state.trial.trial_id; self.state.trial.trial_id=argument

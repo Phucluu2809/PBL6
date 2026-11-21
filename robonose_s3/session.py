@@ -120,6 +120,9 @@ class Engine:
                          now - health["last_sync_mono_s"] <= max(3, self.config.checkpoint_s * 2)
                          and not self.state.closed)
         return {"mode": "SIMULATED", "now": now, **self.state.context(now),
+                "baseline_s": self.state.durations["baseline"],
+                "exposure_s": self.state.durations["exposure"],
+                "recovery_s": self.state.durations["recovery"],
                 "remaining_s": max(0, self.state.deadline - now) if self.state.deadline is not None else None,
                 "trial": self.state.trial.snapshot() if self.state.trial else None,
                 "latest": latest, "history": tuple(self.history), "events": tuple(self.recent_events),

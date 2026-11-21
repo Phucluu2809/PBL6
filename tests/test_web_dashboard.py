@@ -35,7 +35,7 @@ def test_mock_predictor_unknown_and_rank_are_deterministic():
     assert [item["rank"] for item in first["ranking"]] == [1, 2, 3, 4]
 
 
-def test_web_serves_four_functions_and_uses_session_command_queue(tmp_path):
+def test_web_serves_main_functions_and_uses_session_command_queue(tmp_path):
     session = Session(tmp_path / "data/simulation")
     web = RoboNoseWebServer(session, tmp_path / "data/simulation", port=0)
     session.start()
@@ -46,8 +46,9 @@ def test_web_serves_four_functions_and_uses_session_command_queue(tmp_path):
         assert all(value in page for value in (
             "Tín hiệu & thiết bị", "Điều khiển thu mẫu", "Dự đoán danh tính",
             "So sánh tham chiếu", "Danh sách mẫu"))
+        assert "Kho mẫu chuẩn" not in page
         assert "5 cảm biến vật lý" in page
-        assert "6 biểu đồ realtime" in page
+        assert "8 biểu đồ realtime" in page
         assert "Kéo dài recovery" not in page
         snapshot = get_json(base, "/api/snapshot?window=120")
         assert snapshot["mode"] == "SIMULATED" and len(snapshot["sensors"]) == 8
@@ -56,7 +57,7 @@ def test_web_serves_four_functions_and_uses_session_command_queue(tmp_path):
         assert snapshot["configuration"] == {
             "baseline_s": 60, "exposure_s": 120, "recovery_s": 60,
             "pump_pwm_pct": 80, "sampling_hz": 1,
-            "runtime_editable": False, "source": "SIMULATION_CONFIG"}
+            "runtime_editable": True, "source": "SIMULATION_CONFIG"}
         assert snapshot["actions"]["start"] is True
         status, queued = post_json(base, "/api/commands", {
             "action": "start", "request_id": "web-start-1"})
@@ -121,7 +122,7 @@ def test_comparison_requires_one_to_four_unique_candidates():
 
 
 def test_trial_catalog_reports_saved_qc_status(tmp_path):
-    folder = tmp_path / "2026-11-19" / "session" / "trials" / "sample"
+    folder = tmp_path / "2026-11-19" / "2026-11-19" / "session" / "trials" / "sample"
     folder.mkdir(parents=True)
     (folder / "metadata.json").write_text(json.dumps({
         "trial_id": "11111111-1111-4111-8111-111111111111",

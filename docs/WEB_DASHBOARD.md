@@ -18,6 +18,12 @@ Các trường chính: `mode` (`demo` hoặc `hardware`), `interface` (`web` ho�
 model. Mặc định là demo để không mở COM hay bật tải ngoài ý muốn. Khi chọn
 hardware, startup hợp lệ vẫn tự bật bơm PWM 80% theo hợp đồng firmware.
 
+Host chấp nhận firmware 3.0.0 revision `usb_irq_handoff.v3` và revision hiện có
+`session_durations.v4` để tiếp tục thu hardware mà chưa cần nạp lại.
+Trong chế độ này ba thời lượng cố định 60/120/60 và form chỉnh thời gian bị
+khóa. Firmware 3.1.0 mới hỗ trợ `CONFIG`; web tự nhận biết từ HELLO, không yêu
+cầu người dùng chọn version bằng tay.
+
 Web và model luôn ưu tiên catalog `data/hardware`; `data/simulation` chỉ là
 nguồn bổ sung khi chạy demo. Trang **Danh sách mẫu** hiển thị tên, trial UUID,
 nguồn, COMPLETE/ABORTED, QC, thời gian và thao tác sao chép/dự đoán.
@@ -60,22 +66,30 @@ chủ ý:
 Chỉ mở web trong mạng tin cậy. Bản hiện tại chưa có đăng nhập/TLS; mặc định
 bind `127.0.0.1` để không vô tình công khai điều khiển.
 
-## Bốn chức năng
+## Năm chức năng
 
 1. **Tín hiệu & thiết bị:** đúng 5 cảm biến vật lý: TGS2602, MQ3 #1,
-   MQ135 #2, MQ3 #2 và BME688. BME688 được gộp thành một card nhưng vẫn hiển
-   thị đủ Gas/T/RH/P, nên API/biểu đồ có tổng cộng 8 đại lượng.
+   MQ135 #2, MQ3 #2 và BME688. Tám đại lượng A0–A3, Gas, nhiệt độ, độ ẩm và
+   áp suất được tách thành tám biểu đồ riêng, có màu/đơn vị/thang chia rõ ràng.
+   Biểu đồ realtime chỉ vẽ đường tín hiệu, không chèn đường dọc chuyển pha.
 2. **Điều khiển thu mẫu:** các nút state-aware cho start/expose/recover/
-   finish/next/abort, name/notes, marker và log xác nhận. Web hiển thị cấu hình
-   60/120/60 giây và PWM 80% dạng chỉ đọc vì firmware hiện không có lệnh đổi
-   cấu hình giữa phiên. Lệnh terminal `extend <s>` cũ vẫn được giữ theo protocol
-   nhưng không còn xuất hiện trong web để tránh hiểu nhầm là cấu hình recovery.
+   finish/next/abort, name/notes, marker và log xác nhận. Trang thu mẫu cũng
+   hiển thị đủ tám biểu đồ riêng. Web cho chỉnh baseline/exposure/recovery ở
+   `MONITOR`; firmware xác nhận lệnh `CONFIG` trước khi giao diện báo đã lưu.
+   Firmware cũ không công bố các trường duration sẽ làm form bị khóa. PWM 80%
+   vẫn cố định. Các nút sao chép/lưu tên/lưu ghi chú/lưu mẫu có phản hồi ngay
+   dưới thao tác, không chỉ đổi chữ trên nút.
 3. **Dự đoán danh tính:** mặc định dùng `MockPredictor`. Khi chọn artifact
    ResCNN64, backend đọc trial `COMPLETE`, tạo embedding 64 chiều và so gallery.
    Artifact hiện tại chưa có ngưỡng Unknown nên trả `RANKED_ONLY`, không tự
    xác nhận người dù top-1 có điểm cao.
 4. **So sánh tham chiếu:** cùng encoder ResCNN64 so X với 1–4 candidate rồi
    xếp hạng cosine; giữ `input_order`, model/version và cảnh báo QC/tiền xử lý.
+5. **Danh sách mẫu:** quét đệ quy các phiên trong `data/hardware`, kể cả layout
+   ngày lồng cũ, khử trùng theo trial UUID và ưu tiên hardware trước nguồn khác.
+Model ResCNN64 hiện tại được train với đúng 60 điểm baseline và 120 điểm
+exposure. Web vẫn cho đổi thời lượng để thí nghiệm/thu dữ liệu mới, nhưng sẽ
+cảnh báo khi cấu hình khác 60/120 vì mẫu đó chưa tương thích đầu vào model này.
 
 Worker inference có queue riêng; event log đi qua Recorder hiện có và không giữ
 acquisition/USB/heartbeat. Raw chỉ được đọc và kiểm hash, không bị model/web sửa.

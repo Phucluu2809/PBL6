@@ -6,7 +6,9 @@ from .config import CHANNELS, LSB_V
 from .schema import COLUMNS, DEVICES, SCHEMA
 
 PROTOCOL="robonose.usb.v1"
-FIRMWARE="3.0.0"
+FIRMWARE="3.1.0"
+SUPPORTED_FIRMWARE={"3.0.0", FIRMWARE}
+SAFE_LEGACY_REVISIONS={"usb_irq_handoff.v3", "session_durations.v4"}
 PROFILE_ID="s3_bringup_300_100_t2h2p4.v1"
 CHANNEL_MAP=','.join(f'{key}={value}' for key,value in CHANNELS.items())
 PHASES={"OFF","MONITOR","BASELINE","WAIT_EXPOSURE","EXPOSURE","WAIT_RECOVERY",
@@ -85,7 +87,12 @@ def require(packet,key,expected):
 
 
 def validate_hello(packet, initial=True):
-    for key,value in {'protocol':PROTOCOL,'schema':SCHEMA,'firmware_version':FIRMWARE,
+    if packet.get('firmware_version') not in SUPPORTED_FIRMWARE:
+        raise ProtocolError(f"firmware_version: expected one of {sorted(SUPPORTED_FIRMWARE)!r}, received {packet.get('firmware_version')!r}")
+    if (packet.get('firmware_version') == '3.0.0'
+        and packet.get('firmware_revision') not in SAFE_LEGACY_REVISIONS):
+        raise ProtocolError(f'Firmware 3.0.0 compatibility requires a safe revision: {sorted(SAFE_LEGACY_REVISIONS)!r}')
+    for key,value in {'protocol':PROTOCOL,'schema':SCHEMA,
         'firmware_kind':'robonose_dataset_s3','channel_map':CHANNEL_MAP,'ads_fsr_v':6.144,
         'ads_lsb_v':LSB_V,'divider_factor':1,'ads_data_rate_sps':128,'ads_mode':'single_shot_single_ended',
         'ads_vdd_requested_v':5,'ads_address':72,'ads_sda':10,'ads_scl':11,'bme_sda':8,'bme_scl':9,
@@ -148,6 +155,10 @@ def validate_context(packet):
     if phase in ('BASELINE','EXPOSURE','RECOVERY'):
         if type(packet.get('deadline_ms')) is not int or packet['deadline_ms']<=packet['phase_started_ms']:
             raise ProtocolError('Timed phase lacks a valid MCU deadline')
+    for key in ('baseline_s', 'exposure_s', 'recovery_s'):
+        value = packet.get(key)
+        if value is not None and (type(value) not in (int, float) or not math.isfinite(value) or not 1 <= value <= 3600):
+            raise ProtocolError(f'Invalid configured duration: {key}')
 
 
 def validate_sample(packet):

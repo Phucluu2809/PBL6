@@ -53,8 +53,11 @@ int main(int argc,char** argv) {
     assert(observed.state.phase==Dataset::Phase::OFF&&duty==0&&!valve);
     assert(observed.command(Dataset::parseRequest("@4 observed-boot observed-session RESUME"),10003,true).accepted);
     assert(observed.state.phase==Dataset::Phase::MONITOR&&duty==818&&valve);
-    assert(observed.command(Dataset::parseRequest("@5 observed-boot observed-session START 00000000-0000-0000-0000-000000000004"),10004,true).accepted);
+    assert(observed.command(Dataset::parseRequest("@5 observed-boot observed-session CONFIG 2000,3000,4000"),10004,true).accepted);
+    assert(observed.state.baselineMs==2000&&observed.state.exposureMs==3000&&observed.state.recoveryMs==4000);
+    assert(observed.command(Dataset::parseRequest("@6 observed-boot observed-session START 00000000-0000-0000-0000-000000000004"),10004,true).accepted);
     observed.tick(10005); assert(observed.state.phase==Dataset::Phase::BASELINE&&duty==818);
+    observed.tick(12004); assert(observed.state.phase==Dataset::Phase::WAIT_EXPOSURE);
     observed.stop(10006,true,"usb_task_stalled_or_queue_full");
     assert(!strcmp(observed.state.faultReason,"usb_task_stalled_or_queue_full"));
     observed.stop(10007,true,"host_off");

@@ -10,7 +10,7 @@ from .config import Config
 TIMED = {"BASELINE": "WAIT_EXPOSURE", "EXPOSURE": "WAIT_RECOVERY", "RECOVERY": "WAIT_FINISH"}
 ACTIVE = set(TIMED) | set(TIMED.values())
 SAMPLE_STATES = {"MONITOR", "BASELINE", "WAIT_EXPOSURE", "EXPOSURE", "WAIT_RECOVERY"}
-HELP = ("start | expose | recover | finish | name <text> | notes <text> | next | "
+HELP = ("configure <baseline,exposure,recovery> | start | expose | recover | finish | name <text> | notes <text> | next | "
         "extend <seconds> | abort | pause | resume | mark <text> | status | info | durations | help | quit")
 
 
@@ -43,6 +43,9 @@ class StateMachine:
         self.events = []
         self.requests = OrderedDict()
         self.pump_start_count = 0
+        self.durations = {"baseline": float(config.baseline_s),
+                          "exposure": float(config.exposure_s),
+                          "recovery": float(config.recovery_s)}
 
     @property
     def route(self):
@@ -134,7 +137,17 @@ class StateMachine:
         elif command in ("status", "info", "help", "durations") and not arg:
             reason = HELP if command == "help" else str(self.context(now))
             if command == "durations":
-                reason = f"baseline={self.config.baseline_s}s exposure={self.config.exposure_s}s recovery={self.config.recovery_s}s"
+                reason = (f"baseline={self.durations['baseline']}s "
+                          f"exposure={self.durations['exposure']}s recovery={self.durations['recovery']}s")
+        elif command == "configure" and self.phase == "MONITOR":
+            try:
+                values = [float(value) for value in arg.split(",")]
+                if len(values) != 3 or any(not math.isfinite(value) or not 1 <= value <= 3600 for value in values):
+                    raise ValueError()
+                self.durations.update(zip(("baseline", "exposure", "recovery"), values))
+                self.emit("duration_config_applied", now, durations=deepcopy(self.durations))
+            except ValueError:
+                accepted, reason = False, "configure requires baseline,exposure,recovery in [1, 3600] seconds"
         elif command == "quit" and not arg:
             self.stop(now)
         elif command == "pause" and not arg and self.phase == "MONITOR":
@@ -149,11 +162,11 @@ class StateMachine:
         elif command == "start" and not arg and self.phase == "MONITOR":
             self.trial_count += 1
             self.trial = Trial(str(uuid.uuid4()), self.trial_count, now)
-            self._transition("BASELINE", now, duration=self.config.baseline_s)
+            self._transition("BASELINE", now, duration=self.durations["baseline"])
         elif command == "expose" and not arg and self.phase == "WAIT_EXPOSURE":
-            self._transition("EXPOSURE", now, duration=self.config.exposure_s)
+            self._transition("EXPOSURE", now, duration=self.durations["exposure"])
         elif command == "recover" and not arg and self.phase == "WAIT_RECOVERY":
-            self._transition("RECOVERY", now, duration=self.config.recovery_s)
+            self._transition("RECOVERY", now, duration=self.durations["recovery"])
         elif command == "extend" and self.phase == "WAIT_FINISH":
             try:
                 duration = float(arg)

@@ -12,6 +12,7 @@ struct Context {
     uint32_t epoch=0, segment=0, trialIndex=0;
     uint8_t pwm=0;
     bool valve=false;
+    uint32_t baselineMs=60000, exposureMs=120000, recoveryMs=60000;
     char trial[37]{}, status[10]="ACTIVE";
     char faultReason[64]{};
 };

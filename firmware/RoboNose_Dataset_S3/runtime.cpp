@@ -57,6 +57,8 @@ void stateFields(const Context& state) {
     json.text("trial_status",state.status); json.integer("phase_started_ms",state.started);
     if(state.deadline) json.integer("deadline_ms",state.deadline); else json.nullValue("deadline_ms");
     json.integer("pump_pwm_pct",state.pwm); json.boolean("valve_energized",state.valve);
+    json.number("baseline_s",state.baselineMs/1000.0); json.number("exposure_s",state.exposureMs/1000.0);
+    json.number("recovery_s",state.recoveryMs/1000.0);
     json.text("air_path_commanded",state.valve?"SAMPLE":"FILTERED_AIR");
     if(state.faultReason[0]) json.text("fault_reason",state.faultReason); else json.nullValue("fault_reason");
 }

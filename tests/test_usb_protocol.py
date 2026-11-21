@@ -33,6 +33,36 @@ def test_incompatible_handshake_rejected_before_begin(key,value):
         validate_hello(hello)
 
 
+def test_firmware_300_is_accepted_without_runtime_duration_fields():
+    hello=EmulatedTransport(FakeClock()).hello()
+    hello.update(firmware_version='3.0.0', firmware_revision='usb_irq_handoff.v3')
+    for key in ('baseline_s','exposure_s','recovery_s'):
+        hello.pop(key)
+    assert validate_hello(hello)
+
+
+def test_loaded_session_durations_v4_is_accepted_as_safe_legacy():
+    hello=EmulatedTransport(FakeClock()).hello()
+    hello.update(firmware_version='3.0.0', firmware_revision='session_durations.v4')
+    for key in ('baseline_s','exposure_s','recovery_s'):
+        hello.pop(key)
+    assert validate_hello(hello)
+
+
+def test_firmware_300_unsafe_older_revision_is_rejected():
+    hello=EmulatedTransport(FakeClock()).hello()
+    hello.update(firmware_version='3.0.0', firmware_revision='usb_idf_stream_off_ack.v2')
+    with pytest.raises(ProtocolError,match='safe revision'):
+        validate_hello(hello)
+
+
+def test_unknown_newer_firmware_is_not_silently_accepted():
+    hello=EmulatedTransport(FakeClock()).hello()
+    hello['firmware_version']='3.2.0'
+    with pytest.raises(ProtocolError,match='firmware_version'):
+        validate_hello(hello)
+
+
 def test_latched_mcu_fault_is_reported_before_missing_begin_ticket():
     hello=EmulatedTransport(FakeClock()).hello()
     hello.update(phase='ERROR',pump_pwm_pct=0,valve_energized=False,

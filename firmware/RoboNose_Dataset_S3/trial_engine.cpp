@@ -117,6 +117,17 @@ Reply Engine::command(const Request& r,uint64_t now,bool sensorsReady) {
             else reason="output_fault"; }
     } else if(strcmp(session,r.session)) reason="session_mismatch";
     else if(!strcmp(r.verb,"PING")&&!r.arg[0]&&(state.pwm==80||state.phase==Phase::OFF)) { heartbeat_=now; reason="accepted"; }
+    else if(!strcmp(r.verb,"CONFIG")&&state.phase==Phase::MONITOR&&r.arg[0]) {
+        unsigned long values[3]{}; const char* cursor=r.arg; bool valid=true;
+        for(unsigned index=0;index<3;++index) {
+            errno=0; char* end=nullptr; values[index]=strtoul(cursor,&end,10);
+            if(errno||end==cursor||values[index]<1000||values[index]>3600000) { valid=false; break; }
+            if(index<2) { if(*end!=',') { valid=false; break; } cursor=end+1; }
+            else if(*end) valid=false;
+        }
+        if(valid) { state.baselineMs=values[0]; state.exposureMs=values[1]; state.recoveryMs=values[2]; reason="accepted"; }
+        else reason="duration_config_out_of_bounds";
+    }
     else if(!strcmp(r.verb,"STATUS")&&!r.arg[0]) reason="accepted";
     else if(!strcmp(r.verb,"MARK")&&!r.arg[0]&&state.pwm) reason="accepted";
     else if(!strcmp(r.verb,"PAUSE")&&!r.arg[0]&&state.phase==Phase::MONITOR) {
@@ -131,11 +142,11 @@ Reply Engine::command(const Request& r,uint64_t now,bool sensorsReady) {
     }
     else if(!strcmp(r.verb,"START")&&identifier(r.arg,36)&&state.phase==Phase::MONITOR) {
         strcpy(state.trial,r.arg); strcpy(state.status,"ACTIVE"); ++state.trialIndex;
-        transition(Phase::BASELINE,now,now,60000); reason="accepted";
+        transition(Phase::BASELINE,now,now,state.baselineMs); reason="accepted";
     } else if(!r.arg[0]&&!strcmp(r.verb,"EXPOSE")&&state.phase==Phase::WAIT_EXPOSURE) {
-        transition(Phase::EXPOSURE,now,now,120000); reason="accepted";
+        transition(Phase::EXPOSURE,now,now,state.exposureMs); reason="accepted";
     } else if(!r.arg[0]&&!strcmp(r.verb,"RECOVER")&&state.phase==Phase::WAIT_RECOVERY) {
-        transition(Phase::RECOVERY,now,now,60000); reason="accepted";
+        transition(Phase::RECOVERY,now,now,state.recoveryMs); reason="accepted";
     } else if(!strcmp(r.verb,"EXTEND")&&state.phase==Phase::WAIT_FINISH&&r.arg[0]) {
         bool digits=true; for(const char* p=r.arg;*p;++p) if(*p<'0'||*p>'9') digits=false;
         errno=0; char* end=nullptr; unsigned long long duration=strtoull(r.arg,&end,10);

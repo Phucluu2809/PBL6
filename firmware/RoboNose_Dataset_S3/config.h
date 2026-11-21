@@ -10,7 +10,7 @@ constexpr uint16_t BME_HEATER_TEMP_C=300, BME_HEATER_DURATION_MS=100;
 constexpr uint8_t PUMP_PIN=5, VALVE_PIN=4, PUMP_PWM_CHANNEL=0;
 constexpr bool PUMP_ACTIVE_HIGH=true, VALVE_ACTIVE_HIGH=true;
 constexpr uint32_t PUMP_PWM_HZ=1000, CONTROL_TIMEOUT_MS=15000;
-constexpr const char* FIRMWARE_VERSION="3.0.0";
+constexpr const char* FIRMWARE_VERSION="3.1.0";
 constexpr const char* FIRMWARE_REVISION="usb_irq_handoff.v3";
 constexpr const char* SCHEMA="robonose.dataset.v1";
 constexpr const char* PROTOCOL="robonose.usb.v1";

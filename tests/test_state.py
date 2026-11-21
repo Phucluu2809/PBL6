@@ -80,6 +80,26 @@ def test_request_dedup_rejects_reuse_with_other_command():
     assert not state.command("start", 0)["accepted"]
 
 
+def test_duration_configuration_applies_only_from_monitor():
+    state = machine()
+    assert state.command("configure 2,3,4", 0)["accepted"]
+    state.command("start", 1)
+    assert state.deadline == 3
+    assert not state.command("configure 5,6,7", 1)["accepted"]
+    state.advance(3); state.command("expose", 4)
+    assert state.deadline == 7
+    state.advance(7); state.command("recover", 8)
+    assert state.deadline == 12
+
+
+@pytest.mark.parametrize("value", ["", "0,2,3", "1,2", "1,2,3601", "nan,2,3", "a,b,c"])
+def test_invalid_duration_configuration_is_rejected(value):
+    state = machine()
+    before = dict(state.durations)
+    assert not state.command(f"configure {value}", 0)["accepted"]
+    assert state.durations == before
+
+
 @pytest.mark.parametrize("seconds", ["0", "-1", "nan", "inf", "3601", "abc", ""])
 def test_invalid_extension_does_not_change_wait(seconds):
     state = machine()

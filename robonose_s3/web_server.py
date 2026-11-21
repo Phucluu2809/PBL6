@@ -30,6 +30,7 @@ SENSOR_META = (
 )
 
 PHASE_ACTIONS = {
+    "configure": {"MONITOR"},
     "start": {"MONITOR"},
     "expose": {"WAIT_EXPOSURE"},
     "recover": {"WAIT_RECOVERY"},
@@ -41,7 +42,7 @@ PHASE_ACTIONS = {
     "pause": {"MONITOR"},
     "resume": {"OFF"},
 }
-ARGUMENT_ACTIONS = {"name", "notes", "mark"}
+ARGUMENT_ACTIONS = {"name", "notes", "mark", "configure"}
 PLAIN_ACTIONS = {"start", "expose", "recover", "finish", "next", "abort", "pause", "resume"}
 
 
@@ -75,11 +76,12 @@ class TrialCatalog:
         roots = data_roots if isinstance(data_roots, (list, tuple)) else [data_roots]
         self.data_roots = tuple(dict.fromkeys(Path(root).resolve() for root in roots))
 
-    def list(self, limit=100):
+    def list(self, limit=1000):
         rows = []
         paths = []
         for root in self.data_roots:
-            paths.extend(root.glob("*/*/trials/*/metadata.json"))
+            paths.extend(path for path in root.rglob("metadata.json")
+                         if path.parent.parent.name == "trials")
         seen = set()
         for path in paths:
             try:
@@ -137,6 +139,8 @@ def _warnings(snapshot, heartbeat):
         warnings.append({"code": code, "severity": severity, "message": message})
     if snapshot.get("mode") == "SIMULATED":
         add("SIMULATED_DATA", "info", "Dữ liệu mô phỏng; không phải đo từ cảm biến thật.")
+    if (snapshot.get("device_info") or {}).get("firmware_version") == "3.0.0":
+        add("LEGACY_FIRMWARE", "info", "Firmware 3.0.0 vẫn thu hardware bình thường; chỉnh thời gian bị khóa cho tới khi nạp 3.1.0.")
     if snapshot.get("fault"):
         add("SESSION_FAULT", "critical", str(snapshot["fault"]))
     writer = snapshot.get("writer") or {}
@@ -192,6 +196,8 @@ def project_snapshot(snapshot, window_s=600):
                        "details": details if isinstance(details, dict) else {}})
     result = {
         "mode": snapshot.get("mode"), "now": now, "phase": phase,
+        "baseline_s": snapshot.get("baseline_s"), "exposure_s": snapshot.get("exposure_s"),
+        "recovery_s": snapshot.get("recovery_s"),
         "remaining_s": snapshot.get("remaining_s"), "trial": snapshot.get("trial"),
         "context_epoch": snapshot.get("context_epoch"), "segment_id": snapshot.get("segment_id"),
         "outputs": {"pump_pwm_pct": snapshot.get("pump_pwm_pct"),
@@ -244,14 +250,18 @@ class RoboNoseWebApplication:
     def snapshot(self, window_s):
         snapshot = project_snapshot(self.session.snapshot(), window_s)
         config = self.session.config.snapshot()
+        duration_reported = all(snapshot.get(key) is not None for key in
+                                ("baseline_s", "exposure_s", "recovery_s"))
+        legacy_firmware = snapshot.get("device_info", {}).get("firmware_version") == "3.0.0"
         snapshot["configuration"] = {
-            "baseline_s": config["baseline_s"],
-            "exposure_s": config["exposure_s"],
-            "recovery_s": config["recovery_s"],
+            "baseline_s": snapshot.get("baseline_s") or config["baseline_s"],
+            "exposure_s": snapshot.get("exposure_s") or config["exposure_s"],
+            "recovery_s": snapshot.get("recovery_s") or config["recovery_s"],
             "pump_pwm_pct": config["pump_pwm_pct"],
             "sampling_hz": config["sampling_hz"],
-            "runtime_editable": False,
-            "source": "MCU_FIRMWARE_CONTRACT" if self.session.mode != "SIMULATED" else "SIMULATION_CONFIG",
+            "runtime_editable": snapshot.get("phase") == "MONITOR" and duration_reported and not legacy_firmware,
+            "source": ("MCU_LEGACY_FIXED_60_120_60" if legacy_firmware else
+                       "MCU_FIRMWARE_CONTRACT" if self.session.mode != "SIMULATED" else "SIMULATION_CONFIG"),
         }
         model = self.inference.describe()
         snapshot["model"] = model

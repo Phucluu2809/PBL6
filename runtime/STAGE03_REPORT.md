@@ -290,3 +290,34 @@ Không mở COM, upload firmware hoặc bật tải trong thay đổi này.
 chung thay cho bản cục bộ; giữ riêng INVALID/UNKNOWN, BME prefix và các cờ gas,
 không sửa/fill raw. Bộ test signals/model/web **33 passed**; compileall và diff
 check đạt. Không mở COM, upload firmware hoặc tác động tải.
+
+## 18. Thời lượng pha và biểu đồ riêng (21/11/2026)
+
+Firmware/host/web 3.1.0 bổ sung lệnh `CONFIG` cho baseline, exposure và recovery
+trong khoảng 1–3600 giây, chỉ ở MONITOR. MCU vẫn sở hữu deadline và trả các
+thời lượng đã áp dụng trong state/ACK. Web khóa form khi firmware cũ chưa công
+bố các trường mới. ResCNN64 hiện vẫn yêu cầu cửa sổ 60/120 nên giao diện cảnh
+báo nếu người dùng đổi hai thời lượng này.
+
+Hai trang realtime và thu mẫu dùng tám biểu đồ riêng cho A0–A3, BME Gas,
+nhiệt độ, độ ẩm và áp suất; mỗi biểu đồ có màu/đơn vị/thang riêng và không vẽ
+đường chuyển pha. Phản hồi lưu tên, ghi chú, lưu mẫu và sao chép được hiển thị
+ngay dưới thao tác. Catalog quét đệ quy layout hardware cũ để không bỏ sót ngày.
+
+Theo yêu cầu mới nhất, trang thứ sáu Kho mẫu chuẩn/SQLite đã được loại bỏ vì
+trùng mục đích với trang So sánh tham chiếu hiện có. API, mã frontend và module
+DB riêng cũng được gỡ; năm chức năng còn lại giữ nguyên. Browser không còn là
+điều kiện heartbeat, nên đóng/refresh tab không làm dừng acquisition trong khi
+tiến trình host vẫn khỏe.
+
+Host có compatibility allowlist cho firmware 3.0.0 revision
+`usb_irq_handoff.v3`/`session_durations.v4` và 3.1.0. Bản 3.0.0 an toàn được phép chạy acquisition
+hardware với thời lượng cố định cũ; web khóa CONFIG và hiện cảnh báo legacy.
+Revision v2/version khác vẫn bị từ chối trước BEGIN. `configs/run.json`
+đã chuyển sang hardware/COM11 theo yêu cầu; chưa mở cổng hoặc chạy tải trong
+lần sửa này.
+
+Kiểm thử logic liên quan **80 passed**; firmware contract/native C++ **2 passed**;
+JavaScript syntax và Python compile đạt. Build provisional ESP32-S3 CDC-on đạt
+`LINK_PASS` (357449 byte program, 36760 byte static RAM). Đây không phải xác
+nhận board thật: chưa mở COM, upload firmware hay bật tải.
