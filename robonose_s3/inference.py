@@ -7,11 +7,15 @@ without changing the web API or acquisition owner.
 """
 from collections import deque
 from copy import deepcopy
+import csv
 from datetime import datetime, timezone
 import hashlib
+from pathlib import Path
 import queue
 import threading
 import uuid
+
+from .coffee_detection import predict_trial
 
 
 PREDICTION_SCHEMA = "robonose.prediction.v1"
@@ -60,6 +64,10 @@ class MockPredictor:
             predicted_id = self.labels[digest[1] % len(self.labels)]
             confidence = round(_score(self.model_id, sample_id, "known", low=.68, high=.96), 4)
             reason = "mock_classification_only"
+        ranking = [{"label": label, "similarity": confidence if predicted_id == label else
+                    round(_score(self.model_id, sample_id, label, high=confidence), 4)}
+                   for label in self.labels]
+        ranking.sort(key=lambda item: (-item["similarity"], item["label"]))
         return {
             "schema": PREDICTION_SCHEMA,
             "task": "identity",
@@ -72,6 +80,7 @@ class MockPredictor:
             "is_unknown": is_unknown,
             "status": "UNKNOWN" if is_unknown else "MATCHED",
             "reason": reason,
+            "ranking": ranking,
             "created_at": _timestamp(),
         }
 
@@ -82,8 +91,6 @@ class MockPredictor:
             raise ValueError("reference_id is required")
         if len(candidates) < 1:
             raise ValueError("At least one candidate is required")
-        if len(candidates) > 4:
-            raise ValueError("At most four candidates are supported")
         if len(set(candidates)) != len(candidates):
             raise ValueError("Candidate UUIDs must be unique")
         ranking = []
@@ -145,11 +152,21 @@ class InferenceCoordinator:
             raise RuntimeError("Inference queue full")
         return deepcopy(job)
 
-    def submit_identity(self, sample_id):
+    def submit_identity(self, sample_id, coffee_raw=None):
         sample_id = str(sample_id or "").strip()
         if not sample_id:
             raise ValueError("sample_id is required")
-        return self._submit("identity", {"sample_id": sample_id})
+        return self._submit("identity", {"sample_id": sample_id, "coffee_raw": coffee_raw})
+
+    @staticmethod
+    def _check_coffee(path):
+        if path is None:
+            return {"status": "UNAVAILABLE", "reason": "Cần mẫu thiết bị đã lưu hoàn chỉnh."}
+        try:
+            with Path(path).open(encoding="utf-8-sig", newline="") as handle:
+                return predict_trial(csv.DictReader(handle, strict=True))
+        except (OSError, UnicodeError, csv.Error) as error:
+            return {"status": "UNAVAILABLE", "reason": f"Không đọc được tín hiệu. {error}"}
 
     def submit_comparison(self, reference_id, candidate_ids):
         reference_id = str(reference_id or "").strip()
@@ -158,8 +175,6 @@ class InferenceCoordinator:
             raise ValueError("reference_id is required")
         if len(candidates) < 1:
             raise ValueError("At least one candidate is required")
-        if len(candidates) > 4:
-            raise ValueError("At most four candidates are supported")
         if len(set(candidates)) != len(candidates):
             raise ValueError("Candidate UUIDs must be unique")
         return self._submit("reference_comparison", {
@@ -189,6 +204,9 @@ class InferenceCoordinator:
                 with self.lock:
                     job["state"] = "PREDICTING"
                 if job["task"] == "identity":
+                    coffee = self._check_coffee(job["payload"]["coffee_raw"])
+                    with self.lock:
+                        job["coffee_check"] = coffee
                     result = self.predictor.predict_identity(job["payload"]["sample_id"])
                 else:
                     result = self.predictor.compare(

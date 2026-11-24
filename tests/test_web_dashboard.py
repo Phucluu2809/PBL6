@@ -45,7 +45,7 @@ def test_web_serves_main_functions_and_uses_session_command_queue(tmp_path):
             page = response.read().decode("utf-8")
         assert all(value in page for value in (
             "Tín hiệu & thiết bị", "Điều khiển thu mẫu", "Dự đoán danh tính",
-            "So sánh tham chiếu", "Danh sách mẫu"))
+            "Đối sánh", "Danh sách mẫu", "Chọn mẫu", "Lưu lựa chọn"))
         assert "Kho mẫu chuẩn" not in page
         assert "5 cảm biến vật lý" in page
         assert "8 biểu đồ realtime" in page
@@ -93,8 +93,9 @@ def test_web_mock_identity_and_reference_comparison_jobs(tmp_path):
     try:
         status, identity = post_json(base, "/api/inference/identity", {"sample_id": "unknown-demo"})
         assert status == 202 and identity["state"] == "QUEUED"
+        candidates = ["A", "B", "C", "D", "E", "F"]
         status, comparison = post_json(base, "/api/inference/compare", {
-            "reference_id": "X", "candidate_ids": ["A"]})
+            "reference_id": "X", "candidate_ids": candidates})
         assert status == 202 and comparison["state"] == "QUEUED"
         wait_until(lambda: len(get_json(base, "/api/inference/results?after=0")["jobs"]) == 2 and
                    all(job["state"] == "SUCCEEDED" for job in
@@ -103,20 +104,19 @@ def test_web_mock_identity_and_reference_comparison_jobs(tmp_path):
         result_by_task = {job["task"]: job["result"] for job in jobs}
         assert result_by_task["identity"]["is_unknown"] is True
         ranking = result_by_task["reference_comparison"]["ranking"]
-        assert len(ranking) == 1 and ranking == sorted(ranking, key=lambda item: item["rank"])
+        assert {item["candidate_id"] for item in ranking} == set(candidates)
+        assert [item["rank"] for item in ranking] == list(range(1, len(candidates) + 1))
     finally:
         web.stop()
         session.post("quit")
         assert session.finished.wait(5)
 
 
-def test_comparison_requires_one_to_four_unique_candidates():
+def test_comparison_requires_unique_candidates():
     predictor = MockPredictor()
     assert len(predictor.compare("X", ["A"])["ranking"]) == 1
     with pytest.raises(ValueError, match="At least one"):
         predictor.compare("X", [])
-    with pytest.raises(ValueError, match="At most four"):
-        predictor.compare("X", ["A", "B", "C", "D", "E"])
     with pytest.raises(ValueError, match="must be unique"):
         predictor.compare("X", ["A", "A"])
 

@@ -1,11 +1,20 @@
 "use strict";
 
-const state = { snapshot: null, messageAfter: 0, renderedJobs: new Set(), trials: [], connected: false, pendingSavedTrial: null, savedTrial: null };
+const state = { snapshot: null, messageAfter: 0, renderedJobs: new Set(), trials: [], connected: false, pendingSavedTrial: null, savedTrial: null, sessionRequestPending: false };
+let identityRequest = 0;
+let identityJob;
+let autoPredictedTrial;
+let comparisonJob;
+let comparisonBusy = false;
+let trialCatalogJson;
+const selectionKey = "robonose.comparison-selection.v1";
+let savedSelection = readComparisonSelection();
+let draftSelection = new Set(savedSelection);
 const titles = {
   realtime: "Tín hiệu realtime",
   control: "Điều khiển thu mẫu",
   identity: "Dự đoán danh tính",
-  comparison: "So sánh mùi tham chiếu",
+  comparison: "Đối sánh",
   library: "Danh sách mẫu"
 };
 const phases = ["MONITOR", "BASELINE", "WAIT_EXPOSURE", "EXPOSURE", "WAIT_RECOVERY", "RECOVERY", "WAIT_FINISH", "WAIT_NAME", "MONITOR_NEXT"];
@@ -39,7 +48,7 @@ function setConnection(online, message = "") {
   const dot = byId("sidebar-dot");
   dot.classList.toggle("online", online);
   dot.classList.toggle("error", !online);
-  byId("sidebar-status").textContent = online ? "Đã kết nối core" : "Mất kết nối web";
+  byId("sidebar-status").textContent = online ? "Đã kết nối web" : "Mất kết nối web";
   const alert = byId("global-alert");
   alert.hidden = online;
   alert.textContent = online ? "" : (message || "Không nhận được snapshot từ backend.");
@@ -56,6 +65,9 @@ function initNavigation() {
         section.hidden = !active;
       });
       byId("page-title").textContent = titles[page];
+      const contained = page === "library" || page === "comparison";
+      document.querySelector(".shell").classList.toggle("contained-page", contained);
+      if (contained) window.scrollTo(0, 0);
       if (state.snapshot) requestAnimationFrame(() => drawCharts(state.snapshot));
     });
   });
@@ -91,6 +103,7 @@ function renderModelStatus(model = {}) {
 
 function phaseGuidance(phase) {
   return ({
+    IDLE: "Bấm Bắt đầu phiên để kết nối thiết bị và bắt đầu ghi.",
     MONITOR: "Hệ thống đang ghi và chờ bắt đầu một lượt mới.",
     BASELINE: "Đang đo baseline qua đầu lấy mẫu; chờ đủ thời gian.",
     WAIT_EXPOSURE: "Đặt mẫu vào vị trí rồi xác nhận bắt đầu exposure.",
@@ -169,15 +182,36 @@ function renderTimeline(snapshot) {
   }).join("") : '<div class="empty-state">Chưa có event.</div>';
 }
 
+function renderSessionControls(snapshot) {
+  const status = snapshot?.session_status;
+  byId("session-controls").hidden = !status;
+  if (!status) return;
+  const off = snapshot.device.off_confirmed;
+  const labels = {
+    IDLE: "Chưa mở phiên",
+    STARTING: "Đang kiểm tra thiết bị và khởi tạo log",
+    RUNNING: "Phiên đang mở",
+    STOPPING: "Đang tắt phần cứng và đóng log",
+    ENDED: "Đã đóng phiên"
+  };
+  byId("session-state").textContent = status === "ENDED" && snapshot.mode === "HARDWARE"
+    ? (off ? "Đã đóng phiên · MCU đã xác nhận lệnh OFF" : "Đã đóng phiên · Chưa nhận xác nhận OFF")
+    : labels[status];
+  document.querySelectorAll("[data-session-action]").forEach(button => {
+    button.disabled = !state.connected || state.sessionRequestPending || !snapshot.actions[button.dataset.sessionAction];
+  });
+}
+
 function renderOverview(snapshot) {
   const heartbeat = snapshot.device.heartbeat_healthy;
   byId("mode-badge").textContent = snapshot.mode;
   byId("phase-badge").textContent = snapshot.phase;
   byId("device-status").textContent = snapshot.device.fault ? "Lỗi đã latch" : heartbeat ? "Đang hoạt động" : "Đang chờ dữ liệu";
   byId("device-detail").textContent = snapshot.device.startup ? `Startup: ${snapshot.device.startup}` : `Phase owner: ${snapshot.mode === "SIMULATED" ? "simulation engine" : "MCU"}`;
-  byId("pump-value").textContent = `${snapshot.outputs.pump_pwm_pct ?? 0}% PWM`;
+  byId("pump-value").textContent = snapshot.outputs.pump_pwm_pct == null ? "—" : `${snapshot.outputs.pump_pwm_pct}% PWM`;
   byId("route-value").textContent = snapshot.outputs.air_path_commanded || "—";
-  byId("valve-value").textContent = `Van ${snapshot.outputs.valve_energized ? "ON / B" : "OFF / A"}`;
+  byId("valve-value").textContent = snapshot.outputs.valve_energized == null ? "Van —"
+    : `Van ${snapshot.outputs.valve_energized ? "ON / B" : "OFF / A"}`;
   byId("writer-status").textContent = snapshot.writer?.status || "—";
   byId("writer-detail").textContent = `${snapshot.writer?.rows_written ?? 0} dòng · queue ${snapshot.writer?.queue_depth ?? 0}`;
   byId("heartbeat-value").textContent = heartbeat ? "Khỏe" : "Chờ / dừng";
@@ -196,6 +230,7 @@ function renderOverview(snapshot) {
   byId("last-update").textContent = `Cập nhật ${new Date().toLocaleTimeString("vi-VN")}`;
   renderModelStatus(snapshot.model);
   renderWarnings(snapshot);
+  renderSessionControls(snapshot);
   renderPhase(snapshot);
   renderConfiguration(snapshot);
   renderTimeline(snapshot);
@@ -320,7 +355,10 @@ async function pollSnapshot() {
     setConnection(true);
     renderOverview(snapshot);
     drawCharts(snapshot);
-  } catch (error) { setConnection(false, error.message); }
+  } catch (error) {
+    setConnection(false, error.message);
+    renderSessionControls(state.snapshot);
+  }
 }
 
 async function pollMessages() {
@@ -342,67 +380,81 @@ async function pollMessages() {
 }
 
 function renderIdentity(result) {
-  const unknown = result.status === "UNKNOWN";
-  const rankedOnly = result.status === "RANKED_ONLY";
-  const answer = unknown ? "UNKNOWN" : rankedOnly ? `${result.top_candidate} · CHƯA XÁC NHẬN` : result.predicted_id;
-  const rawScore = result.confidence ?? result.similarity;
-  const width = result.confidence !== undefined
-    ? Math.max(0, Math.min(100, Number(rawScore) * 100))
-    : Math.max(0, Math.min(100, (Number(rawScore) + 1) * 50));
-  const scoreText = result.confidence !== undefined
-    ? `Độ tin cậy giả lập ${Math.round(Number(rawScore) * 100)}%`
-    : `Cosine ${formatNumber(result.similarity, 4)} · margin ${formatNumber(result.margin, 4)}`;
-  const ranking = Array.isArray(result.ranking) ? result.ranking.map((item, index) => {
-    const score = Number(item.similarity);
-    const bounded = Math.max(-1, Math.min(1, Number.isFinite(score) ? score : 0));
-    const position = (bounded + 1) * 50;
-    const segmentLeft = bounded < 0 ? position : 50;
-    const segmentWidth = Math.abs(bounded) * 50;
-    const direction = bounded < 0 ? "negative" : "positive";
-    const rank = Number.isInteger(item.rank) ? item.rank : index + 1;
-    return `<div class="identity-rank-item ${rank === 1 ? "top" : ""}">
-      <span class="rank-number">${rank}</span>
-      <strong>${escapeHtml(item.label)}</strong>
-      <div class="score-scale ${direction}" aria-label="${escapeHtml(item.label)}: cosine ${formatNumber(score, 4)} trên thang âm 1 đến 1">
-        <div class="score-scale-head"><span>Cosine</span><strong>${formatNumber(score, 4)}</strong></div>
-        <div class="rank-track"><em></em><i style="left:${segmentLeft}%;width:${segmentWidth}%"></i><b style="left:${position}%"></b></div>
-        <div class="score-scale-labels"><span>-1</span><span>0</span><span>1</span></div>
-      </div>
-    </div>`;
-  }).join("") : "";
-  const allLabels = ranking
-    ? `<section class="identity-ranking"><div class="identity-ranking-head"><h3>Điểm của tất cả label</h3><span>${result.ranking.length} label · cao đến thấp</span></div>${ranking}</section>`
-    : "";
-  byId("identity-result").innerHTML = `<p class="eyebrow">Kết quả gần nhất · ${escapeHtml(result.model_backend)}</p>
-    <div class="identity-answer ${unknown || rankedOnly ? "unknown" : ""}">
-      <strong>${escapeHtml(answer)}</strong>
-      <span>${escapeHtml(result.sample_id)}</span>
-      <div class="confidence-meter"><i style="width:${width}%"></i></div>
-      <span>${escapeHtml(scoreText)} · ${escapeHtml(result.reason)}</span>
-      <small>Model ${escapeHtml(result.model_id)} · ${escapeHtml((result.warnings || []).length)} cảnh báo tiền xử lý</small>
-    </div>${allLabels}`;
+  const scores = Array.isArray(result.ranking) ? result.ranking : (result.predicted_id ?
+    [{label: result.predicted_id, similarity: result.confidence ?? result.similarity}] : []);
+  const ranking = [...scores].sort((a, b) => b.similarity - a.similarity).slice(0, 3);
+  const scoreLabel = result.synthetic_prediction ? "Điểm giả lập" : "Cosine";
+  const rows = ranking.map((item, index) => `<div class="identity-rank-item ${index === 0 ? "top" : ""}">
+    <span class="rank-number">${index + 1}</span><div class="rank-identity"><strong>${escapeHtml(item.label)}</strong>
+      ${item.reference_path ? `<code>${escapeHtml(item.reference_path.split("/").at(-1))}</code>` : ""}</div>
+    <div class="score-scale-head"><span>${scoreLabel}</span><strong>${formatNumber(item.similarity, 4)}</strong></div>
+  </div>`).join("");
+  const note = result.status === "UNKNOWN" ? "Mẫu dưới ngưỡng nhận diện." : result.status === "RANKED_ONLY"
+    ? "Ngưỡng xác nhận danh tính chưa được hiệu chuẩn." : "";
+  byId("identity-result").innerHTML = `<h2>Ba lớp có điểm cao nhất</h2><code>${escapeHtml(result.sample_id)}</code>
+    <div class="identity-ranking">${rows || '<div class="empty-state">Không có lớp để xếp hạng.</div>'}</div>
+    ${note ? `<p>${note}</p>` : ""}`;
+}
+
+function renderCoffee(sampleId, result) {
+  const target = byId("coffee-result");
+  const predicted = result?.status === "PREDICTED";
+  const label = predicted ? (result.has_coffee ? "Có mùi cà phê" : "Không có mùi cà phê")
+    : "Không thể kiểm tra mẫu";
+  target.innerHTML = `<h3>${label}</h3><code>${escapeHtml(sampleId)}</code>
+    <p>${escapeHtml(predicted ? "Dự đoán từ mô hình thử nghiệm." : (result?.reason || "Chưa có kết quả cà phê."))}</p>`;
+}
+
+async function runIdentity(sampleId) {
+  const request = ++identityRequest;
+  identityJob = null;
+  const target = byId("identity-result");
+  const coffee = byId("coffee-result");
+  target.textContent = "Đang xếp hạng danh tính…";
+  coffee.textContent = "Đang kiểm tra mùi cà phê…";
+  try {
+    const job = await api("/api/inference/identity", {method: "POST", body: JSON.stringify({sample_id: sampleId})});
+    if (request === identityRequest) identityJob = job.job_id;
+  } catch (error) {
+    if (request === identityRequest) {
+      target.textContent = error.message;
+      renderCoffee(sampleId, {reason: error.message});
+    }
+  }
 }
 
 function renderComparison(result) {
+  const names = new Map(state.trials.map(item => [item.trial_id, item.name || "Chưa đặt tên"]));
   const ranking = result.ranking.map(item => {
     const score = Number(item.similarity);
-    const bounded = Math.max(-1, Math.min(1, score));
-    const position = (bounded + 1) * 50;
-    const segmentLeft = bounded < 0 ? position : 50;
-    const segmentWidth = Math.abs(bounded) * 50;
-    const direction = bounded < 0 ? "negative" : "positive";
+    const direction = score < 0 ? "negative" : "positive";
     return `<div class="rank-item">
       <span class="rank-number">${item.rank}</span>
-      <div class="rank-identity"><strong>Mẫu ${escapeHtml(item.input_order)}</strong><code>${escapeHtml(item.candidate_id)}</code></div>
+      <div class="rank-identity"><strong>${escapeHtml(names.get(item.candidate_id) || `Mẫu ${item.input_order}`)}</strong><code>${escapeHtml(item.candidate_id)}</code></div>
       <div class="score-scale ${direction}" aria-label="Cosine similarity ${formatNumber(score, 4)} trên thang âm 1 đến 1">
         <div class="score-scale-head"><span>Cosine similarity</span><strong>${formatNumber(score, 4)}</strong></div>
-        <div class="rank-track"><em></em><i style="left:${segmentLeft}%;width:${segmentWidth}%"></i><b style="left:${position}%"></b></div>
+        <div class="rank-track"><em></em><i></i><b></b></div>
         <div class="score-scale-labels"><span>-1</span><span>0</span><span>1</span></div>
       </div>
     </div>`;
   }).join("");
+  const skipped = (result.skipped_candidates || []).map(item => `<li>
+    <strong>${escapeHtml(names.get(item.candidate_id) || item.candidate_id)}</strong>
+    <code>${escapeHtml(item.candidate_id)}</code> · ${escapeHtml(item.reason)}
+  </li>`).join("");
   const warnings = (result.reference_warnings || []).length + result.ranking.reduce((total, item) => total + (item.warnings || []).length, 0);
-  byId("comparison-result").innerHTML = `${ranking}<div class="result-trace">Model ${escapeHtml(result.model_id)} · ${escapeHtml(result.model_backend)} · ${warnings} cảnh báo QC/tiền xử lý</div>`;
+  const target = byId("comparison-result");
+  target.innerHTML = `${ranking || '<div class="empty-state">Không có mẫu đủ dữ liệu để xếp hạng.</div>'}
+    ${skipped ? `<div class="result-trace"><strong>Mẫu chưa xếp hạng</strong><ul>${skipped}</ul></div>` : ""}
+    <div class="result-trace">Model ${escapeHtml(result.model_id)} · ${escapeHtml(result.model_backend)} · ${warnings} cảnh báo QC/tiền xử lý</div>`;
+  target.querySelectorAll(".rank-track").forEach((track, index) => {
+    const score = Math.max(-1, Math.min(1, Number(result.ranking[index].similarity)));
+    const position = (score + 1) * 50;
+    track.style.setProperty("--score-position", `${position}%`);
+    track.style.setProperty("--score-segment-start", `${Math.min(50, position)}%`);
+    track.style.setProperty("--score-segment-width", `${Math.abs(score) * 50}%`);
+  });
+  target.scrollTop = 0;
 }
 
 async function pollInference() {
@@ -412,7 +464,15 @@ async function pollInference() {
     const payload = await api("/api/inference/results?after=0");
     payload.jobs.forEach(job => {
       if (state.renderedJobs.has(job.job_id) || !["SUCCEEDED", "FAILED"].includes(job.state)) return;
+      if (job.task === "identity" && identityJob !== undefined && job.job_id !== identityJob) return;
+      if (job.task === "reference_comparison" && job.job_id !== comparisonJob) return;
       state.renderedJobs.add(job.job_id);
+      if (job.task === "reference_comparison") {
+        comparisonJob = undefined;
+        comparisonBusy = false;
+        renderComparisonSelection();
+      }
+      if (job.task === "identity") renderCoffee(job.payload.sample_id, job.coffee_check);
       if (job.state === "FAILED") {
         const target = job.task === "identity" ? byId("identity-result") : byId("comparison-result");
         target.innerHTML = `<div class="empty-state">${escapeHtml(job.error || "Inference failed")}</div>`;
@@ -426,16 +486,77 @@ async function loadTrials() {
   try {
     const payload = await api("/api/trials");
     state.trials = payload.trials;
-    const eligible = payload.trials.filter(item => item.status === "COMPLETE" && item.export_finalized);
     if (state.savedTrial) {
       const finalized = payload.trials.find(item => item.trial_id === state.savedTrial.trial_id);
       if (finalized) state.savedTrial = finalized;
+      if (finalized?.status === "COMPLETE" && finalized.export_finalized && autoPredictedTrial !== finalized.trial_id) {
+        autoPredictedTrial = finalized.trial_id;
+        byId("identity-sample").value = finalized.trial_id;
+        if (!byId("page-control").hidden) document.querySelector('[data-page="identity"]').click();
+        runIdentity(finalized.trial_id);
+      }
     }
-    byId("trial-options").innerHTML = eligible.map(item => `<option value="${escapeHtml(item.trial_id)}">${escapeHtml(item.name || "Chưa đặt tên")} · COMPLETE · QC ${escapeHtml(item.quality || "NOT_EVALUATED")}</option>`).join("");
-    renderLibrary();
+    const updatedCatalog = JSON.stringify(payload.trials);
+    if (trialCatalogJson !== updatedCatalog) {
+      trialCatalogJson = updatedCatalog;
+      byId("trial-options").innerHTML = state.trials.filter(canCompare).map(item => `<option value="${escapeHtml(item.trial_id)}">${escapeHtml(item.name || "Chưa đặt tên")} · COMPLETE · QC ${escapeHtml(item.quality || "NOT_EVALUATED")}</option>`).join("");
+      renderLibrary();
+      renderComparisonSelection();
+    }
     if (state.savedTrial) renderSavedTrial();
     return payload.trials;
   } catch { return state.trials; /* Catalog may be empty while the first trial is open. */ }
+}
+
+function canCompare(item) {
+  return item.status === "COMPLETE" && item.export_finalized;
+}
+
+function readComparisonSelection() {
+  try {
+    const ids = JSON.parse(localStorage.getItem(selectionKey) || "[]");
+    return new Set(Array.isArray(ids) ? ids.filter(id => typeof id === "string") : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function eligibleSelection(selection) {
+  return state.trials.filter(item => canCompare(item) && selection.has(item.trial_id)).map(item => item.trial_id);
+}
+
+function referenceValue() {
+  return byId("reference-id").value.trim().toLowerCase();
+}
+
+function renderComparisonSelection() {
+  const draft = eligibleSelection(draftSelection);
+  const saved = eligibleSelection(savedSelection);
+  const unsaved = draft.length !== savedSelection.size || draft.some(id => !savedSelection.has(id));
+  byId("save-comparison-selection").disabled = trialCatalogJson === undefined || !unsaved;
+  const libraryStatus = unsaved ? `Đang chọn ${draft.length} mẫu · Chưa lưu thay đổi` : `Đã lưu ${saved.length} mẫu`;
+  feedback("library-selection-status", libraryStatus);
+
+  const includesReference = saved.includes(referenceValue());
+  const candidateCount = saved.length - Number(includesReference);
+  const unavailable = savedSelection.size - saved.length;
+  const notes = [`${candidateCount} mẫu đã lưu để đối sánh`];
+  if (includesReference) notes.push("đã loại mẫu tham chiếu khỏi danh sách");
+  if (trialCatalogJson !== undefined && unavailable) notes.push(`${unavailable} mẫu đã lưu hiện không khả dụng`);
+  byId("comparison-selection-status").textContent = notes.join(" · ");
+  byId("comparison-button").disabled = comparisonBusy || candidateCount === 0;
+}
+
+function saveComparisonSelection() {
+  const selection = eligibleSelection(draftSelection);
+  try {
+    localStorage.setItem(selectionKey, JSON.stringify(selection));
+    savedSelection = new Set(selection);
+    draftSelection = new Set(selection);
+    renderComparisonSelection();
+  } catch {
+    feedback("library-selection-status", "Trình duyệt không lưu được lựa chọn. Hãy thử lại.", true);
+  }
 }
 
 function renderLibrary() {
@@ -448,11 +569,14 @@ function renderLibrary() {
     return matchesText && (status === "ALL" || item.status === status);
   });
   body.innerHTML = rows.map(item => {
-    const complete = item.status === "COMPLETE" && item.export_finalized;
+    const complete = canCompare(item);
     const source = item.mode === "HARDWARE" ? "HARDWARE" : item.mode;
+    const name = escapeHtml(item.name || "Chưa đặt tên");
+    const id = escapeHtml(item.trial_id);
     return `<tr>
-      <td><strong>${escapeHtml(item.name || "Chưa đặt tên")}</strong></td>
-      <td><code>${escapeHtml(item.trial_id)}</code></td>
+      <td class="select-trial-cell"><input type="checkbox" data-select-trial="${id}" aria-label="Chọn mẫu ${name} (${id})" ${complete && draftSelection.has(item.trial_id) ? "checked" : ""} ${complete ? "" : 'disabled title="Mẫu cần được lưu hoàn chỉnh"'}></td>
+      <td><strong>${name}</strong></td>
+      <td><code>${id}</code></td>
       <td><span class="source-pill ${source === "HARDWARE" ? "hardware" : ""}">${escapeHtml(source)}</span></td>
       <td><span class="status-pill ${complete ? "complete" : "aborted"}">${escapeHtml(item.status)}</span></td>
       <td>${escapeHtml(item.quality || "NOT_EVALUATED")}</td>
@@ -477,6 +601,27 @@ function feedback(id, message, error = false) {
 }
 
 function initControls() {
+  document.querySelectorAll("[data-session-action]").forEach(button => {
+    button.addEventListener("click", async () => {
+      const action = button.dataset.sessionAction;
+      if (action === "end_session" && state.snapshot?.trial?.status === "ACTIVE" &&
+          !confirm("Kết thúc phiên khi đang thu sẽ dừng lượt hiện tại. Tiếp tục?")) return;
+      state.sessionRequestPending = true;
+      renderSessionControls(state.snapshot);
+      feedback("session-feedback", "");
+      try {
+        await sendCommand(action);
+        if (action === "begin_session") byId("saved-sample-card").hidden = true;
+        state.pendingSavedTrial = null;
+        await pollSnapshot();
+      } catch (error) {
+        feedback("session-feedback", error.message, true);
+      } finally {
+        state.sessionRequestPending = false;
+        renderSessionControls(state.snapshot);
+      }
+    });
+  });
   document.querySelectorAll("[data-command]").forEach(button => {
     button.addEventListener("click", async () => {
       const action = button.dataset.command;
@@ -528,50 +673,45 @@ function initControls() {
   byId("window-select").addEventListener("change", () => {
     byId("control-window-select").value = byId("window-select").value;
   });
-  byId("identity-button").addEventListener("click", async () => {
-    const sampleId = byId("identity-sample").value.trim();
-    const known = state.trials.find(item => item.trial_id === sampleId);
-    if (known && (known.status !== "COMPLETE" || !known.export_finalized)) {
-      byId("identity-result").innerHTML = '<p class="eyebrow">Không thể dự đoán</p><div class="empty-state">Mẫu này đã bị hủy hoặc chưa lưu hoàn chỉnh. Hãy chọn một mẫu có trạng thái COMPLETE.</div>';
-      return;
-    }
-    try {
-      await api("/api/inference/identity", {method: "POST", body: JSON.stringify({sample_id: sampleId})});
-      byId("identity-result").innerHTML = '<p class="eyebrow">Đang xử lý</p><div class="empty-state">Job đã vào queue, đang chờ predictor.</div>';
-    } catch (error) {
-      const message = /Unsupported schema\/status|ABORTED/.test(error.message)
-        ? "Mẫu này đã bị hủy hoặc chưa hoàn chỉnh nên không thể đưa vào model. Hãy chọn mẫu COMPLETE."
-        : error.message;
-      byId("identity-result").innerHTML = `<p class="eyebrow">Không thể dự đoán</p><div class="empty-state">${escapeHtml(message)}</div>`;
-    }
+  byId("identity-button").addEventListener("click", () => runIdentity(byId("identity-sample").value.trim()));
+  byId("reference-id").addEventListener("input", renderComparisonSelection);
+  byId("open-comparison-selection").addEventListener("click", () => {
+    document.querySelector('[data-page="library"]').click();
   });
   byId("comparison-button").addEventListener("click", async () => {
-    const referenceId = byId("reference-id").value.trim();
-    const candidates = [...document.querySelectorAll(".candidate-input")].map(input => input.value.trim()).filter(Boolean);
-    if (!referenceId) {
-      byId("comparison-result").innerHTML = '<div class="empty-state">Hãy chọn mẫu tham chiếu X.</div>';
+    const referenceId = referenceValue();
+    const candidates = eligibleSelection(savedSelection).filter(id => id !== referenceId);
+    if (comparisonBusy || !candidates.length) return;
+    const target = byId("comparison-result");
+    if (!state.trials.some(item => item.trial_id === referenceId && canCompare(item))) {
+      target.innerHTML = '<div class="empty-state">Hãy chọn một mẫu tham chiếu đã lưu hoàn chỉnh.</div>';
       return;
     }
-    if (candidates.length < 1 || candidates.length > 4) {
-      byId("comparison-result").innerHTML = '<div class="empty-state">Hãy chọn từ 1 đến 4 mẫu cần so sánh.</div>';
-      return;
-    }
-    if (new Set(candidates).size !== candidates.length) {
-      byId("comparison-result").innerHTML = '<div class="empty-state">Các mẫu so sánh đang bị trùng. Mỗi trial_id chỉ được chọn một lần.</div>';
-      return;
-    }
+    comparisonBusy = true;
+    renderComparisonSelection();
+    target.innerHTML = '<div class="empty-state">Đang mã hóa và xếp hạng.</div>';
     try {
-      await api("/api/inference/compare", {method: "POST", body: JSON.stringify({reference_id: referenceId, candidate_ids: candidates})});
-      byId("comparison-result").innerHTML = '<div class="empty-state">Đang mã hóa và xếp hạng.</div>';
+      const job = await api("/api/inference/compare", {method: "POST", body: JSON.stringify({
+        reference_id: referenceId, candidate_ids: candidates
+      })});
+      comparisonJob = job.job_id;
     } catch (error) {
-      const message = /must be unique/.test(error.message)
-        ? "Các mẫu so sánh phải khác nhau; mỗi trial_id chỉ được chọn một lần."
-        : error.message;
-      byId("comparison-result").innerHTML = `<div class="empty-state">${escapeHtml(message)}</div>`;
+      comparisonBusy = false;
+      renderComparisonSelection();
+      target.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
     }
   });
   byId("library-search").addEventListener("input", renderLibrary);
   byId("library-status").addEventListener("change", renderLibrary);
+  byId("save-comparison-selection").addEventListener("click", saveComparisonSelection);
+  byId("sample-library-body").addEventListener("change", event => {
+    const checkbox = event.target.closest("[data-select-trial]");
+    if (!checkbox || checkbox.disabled) return;
+    const id = checkbox.dataset.selectTrial;
+    if (checkbox.checked) draftSelection.add(id);
+    else draftSelection.delete(id);
+    renderComparisonSelection();
+  });
   byId("sample-library-body").addEventListener("click", async event => {
     const copy = event.target.closest("[data-copy-trial]");
     const predict = event.target.closest("[data-predict-trial]");
@@ -589,6 +729,7 @@ function initControls() {
 function boot() {
   initNavigation();
   initControls();
+  renderComparisonSelection();
   pollSnapshot(); pollMessages(); pollInference(); loadTrials();
   setInterval(pollSnapshot, 1000);
   setInterval(pollMessages, 700);

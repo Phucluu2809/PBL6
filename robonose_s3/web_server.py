@@ -14,6 +14,7 @@ import threading
 import uuid
 from urllib.parse import parse_qs, urlparse
 
+from .config import Config
 from .inference import InferenceCoordinator
 from .schema import finite_or_none, valid_signal
 
@@ -219,24 +220,35 @@ def project_snapshot(snapshot, window_s=600):
 
 
 class RoboNoseWebApplication:
-    def __init__(self, session, data_root, predictor=None, catalog_roots=None):
+    def __init__(self, session, data_root, predictor=None, catalog_roots=None,
+                 session_factory=None, idle_snapshot=None):
         self.session = session
-        self.data_root = Path(data_root)
+        self.session_factory = session_factory
+        self.idle_snapshot = {"phase": "IDLE", **(idle_snapshot or {})}
+        self.session_lock = threading.Lock()
+        self.closing = False
+        self.start_error = None
         self.static_root = Path(__file__).with_name("web")
         self.messages = MessageHub()
         self.catalog = TrialCatalog(catalog_roots or [data_root])
+        if session is not None:
+            self._attach_messages(session)
+        self.inference = InferenceCoordinator(predictor=predictor, event_sink=self._record_inference)
+
+    def _attach_messages(self, session):
         previous = session.on_message
 
         def combined_message(text):
             previous(text)
             self.messages.publish(text)
         session.on_message = combined_message
-        self.inference = InferenceCoordinator(predictor=predictor, event_sink=self._record_inference)
 
     def _record_inference(self, result):
-        event = {"event": "inference_result", "mode": self.session.mode,
-                 "timestamp": self.session.clock.timestamp(), "details": result}
-        self.session.engine.recorder.submit("event", event)
+        session = self.session
+        if session is not None and not session.stop_requested.is_set() and not session.finished.is_set():
+            event = {"event": "inference_result", "mode": session.mode,
+                     "timestamp": session.clock.timestamp(), "details": result}
+            session.engine.recorder.submit("event", event)
         label = result.get("predicted_id") or result.get("top_candidate") or result.get("status")
         backend = result.get("model_backend", "MODEL")
         self.messages.publish(f"{backend} {result['task']}: {label}", level="MODEL")
@@ -245,11 +257,33 @@ class RoboNoseWebApplication:
         self.inference.start()
 
     def close(self):
+        with self.session_lock:
+            self.closing = True
+            session = self.session if self.session_factory is not None else None
+            if session is not None:
+                session.request_stop("web-exit")
+        if session is not None:
+            session.thread.join(15)
         self.inference.close()
 
     def snapshot(self, window_s):
-        snapshot = project_snapshot(self.session.snapshot(), window_s)
-        config = self.session.config.snapshot()
+        session = self.session
+        raw = session.snapshot() if session is not None else self.idle_snapshot
+        snapshot = project_snapshot(raw, window_s)
+        config = session.config.snapshot() if session is not None else Config().snapshot()
+        if self.session_factory is not None:
+            ended = session is None or session.finished.is_set()
+            stopping = session is not None and session.stop_requested.is_set() and not ended
+            starting = not ended and not stopping and raw.get("startup") not in (None, "ACTIVE")
+            if ended or stopping or starting:
+                snapshot["actions"] = dict.fromkeys(snapshot["actions"], False)
+            snapshot["actions"].update(begin_session=ended and not self.closing,
+                                       end_session=not ended and not stopping and not self.closing)
+            snapshot["session_status"] = ("STOPPING" if stopping else "STARTING" if starting else
+                                          "IDLE" if session is None else "ENDED" if ended else "RUNNING")
+            if self.start_error:
+                snapshot["warnings"].append({"code": "SESSION_START_ERROR", "severity": "critical",
+                                             "message": self.start_error})
         duration_reported = all(snapshot.get(key) is not None for key in
                                 ("baseline_s", "exposure_s", "recovery_s"))
         legacy_firmware = snapshot.get("device_info", {}).get("firmware_version") == "3.0.0"
@@ -259,9 +293,9 @@ class RoboNoseWebApplication:
             "recovery_s": snapshot.get("recovery_s") or config["recovery_s"],
             "pump_pwm_pct": config["pump_pwm_pct"],
             "sampling_hz": config["sampling_hz"],
-            "runtime_editable": snapshot.get("phase") == "MONITOR" and duration_reported and not legacy_firmware,
+            "runtime_editable": snapshot["actions"]["configure"] and duration_reported and not legacy_firmware,
             "source": ("MCU_LEGACY_FIXED_60_120_60" if legacy_firmware else
-                       "MCU_FIRMWARE_CONTRACT" if self.session.mode != "SIMULATED" else "SIMULATION_CONFIG"),
+                       "MCU_FIRMWARE_CONTRACT" if snapshot["mode"] != "SIMULATED" else "SIMULATION_CONFIG"),
         }
         model = self.inference.describe()
         snapshot["model"] = model
@@ -277,12 +311,13 @@ class RoboNoseWebApplication:
 
     def post_command(self, payload):
         action = str(payload.get("action", "")).strip().lower()
-        if action not in PLAIN_ACTIONS | ARGUMENT_ACTIONS:
+        lifecycle = {"begin_session", "end_session"}
+        if action not in PLAIN_ACTIONS | ARGUMENT_ACTIONS | lifecycle:
             raise ValueError("Unsupported command action")
         argument = str(payload.get("argument", "")).strip()
         if action in ARGUMENT_ACTIONS and not argument:
             raise ValueError(f"{action} requires an argument")
-        if action in PLAIN_ACTIONS and argument:
+        if action in PLAIN_ACTIONS | lifecycle and argument:
             raise ValueError(f"{action} does not accept an argument")
         text = action if not argument else f"{action} {argument}"
         if len(text) > 2048:
@@ -290,11 +325,35 @@ class RoboNoseWebApplication:
         request_id = str(payload.get("request_id") or uuid.uuid4())
         if len(request_id) > 128:
             raise ValueError("request_id is too long")
-        if not self.session.post(text, request_id=request_id):
-            raise RuntimeError("Command queue busy or session closed")
+        with self.session_lock:
+            if self.closing:
+                raise RuntimeError("Máy chủ web đang đóng")
+            session = self.session
+            if action in lifecycle and self.session_factory is None:
+                raise RuntimeError("Phiên này được quản lý bên ngoài dashboard")
+            if action == "begin_session":
+                if session is not None and not session.finished.is_set():
+                    raise RuntimeError("Phiên hiện tại vẫn đang mở")
+                try:
+                    session = self.session_factory()
+                    self._attach_messages(session)
+                    session.start()
+                except Exception as error:
+                    self.start_error = f"Không thể mở phiên: {error}"
+                    self.messages.publish(self.start_error, level="ERROR")
+                    raise RuntimeError(self.start_error) from error
+                self.session = session
+                self.start_error = None
+                self.messages.publish(f"Session: {session.engine.recorder.path}")
+            elif action == "end_session":
+                if session is None or session.finished.is_set():
+                    raise RuntimeError("Chưa có phiên đang mở")
+                session.request_stop("web-end-session")
+            elif session is None or not session.post(text, request_id=request_id):
+                raise RuntimeError("Phiên chưa mở, đang đóng hoặc hàng đợi đã đầy")
         item = self.messages.publish(f"QUEUED {text}", command=text, request_id=request_id)
         return {"queued": True, "request_id": request_id, "command": text,
-                "phase_at_enqueue": self.session.snapshot().get("phase"), "message": item}
+                "phase_at_enqueue": session.snapshot().get("phase"), "message": item}
 
 
 class WebRequestHandler(BaseHTTPRequestHandler):
@@ -326,13 +385,18 @@ class WebRequestHandler(BaseHTTPRequestHandler):
     def _error(self, status, message):
         self._json({"error": str(message)}, status)
 
-    def _payload(self):
+    def _payload(self, max_bytes=16384):
+        origin = self.headers.get("Origin")
+        if origin is not None and origin != f"http://{self.headers.get('Host')}":
+            raise ValueError("Origin does not match the dashboard")
+        if self.headers.get_content_type() != "application/json":
+            raise ValueError("Content-Type must be application/json")
         try:
             length = int(self.headers.get("Content-Length", "0"))
         except ValueError as error:
             raise ValueError("Invalid Content-Length") from error
-        if length <= 0 or length > 16384:
-            raise ValueError("JSON body must be between 1 and 16384 bytes")
+        if length <= 0 or length > max_bytes:
+            raise ValueError(f"JSON body must be between 1 and {max_bytes} bytes")
         try:
             value = json.loads(self.rfile.read(length).decode("utf-8"))
         except (UnicodeError, json.JSONDecodeError) as error:
@@ -380,7 +444,8 @@ class WebRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         parsed = urlparse(self.path)
         try:
-            payload = self._payload()
+            max_bytes = 65536 if parsed.path == "/api/inference/compare" else 16384
+            payload = self._payload(max_bytes)
             if parsed.path == "/api/commands":
                 self._json(self.app.post_command(payload), HTTPStatus.ACCEPTED)
             elif parsed.path == "/api/inference/identity":
@@ -388,7 +453,12 @@ class WebRequestHandler(BaseHTTPRequestHandler):
                 known = self.app.catalog.find(sample_id)
                 if known and (known.get("status") != "COMPLETE" or not known.get("export_finalized")):
                     raise ValueError("Mẫu đã bị hủy hoặc chưa lưu hoàn chỉnh; chỉ mẫu COMPLETE mới được dự đoán")
-                self._json(self.app.inference.submit_identity(sample_id), HTTPStatus.ACCEPTED)
+                coffee_raw = None
+                if known and known.get("mode") == "HARDWARE":
+                    candidate = Path(known["folder"]).joinpath("raw.csv").resolve()
+                    if any(candidate.is_relative_to(root) for root in self.app.catalog.data_roots):
+                        coffee_raw = str(candidate)
+                self._json(self.app.inference.submit_identity(sample_id, coffee_raw), HTTPStatus.ACCEPTED)
             elif parsed.path == "/api/inference/compare":
                 candidates = payload.get("candidate_ids")
                 if not isinstance(candidates, list):
@@ -412,9 +482,10 @@ class RoboNoseHTTPServer(ThreadingHTTPServer):
 
 class RoboNoseWebServer:
     def __init__(self, session, data_root, host="127.0.0.1", port=8000, predictor=None,
-                 catalog_roots=None):
+                 catalog_roots=None, session_factory=None, idle_snapshot=None):
         self.app = RoboNoseWebApplication(
-            session, data_root, predictor=predictor, catalog_roots=catalog_roots)
+            session, data_root, predictor=predictor, catalog_roots=catalog_roots,
+            session_factory=session_factory, idle_snapshot=idle_snapshot)
         self.httpd = RoboNoseHTTPServer((host, port), WebRequestHandler)
         self.httpd.app = self.app
         self.thread = threading.Thread(target=self.httpd.serve_forever,

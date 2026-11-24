@@ -5,13 +5,15 @@ import os
 from pathlib import Path
 import signal
 import sys
+import threading
+import time
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description="RoboNose dataset host — explicit simulation or USB hardware")
     backend = parser.add_mutually_exclusive_group(required=True)
     backend.add_argument("--demo", action="store_true", help="Run the simulation terminal and dashboard")
-    backend.add_argument("--port", help="Explicit hardware port; valid startup automatically commands PWM 80%%")
+    backend.add_argument("--port", help="Hardware port; in web mode opens only after Bắt đầu phiên")
     backend.add_argument("--find-sample", metavar="NAME", help="Find every trial with this name and print its folder; read-only, no COM/GUI")
     parser.add_argument("--serial-kind", choices=["native-cdc", "uart"], help="Required with --port; DTR/RTS deasserted before open")
     parser.add_argument("--offscreen", action="store_true", help="Qt offscreen integration check")
@@ -20,7 +22,9 @@ def main(argv=None):
     parser.add_argument("--web-host", default="127.0.0.1", help="Web bind address; use 0.0.0.0 for an explicitly trusted LAN")
     parser.add_argument("--web-port", type=int, default=8000, help="Local web port (default: 8000)")
     parser.add_argument("--model-dir", type=Path,
-                        help="Versioned ResCNN64 artifact directory; omit to keep the explicit mock backend")
+                        help="Versioned ResCNN64 artifact directory; overrides the local web model")
+    parser.add_argument("--model-python", type=Path,
+                        help="Python with PyTorch for ResCNN64 when the acquisition environment lacks it")
     parser.add_argument("--model-sample-root", type=Path, action="append", default=[],
                         help="Additional read-only trial root for model inference; may be repeated")
     parser.add_argument("--model-similarity-threshold", type=float,
@@ -43,16 +47,23 @@ def main(argv=None):
         parser.error("--web-port must be in 1..65535")
     if args.web and args.offscreen:
         parser.error("--offscreen applies to the Qt dashboard, not --web")
+    root = Path(__file__).resolve().parents[1]
+    local = root / "configs/paths.local.json"
+    paths = (json.loads(local.read_text(encoding="utf-8"))
+             if os.name == "nt" and args.find_sample is None else {})
+    if args.web and args.port and args.model_dir is None and paths.get("web_model_dir"):
+        args.model_dir = Path(paths["web_model_dir"])
+        if args.model_python is None and paths.get("web_model_python"):
+            args.model_python = Path(paths["web_model_python"])
     model_options = (args.model_similarity_threshold, args.model_margin_threshold)
     if args.model_dir and not args.web:
         parser.error("--model-dir applies only to --web")
-    if args.model_sample_root and not args.model_dir:
-        parser.error("--model-sample-root requires --model-dir")
+    if (args.model_sample_root or args.model_python) and not args.model_dir:
+        parser.error("--model-sample-root and --model-python require --model-dir")
     if any(value is not None for value in model_options) and not args.model_dir:
         parser.error("model thresholds require --model-dir")
     if (model_options[0] is None) != (model_options[1] is None):
         parser.error("both model thresholds must be supplied together")
-    root = Path(__file__).resolve().parents[1]
     if args.find_sample is not None:
         if args.offscreen or args.auto_close_s or args.web:
             parser.error("GUI/web options do not apply to --find-sample")
@@ -68,7 +79,6 @@ def main(argv=None):
     # The approved Windows workflow pins its interpreter.  Raspberry Pi uses a
     # separate Linux venv and must not inherit a D:\ path from paths.local.json.
     if os.name == "nt":
-        paths = json.loads((root / "configs/paths.local.json").read_text(encoding="utf-8"))
         if Path(sys.executable).resolve() != Path(paths["python_exe"]).resolve():
             parser.error(f"Use the configured interpreter: {paths['python_exe']}")
     if args.offscreen:
@@ -78,7 +88,6 @@ def main(argv=None):
     predictor = None
     model_sample_roots = []
     if args.model_dir:
-        from .rescnn64 import ResCNN64Predictor
         model_dir = args.model_dir if args.model_dir.is_absolute() else root / args.model_dir
         for value in args.model_sample_root:
             sample_root = value if value.is_absolute() else root / value
@@ -92,10 +101,14 @@ def main(argv=None):
         # Hardware trials are the canonical source for inference and win on duplicate UUIDs.
         inference_roots = list(dict.fromkeys([hardware_root, data_root.resolve(), *model_sample_roots]))
         try:
-            predictor = ResCNN64Predictor(
-                model_dir, inference_roots,
-                similarity_threshold=args.model_similarity_threshold,
-                margin_threshold=args.model_margin_threshold)
+            thresholds = {"similarity_threshold": args.model_similarity_threshold,
+                          "margin_threshold": args.model_margin_threshold}
+            if args.model_python:
+                from .rescnn_worker import ResCNNWorker
+                predictor = ResCNNWorker(args.model_python, model_dir, inference_roots, **thresholds)
+            else:
+                from .rescnn64 import ResCNN64Predictor
+                predictor = ResCNN64Predictor(model_dir, inference_roots, **thresholds)
         except Exception as error:
             print(f"Model startup failed: {type(error).__name__}: {error}", file=sys.stderr)
             return 1
@@ -106,54 +119,55 @@ def main(argv=None):
     partials = find_partial_sessions(data_root)
     if partials:
         print(f"Found {len(partials)} prior PARTIAL/ERROR sessions; kept unchanged, not resumed.", flush=True)
-    try:
+    mode = "SIMULATED" if args.demo else "HARDWARE"
+
+    def create_session():
         if args.demo:
-            session = Session(data_root, on_message=lambda text: print(text, flush=True))
-        else:
-            from .hardware import HardwareEngine
-            from .usb_protocol import SerialOptions
-            options = SerialOptions(args.port, args.serial_kind)
-            session = Session(data_root, mode="HARDWARE", on_message=lambda text: print(text, flush=True),
-                engine_factory=lambda config, clock, recorder: HardwareEngine(config, clock, recorder, options))
-    except Exception as error:
-        print(f"Host startup failed: {error}", file=sys.stderr)
-        return 1
+            return Session(data_root, on_message=lambda text: print(text, flush=True))
+        from .hardware import HardwareEngine
+        from .usb_protocol import SerialOptions
+        options = SerialOptions(args.port, args.serial_kind)
+        return Session(data_root, mode=mode, on_message=lambda text: print(text, flush=True),
+            engine_factory=lambda config, clock, recorder: HardwareEngine(config, clock, recorder, options))
 
     if args.web:
         from .web_server import RoboNoseWebServer
         try:
             web = RoboNoseWebServer(
-                session, data_root, args.web_host, args.web_port, predictor=predictor,
+                None, data_root, args.web_host, args.web_port, predictor=predictor,
+                session_factory=create_session,
+                idle_snapshot={"mode": mode, "device_info": {
+                    "port": args.port, "transport": args.serial_kind or "SIMULATED"}},
                 catalog_roots=list(dict.fromkeys([hardware_root, data_root.resolve(), *model_sample_roots])))
         except Exception as error:
-            session.engine.shutdown("web startup fault")
             print(f"Web startup failed: {error}", file=sys.stderr)
             return 1
-        terminal = Terminal(session) if sys.stdin.isatty() and not args.auto_close_s else None
-        previous_signal = signal.signal(signal.SIGINT, lambda *_: session.request_stop("Ctrl+C"))
-        session.start()
-        address = web.start()
-        if terminal:
-            terminal.start()
-        print(f"{session.mode} DATA | web: {address} | bind: {args.web_host}:{web.httpd.server_address[1]}", flush=True)
-        print(f"Session: {session.engine.recorder.path}\nBrowser close does not stop acquisition; use Dừng hệ thống or Ctrl+C.", flush=True)
-        started = session.clock.now()
+        stop = threading.Event()
+        previous_signal = signal.signal(signal.SIGINT, lambda *_: stop.set())
         try:
-            while not session.finished.wait(.1):
-                if args.auto_close_s and session.clock.now() - started >= args.auto_close_s:
-                    session.request_stop("web-auto-close")
+            address = web.start()
+            print(f"{mode} | web: {address} | bấm Bắt đầu phiên trên dashboard.", flush=True)
+            started = time.monotonic()
+            while not stop.wait(.1):
+                if args.auto_close_s and time.monotonic() - started >= args.auto_close_s:
+                    break
         finally:
-            if terminal:
-                terminal.stop()
-            session.request_stop("web-exit")
-            session.thread.join(15 if not args.demo else 12)
             web.stop()
             signal.signal(signal.SIGINT, previous_signal)
+        session = web.app.session
+        if session is None:
+            return 0
         snap = session.snapshot()
         print(f"Session {snap['writer']['status']} | last reported PWM {snap['pump_pwm_pct']}% | {snap['writer']['path']}" +
               (f" | commanded OFF acknowledged: {snap.get('off_confirmed', False)}" if not args.demo else "") +
               (f" | reason: {snap.get('fault') or snap['writer']['error']}" if snap.get('fault') or snap['writer']['error'] else ""), flush=True)
         return 1 if session.thread.is_alive() or snap["writer"]["error"] else 0
+
+    try:
+        session = create_session()
+    except Exception as error:
+        print(f"Host startup failed: {error}", file=sys.stderr)
+        return 1
 
     from PySide6 import QtCore, QtWidgets
     from .dashboard import Dashboard, configure_qt_font

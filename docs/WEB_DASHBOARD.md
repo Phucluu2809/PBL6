@@ -83,10 +83,13 @@ bind `127.0.0.1` để không vô tình công khai điều khiển.
    ResCNN64, backend đọc trial `COMPLETE`, tạo embedding 64 chiều và so gallery.
    Artifact hiện tại chưa có ngưỡng Unknown nên trả `RANKED_ONLY`, không tự
    xác nhận người dù top-1 có điểm cao.
-4. **So sánh tham chiếu:** cùng encoder ResCNN64 so X với 1–4 candidate rồi
-   xếp hạng cosine; giữ `input_order`, model/version và cảnh báo QC/tiền xử lý.
+4. **Đối sánh** dùng encoder ResCNN64 để xếp hạng cosine giữa mẫu tham chiếu
+   và các mẫu đã lưu lựa chọn ở mục 05. Mẫu tham chiếu được loại khỏi tập đối sánh.
+   Mẫu thiếu dữ liệu để chạy model được ghi kèm lý do. Chỉ vùng xếp hạng cuộn.
 5. **Danh sách mẫu:** quét đệ quy các phiên trong `data/hardware`, kể cả layout
    ngày lồng cũ, khử trùng theo trial UUID và ưu tiên hardware trước nguồn khác.
+   Tick các mẫu đã lưu hoàn chỉnh rồi bấm **Lưu lựa chọn** để giữ danh sách trong
+   trình duyệt. Thanh lọc và tiêu đề bảng giữ nguyên vị trí khi cuộn các dòng mẫu.
 Model ResCNN64 hiện tại được train với đúng 60 điểm baseline và 120 điểm
 exposure. Web vẫn cho đổi thời lượng để thí nghiệm/thu dữ liệu mới, nhưng sẽ
 cảnh báo khi cấu hình khác 60/120 vì mẫu đó chưa tương thích đầu vào model này.

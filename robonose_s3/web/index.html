@@ -18,7 +18,7 @@
         <button class="nav-item active" type="button" data-page="realtime"><span>01</span>Tín hiệu & thiết bị</button>
         <button class="nav-item" type="button" data-page="control"><span>02</span>Điều khiển thu mẫu</button>
         <button class="nav-item" type="button" data-page="identity"><span>03</span>Dự đoán danh tính</button>
-        <button class="nav-item" type="button" data-page="comparison"><span>04</span>So sánh tham chiếu</button>
+        <button class="nav-item" type="button" data-page="comparison"><span>04</span>Đối sánh</button>
         <button class="nav-item" type="button" data-page="library"><span>05</span>Danh sách mẫu</button>
       </nav>
       <div class="sidebar-note">
@@ -40,6 +40,17 @@
       </header>
 
       <div id="global-alert" class="global-alert" hidden></div>
+
+      <article class="panel stop-row" id="session-controls" hidden>
+        <div>
+          <strong id="session-state">Chưa mở phiên</strong>
+          <small id="session-feedback" aria-live="polite"></small>
+        </div>
+        <div class="hardware-buttons">
+          <button class="primary" type="button" data-session-action="begin_session" disabled>Bắt đầu phiên</button>
+          <button class="danger" type="button" data-session-action="end_session" disabled>Kết thúc phiên</button>
+        </div>
+      </article>
 
       <section class="page active" id="page-realtime" aria-labelledby="page-title">
         <div class="summary-grid">
@@ -211,22 +222,24 @@
         <article class="panel library-head">
           <div><p class="eyebrow">Sample Library · hardware ưu tiên</p><h2>Danh sách phiên và mẫu đã lưu</h2><small id="library-source">Đang đọc data/hardware trước các nguồn khác.</small></div>
           <div class="library-tools">
-            <input id="library-search" type="search" placeholder="Tìm tên hoặc trial_id">
+            <input id="library-search" type="search" aria-label="Tìm mẫu" placeholder="Tìm tên hoặc trial_id">
             <select id="library-status" aria-label="Lọc trạng thái">
               <option value="ALL">Tất cả trạng thái</option>
               <option value="COMPLETE">COMPLETE</option>
               <option value="ABORTED">ABORTED</option>
             </select>
+            <button class="primary" type="button" id="save-comparison-selection" disabled>Lưu lựa chọn</button>
+            <small id="library-selection-status" role="status">Chưa có mẫu được lưu.</small>
           </div>
         </article>
         <article class="panel library-panel">
-          <div class="sample-table-wrap">
+          <div class="sample-table-wrap" role="region" aria-label="Danh sách mẫu đã lưu" tabindex="0">
             <table class="sample-table">
-              <thead><tr><th>Tên mẫu</th><th>Trial ID</th><th>Nguồn</th><th>Trạng thái</th><th>QC</th><th>Thời gian</th><th>Thao tác</th></tr></thead>
+              <thead><tr><th scope="col" class="select-trial-cell">Chọn mẫu</th><th scope="col">Tên mẫu</th><th scope="col">Trial ID</th><th scope="col">Nguồn</th><th scope="col">Trạng thái</th><th scope="col">QC</th><th scope="col">Thời gian</th><th scope="col">Thao tác</th></tr></thead>
               <tbody id="sample-library-body"></tbody>
             </table>
+            <div class="empty-state library-empty" id="library-empty" hidden>Chưa tìm thấy mẫu phù hợp.</div>
           </div>
-          <div class="empty-state library-empty" id="library-empty" hidden>Chưa tìm thấy mẫu phù hợp.</div>
         </article>
       </section>
 
@@ -236,21 +249,21 @@
           <article class="panel inference-form">
             <p class="eyebrow">Closed-set + Unknown</p>
             <h2>Dự đoán danh tính mẫu ẩn danh</h2>
-            <p>Chọn UUID của một trial đã thu hoàn chỉnh. Backend thật chỉ xác nhận danh tính khi đã cấu hình ngưỡng Unknown.</p>
+            <p>Mẫu vừa lưu được dự đoán tự động. Bạn cũng có thể chọn mã của một mẫu đã lưu.</p>
             <label>Mã trial / mẫu
               <input id="identity-sample" list="trial-options" placeholder="Trial UUID">
             </label>
             <datalist id="trial-options"></datalist>
             <button class="primary" type="button" id="identity-button">Chạy dự đoán</button>
           </article>
-          <article class="panel result-panel" id="identity-result">
+          <article class="panel result-panel" id="identity-result" aria-live="polite">
             <p class="eyebrow">Kết quả gần nhất</p>
             <div class="empty-state">Chưa có lượt dự đoán.</div>
           </article>
         </div>
         <article class="panel">
-          <div class="panel-head"><div><p class="eyebrow">Hợp đồng tích hợp</p><h2>Model thật sẽ thay ở đâu?</h2></div></div>
-          <div class="contract-flow"><span>Trial đã chốt</span><i></i><span>Preprocessor</span><i></i><span>Predictor</span><i></i><span>Unknown threshold</span><i></i><span>prediction.v1</span></div>
+          <div class="panel-head"><h2>Kiểm tra mùi cà phê</h2></div>
+          <div id="coffee-result" aria-live="polite" class="result-trace">Chờ mẫu đã lưu.</div>
         </article>
       </section>
 
@@ -258,21 +271,17 @@
         <div class="mock-banner" id="comparison-model-banner"><strong>ĐANG KIỂM TRA MODEL</strong><span>Chờ trạng thái backend.</span></div>
         <div class="inference-layout comparison-layout">
           <article class="panel inference-form">
-            <p class="eyebrow">Reference retrieval</p>
-            <h2>So sánh X với 1–4 mẫu</h2>
-            <p>Điền từ một đến bốn mẫu khác nhau; các ô trống sẽ được bỏ qua.</p>
-            <label>Mùi tham chiếu X<input id="reference-id" list="trial-options" value="X" placeholder="Trial UUID tham chiếu"></label>
-            <div class="candidate-grid">
-              <label>Mẫu 1<input class="candidate-input" list="trial-options" placeholder="Trial UUID bắt buộc"></label>
-              <label>Mẫu 2<input class="candidate-input" list="trial-options" placeholder="Tùy chọn"></label>
-              <label>Mẫu 3<input class="candidate-input" list="trial-options" placeholder="Tùy chọn"></label>
-              <label>Mẫu 4<input class="candidate-input" list="trial-options" placeholder="Tùy chọn"></label>
+            <h2>Mẫu cần đối sánh</h2>
+            <label>Mẫu tham chiếu<input id="reference-id" list="trial-options" placeholder="Chọn hoặc nhập trial_id"></label>
+            <p id="comparison-selection-status"></p>
+            <div class="comparison-actions">
+              <button type="button" id="open-comparison-selection">Danh sách mẫu</button>
+              <button class="primary" type="button" id="comparison-button" disabled>Chạy đối sánh</button>
             </div>
-            <button class="primary" type="button" id="comparison-button">Xếp hạng tương đồng</button>
           </article>
-          <article class="panel result-panel">
-            <p class="eyebrow">Xếp hạng gần nhất</p>
-            <div id="comparison-result" class="ranking-list"><div class="empty-state">Chưa có kết quả so sánh.</div></div>
+          <article class="panel result-panel comparison-ranking">
+            <h2 id="comparison-ranking-title">Xếp hạng tương đồng</h2>
+            <div id="comparison-result" class="ranking-list" role="region" aria-labelledby="comparison-ranking-title" aria-live="polite" tabindex="0"><div class="empty-state">Chưa có kết quả đối sánh.</div></div>
           </article>
         </div>
       </section>

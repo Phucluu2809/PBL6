@@ -30,6 +30,24 @@ def _timestamp():
     return datetime.now(timezone.utc).astimezone().isoformat()
 
 
+def rank_references(vector, samples, embeddings, trial_id, raw_sha256):
+    """Score every other recording and retain the closest recording per label."""
+    scores = np.clip(embeddings @ vector, -1, 1)
+    best_by_label = {}
+    for index in np.argsort(-scores, kind="stable"):
+        sample = samples[index]
+        if sample["trial_id"] == trial_id or sample["raw_sha256"] == raw_sha256:
+            continue
+        label = sample["label"]
+        if label not in best_by_label:
+            best_by_label[label] = {
+                "label": label, "similarity": round(float(scores[index]), 6),
+                "reference_trial_id": sample["trial_id"], "reference_path": sample["path"],
+                "rank": len(best_by_label) + 1,
+            }
+    return list(best_by_label.values())
+
+
 def _validity(row, key, sensor):
     return validity(row, key, sensor, modern=True)
 
@@ -280,16 +298,32 @@ class ResCNN64Predictor:
                 self.model_dir / "model.pt", map_location="cpu", weights_only=True)
         except TypeError as error:
             raise RuntimeError("This backend requires torch.load(..., weights_only=True)") from error
-        if not isinstance(checkpoint, dict) or set(checkpoint) < {"weights", "gallery"}:
-            raise ValueError("model.pt does not contain weights and gallery")
+        if not isinstance(checkpoint, dict) or "weights" not in checkpoint:
+            raise ValueError("model.pt does not contain encoder weights")
         self.model = _build_rescnn64(self.torch, len(self.labels))
         self.model.load_state_dict(checkpoint["weights"], strict=True)
         self.model.eval()
-        self.gallery = checkpoint["gallery"].detach().to("cpu")
-        if tuple(self.gallery.shape) != (len(self.labels), 64) or not self.torch.isfinite(self.gallery).all():
-            raise ValueError("Model gallery has an invalid shape or non-finite values")
+        self.references = self._load_references()
         self.model_id = self.artifact.get("model_id", f"rescnn64:{self.model_dir.name}")
         self.cache = {}
+
+    def _load_references(self):
+        path = self.model_dir / "references.json"
+        if not path.is_file():
+            return None
+        index = json.loads(path.read_text(encoding="utf-8"))
+        if index.get("schema") != "robonose.sample_references.v1" or any(
+            index.get(key) != hashlib.sha256((self.model_dir / name).read_bytes()).hexdigest()
+            for key, name in (("model_sha256", "model.pt"), ("settings_sha256", "model.json"))
+        ):
+            raise ValueError("Kho mẫu tham chiếu không khớp model ResCNN64.")
+        samples = sorted(index["samples"], key=lambda item: item["path"])
+        embeddings = np.asarray([item["embedding"] for item in samples], dtype=np.float32)
+        if ({item["label"] for item in samples} != set(self.labels)
+                or embeddings.shape != (len(samples), 64) or not np.isfinite(embeddings).all()
+                or not np.allclose(np.linalg.norm(embeddings, axis=1), 1, atol=1e-4)):
+            raise ValueError("Kho mẫu tham chiếu thiếu lớp hoặc chứa embedding không hợp lệ.")
+        return samples, embeddings
 
     def _verify_artifact(self):
         artifact_path = self.model_dir / "artifact.json"
@@ -314,6 +348,8 @@ class ResCNN64Predictor:
             "synthetic_prediction": False,
             "labels": list(self.labels),
             "unknown_calibrated": self.calibrated,
+            "identity_method": "nearest_sample",
+            "reference_count": len(self.references[0]) if self.references else 0,
             "similarity_threshold": self.similarity_threshold,
             "margin_threshold": self.margin_threshold,
             "sample_roots": [str(root) for root in self.resolver.roots],
@@ -334,27 +370,21 @@ class ResCNN64Predictor:
         self.cache[info["raw_sha256"]] = vector
         return vector, info
 
-    def _rank_gallery(self, vector):
-        with self.torch.inference_mode():
-            scores = (vector @ self.gallery.T).clamp(-1, 1).flatten().tolist()
-        ranking = sorted(({"label": label, "similarity": round(float(score), 6)}
-                          for label, score in zip(self.labels, scores)),
-                         key=lambda item: (-item["similarity"], item["label"]))
-        for rank, item in enumerate(ranking, 1):
-            item["rank"] = rank
-        return ranking
-
     def predict_identity(self, sample_id):
+        if self.references is None:
+            raise ValueError("Thiếu references.json chứa embedding từng mẫu của model.")
         sample_id = str(uuid.UUID(str(sample_id).strip()))
         vector, info = self._embedding(sample_id)
-        ranking = self._rank_gallery(vector)
+        ranking = rank_references(vector.numpy()[0], *self.references, sample_id, info["raw_sha256"])
+        if not ranking:
+            raise ValueError("Không còn mẫu tham chiếu sau khi loại bản ghi trùng với mẫu cần dự đoán.")
         best = ranking[0]
-        margin = best["similarity"] - ranking[1]["similarity"]
+        margin = best["similarity"] - ranking[1]["similarity"] if len(ranking) > 1 else None
         if not self.calibrated:
             status, predicted_id, is_unknown, reason = (
-                "RANKED_ONLY", None, None, "unknown_thresholds_not_calibrated")
+                "RANKED_ONLY", best["label"], None, "nearest_sample_uncalibrated")
         else:
-            accepted = (best["similarity"] >= self.similarity_threshold
+            accepted = (margin is not None and best["similarity"] >= self.similarity_threshold
                         and margin >= self.margin_threshold)
             status = "MATCHED" if accepted else "UNKNOWN"
             predicted_id = best["label"] if accepted else None
@@ -370,7 +400,8 @@ class ResCNN64Predictor:
             "predicted_id": predicted_id,
             "top_candidate": best["label"],
             "similarity": best["similarity"],
-            "margin": round(margin, 6),
+            "margin": round(margin, 6) if margin is not None else None,
+            "identity_method": "nearest_sample",
             "similarity_threshold": self.similarity_threshold,
             "margin_threshold": self.margin_threshold,
             "is_unknown": is_unknown,
@@ -388,14 +419,17 @@ class ResCNN64Predictor:
         candidates = [str(uuid.UUID(str(value).strip())) for value in candidate_ids]
         if len(candidates) < 1:
             raise ValueError("At least one candidate is required")
-        if len(candidates) > 4:
-            raise ValueError("At most four candidates are supported")
         if len(set(candidates)) != len(candidates):
             raise ValueError("Candidate UUIDs must be unique")
         reference, reference_info = self._embedding(reference_id)
         ranking = []
+        skipped = []
         for input_order, candidate_id in enumerate(candidates, 1):
-            candidate, info = self._embedding(candidate_id)
+            try:
+                candidate, info = self._embedding(candidate_id)
+            except (OSError, ValueError) as error:
+                skipped.append({"candidate_id": candidate_id, "reason": str(error)})
+                continue
             with self.torch.inference_mode():
                 similarity = (reference @ candidate.T).clamp(-1, 1).item()
             ranking.append({
@@ -414,8 +448,9 @@ class ResCNN64Predictor:
             "model_id": self.model_id,
             "model_backend": self.backend,
             "synthetic_prediction": False,
-            "status": "RANKED",
+            "status": "RANKED" if ranking else "UNAVAILABLE",
             "ranking": ranking,
+            "skipped_candidates": skipped,
             "reference_warnings": reference_info["warnings"],
             "embedding_dims": 64,
             "created_at": _timestamp(),

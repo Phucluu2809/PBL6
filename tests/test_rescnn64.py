@@ -6,7 +6,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from robonose_s3.rescnn64 import MODEL_CHANNELS, ResCNN64Predictor, TrialResolver, prepare_trial
+from robonose_s3.rescnn64 import MODEL_CHANNELS, ResCNN64Predictor, TrialResolver, prepare_trial, rank_references
 
 
 def write_trial(folder, trial_id="11111111-1111-4111-8111-111111111111", *, exposure_rows=120):
@@ -93,3 +93,20 @@ def test_real_predictor_refuses_one_sided_threshold_before_loading_torch(tmp_pat
     model_dir = Path(__file__).resolve().parents[1] / "models/rescnn64/20261119_053351_6b8717"
     with pytest.raises(ValueError, match="supplied together"):
         ResCNN64Predictor(model_dir, [tmp_path], similarity_threshold=0.5)
+
+
+def test_rank_references_uses_best_recording_and_skips_query_and_copies():
+    samples = [
+        dict(label=label, trial_id=trial_id, raw_sha256=digest, path=trial_id)
+        for label, trial_id, digest in (
+            ("skip", "query", "a"), ("skip", "copy", "same"),
+            ("A", "a-closest", "b"), ("A", "a-far", "c"),
+            ("B", "b-closest", "d"), ("C", "c-closest", "e"),
+        )
+    ]
+    scores = np.array([1, .99, .91, -.40, .82, .2])
+    embeddings = np.column_stack((scores, np.sqrt(1 - scores ** 2)))
+    ranking = rank_references(np.array([1, 0]), samples, embeddings, "query", "same")
+    assert [(item["label"], item["similarity"], item["reference_trial_id"]) for item in ranking] == [
+        ("A", .91, "a-closest"), ("B", .82, "b-closest"), ("C", .2, "c-closest"),
+    ]
