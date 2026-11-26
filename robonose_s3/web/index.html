@@ -272,6 +272,13 @@
         <div class="inference-layout comparison-layout">
           <article class="panel inference-form">
             <h2>Mẫu cần đối sánh</h2>
+            <label>Model đối sánh
+              <select id="comparison-model">
+                <option value="default">Model mặc định</option>
+                <option value="learned_baseline_v2" disabled>ResCNN64 V2 · Bộ hiệu chỉnh đã học</option>
+                <option value="baseline_v2" disabled>ResCNN64 V2 · Hiệu chỉnh toàn bộ baseline (thử nghiệm)</option>
+              </select>
+            </label>
             <label>Mẫu tham chiếu<input id="reference-id" list="trial-options" placeholder="Chọn hoặc nhập trial_id"></label>
             <p id="comparison-selection-status"></p>
             <div class="comparison-actions">

@@ -6,6 +6,7 @@ let identityJob;
 let autoPredictedTrial;
 let comparisonJob;
 let comparisonBusy = false;
+let defaultModel = {};
 let trialCatalogJson;
 const selectionKey = "robonose.comparison-selection.v1";
 let savedSelection = readComparisonSelection();
@@ -84,9 +85,15 @@ function renderWarnings(snapshot) {
 }
 
 function renderModelStatus(model = {}) {
+  defaultModel = model;
   const mock = model.synthetic_prediction === true;
   const calibrated = model.unknown_calibrated === true;
   const backend = model.model_backend || "UNKNOWN";
+  const selector = byId("comparison-model");
+  for (const option of selector.options) {
+    if (option.value !== "default") option.disabled = backend !== "RESCNN64_TORCH";
+  }
+  if (selector.selectedOptions[0]?.disabled) selector.value = "default";
   const title = mock ? "MODEL GIẢ LẬP" : `MODEL THẬT · ${backend}`;
   const detail = mock
     ? "Chỉ kiểm tra UI/API; kết quả không có giá trị nhận diện."
@@ -96,6 +103,16 @@ function renderModelStatus(model = {}) {
   ["identity-model-banner", "comparison-model-banner"].forEach(id => {
     const banner = byId(id);
     if (!banner) return;
+    if (id === "comparison-model-banner" && selector.value === "learned_baseline_v2") {
+      banner.classList.add("real");
+      banner.innerHTML = "<strong>RESCNN64 V2 · BỘ HIỆU CHỈNH ĐÃ HỌC</strong><span>Hiệu chỉnh exposure từ toàn bộ baseline, sau đó tính embedding bằng CNN gốc.</span>";
+      return;
+    }
+    if (id === "comparison-model-banner" && byId("comparison-model").value === "baseline_v2") {
+      banner.classList.remove("real");
+      banner.innerHTML = "<strong>RESCNN64 V2 · THỬ NGHIỆM</strong><span>Dùng checkpoint đã huấn luyện với cách hiệu chỉnh exposure từ toàn bộ baseline.</span>";
+      return;
+    }
     banner.classList.toggle("real", !mock);
     banner.innerHTML = `<strong>${escapeHtml(title)}</strong><span>${escapeHtml(detail)}</span>`;
   });
@@ -430,7 +447,8 @@ function renderComparison(result) {
     const direction = score < 0 ? "negative" : "positive";
     return `<div class="rank-item">
       <span class="rank-number">${item.rank}</span>
-      <div class="rank-identity"><strong>${escapeHtml(names.get(item.candidate_id) || `Mẫu ${item.input_order}`)}</strong><code>${escapeHtml(item.candidate_id)}</code></div>
+      <div class="rank-identity"><strong>${escapeHtml(names.get(item.candidate_id) || `Mẫu ${item.input_order}`)}</strong><code>${escapeHtml(item.candidate_id)}</code>
+        ${item.blank_id ? `<small>Blank: ${escapeHtml(names.get(item.blank_id) || item.blank_id)}</small>` : ""}</div>
       <div class="score-scale ${direction}" aria-label="Cosine similarity ${formatNumber(score, 4)} trên thang âm 1 đến 1">
         <div class="score-scale-head"><span>Cosine similarity</span><strong>${formatNumber(score, 4)}</strong></div>
         <div class="rank-track"><em></em><i></i><b></b></div>
@@ -443,10 +461,16 @@ function renderComparison(result) {
     <code>${escapeHtml(item.candidate_id)}</code> · ${escapeHtml(item.reason)}
   </li>`).join("");
   const warnings = (result.reference_warnings || []).length + result.ranking.reduce((total, item) => total + (item.warnings || []).length, 0);
+  const preprocessing = result.preprocessing_mode === "learned_baseline"
+    ? "Bộ hiệu chỉnh đã học dự đoán mức bù và độ dốc cho từng kênh. Trọng số ResCNN64 giữ nguyên."
+    : result.preprocessing_mode === "matched_blank"
+    ? `Trừ đường blank cùng phiên. Blank của mẫu tham chiếu: ${names.get(result.reference_blank_id) || result.reference_blank_id}.`
+    : "Chưa có blank phù hợp cho tất cả các phiên trong lần chạy này. V2 bù xu hướng baseline có giới hạn.";
   const target = byId("comparison-result");
-  target.innerHTML = `${ranking || '<div class="empty-state">Không có mẫu đủ dữ liệu để xếp hạng.</div>'}
+  target.innerHTML = `${result.experimental ? `<div class="result-trace">${escapeHtml(preprocessing)}</div>` : ""}
+    ${ranking || '<div class="empty-state">Không có mẫu đủ dữ liệu để xếp hạng.</div>'}
     ${skipped ? `<div class="result-trace"><strong>Mẫu chưa xếp hạng</strong><ul>${skipped}</ul></div>` : ""}
-    <div class="result-trace">Model ${escapeHtml(result.model_id)} · ${escapeHtml(result.model_backend)} · ${warnings} cảnh báo QC/tiền xử lý</div>`;
+    <div class="result-trace">Model ${escapeHtml(result.model_id)} · ${escapeHtml(result.model_backend)}${result.experimental ? "" : ` · ${warnings} cảnh báo QC/tiền xử lý`}</div>`;
   target.querySelectorAll(".rank-track").forEach((track, index) => {
     const score = Math.max(-1, Math.min(1, Number(result.ranking[index].similarity)));
     const position = (score + 1) * 50;
@@ -470,6 +494,7 @@ async function pollInference() {
       if (job.task === "reference_comparison") {
         comparisonJob = undefined;
         comparisonBusy = false;
+        byId("comparison-model").disabled = false;
         renderComparisonSelection();
       }
       if (job.task === "identity") renderCoffee(job.payload.sample_id, job.coffee_check);
@@ -675,6 +700,7 @@ function initControls() {
   });
   byId("identity-button").addEventListener("click", () => runIdentity(byId("identity-sample").value.trim()));
   byId("reference-id").addEventListener("input", renderComparisonSelection);
+  byId("comparison-model").addEventListener("change", () => renderModelStatus(defaultModel));
   byId("open-comparison-selection").addEventListener("click", () => {
     document.querySelector('[data-page="library"]').click();
   });
@@ -688,15 +714,17 @@ function initControls() {
       return;
     }
     comparisonBusy = true;
+    byId("comparison-model").disabled = true;
     renderComparisonSelection();
     target.innerHTML = '<div class="empty-state">Đang mã hóa và xếp hạng.</div>';
     try {
       const job = await api("/api/inference/compare", {method: "POST", body: JSON.stringify({
-        reference_id: referenceId, candidate_ids: candidates
+        reference_id: referenceId, candidate_ids: candidates, model: byId("comparison-model").value
       })});
       comparisonJob = job.job_id;
     } catch (error) {
       comparisonBusy = false;
+      byId("comparison-model").disabled = false;
       renderComparisonSelection();
       target.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
     }

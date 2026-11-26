@@ -19,6 +19,8 @@ from .coffee_detection import predict_trial
 
 
 PREDICTION_SCHEMA = "robonose.prediction.v1"
+COMPARISON_METHODS = {"default": "compare", "baseline_v2": "compare_baseline_v2",
+                      "learned_baseline_v2": "compare_learned_baseline_v2"}
 
 
 def _timestamp():
@@ -168,7 +170,7 @@ class InferenceCoordinator:
         except (OSError, UnicodeError, csv.Error) as error:
             return {"status": "UNAVAILABLE", "reason": f"Không đọc được tín hiệu. {error}"}
 
-    def submit_comparison(self, reference_id, candidate_ids):
+    def submit_comparison(self, reference_id, candidate_ids, model="default"):
         reference_id = str(reference_id or "").strip()
         candidates = [str(value).strip() for value in candidate_ids if str(value).strip()]
         if not reference_id:
@@ -177,8 +179,11 @@ class InferenceCoordinator:
             raise ValueError("At least one candidate is required")
         if len(set(candidates)) != len(candidates):
             raise ValueError("Candidate UUIDs must be unique")
+        if (not isinstance(model, str) or model not in COMPARISON_METHODS
+                or not hasattr(self.predictor, COMPARISON_METHODS[model])):
+            raise ValueError("Model đối sánh không khả dụng.")
         return self._submit("reference_comparison", {
-            "reference_id": reference_id, "candidate_ids": candidates})
+            "reference_id": reference_id, "candidate_ids": candidates, "model": model})
 
     def snapshot(self, after=0):
         with self.lock:
@@ -209,7 +214,8 @@ class InferenceCoordinator:
                         job["coffee_check"] = coffee
                     result = self.predictor.predict_identity(job["payload"]["sample_id"])
                 else:
-                    result = self.predictor.compare(
+                    compare = getattr(self.predictor, COMPARISON_METHODS[job["payload"]["model"]])
+                    result = compare(
                         job["payload"]["reference_id"], job["payload"]["candidate_ids"])
                 with self.lock:
                     job["state"] = "SUCCEEDED"

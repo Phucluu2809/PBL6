@@ -35,6 +35,12 @@ class ResCNNWorker:
     def compare(self, reference_id, candidate_ids):
         return self._call("compare", reference_id, candidate_ids)
 
+    def compare_baseline_v2(self, reference_id, candidate_ids):
+        return self._call("compare_baseline_v2", reference_id, candidate_ids)
+
+    def compare_learned_baseline_v2(self, reference_id, candidate_ids):
+        return self._call("compare_learned_baseline_v2", reference_id, candidate_ids)
+
 
 def main():
     from .rescnn64 import ResCNN64Predictor
@@ -42,7 +48,8 @@ def main():
     options, method, args = json.load(sys.stdin)
     predictor = ResCNN64Predictor(**options)
     methods = {"describe": predictor.describe, "predict_identity": predictor.predict_identity,
-               "compare": predictor.compare}
+               "compare": predictor.compare, "compare_baseline_v2": predictor.compare_baseline_v2,
+               "compare_learned_baseline_v2": predictor.compare_learned_baseline_v2}
     print(json.dumps(methods[method](*args), allow_nan=False))
 
 

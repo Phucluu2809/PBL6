@@ -1,0 +1,569 @@
+{
+  "training_dates": [
+    "2026-11-09",
+    "2026-11-20"
+  ],
+  "training_trials": 93,
+  "by_day": {
+    "2026-11-09": 5,
+    "2026-11-10": 4,
+    "2026-11-12": 5,
+    "2026-11-13": 9,
+    "2026-11-14": 11,
+    "2026-11-16": 15,
+    "2026-11-17": 23,
+    "2026-11-18": 12,
+    "2026-11-19": 5,
+    "2026-11-20": 4
+  },
+  "training_by_label": {
+    "Dương": 14,
+    "Phúc": 29,
+    "Tài": 5,
+    "chau": 7,
+    "lam": 5,
+    "son": 10,
+    "tan": 11,
+    "toan": 7,
+    "tuan": 5
+  },
+  "excluded_training": [
+    {
+      "trial_id": "731b2735-2645-4bd2-98c4-1e9b797245d3",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "f6549288-a8d3-4117-8cc3-9b8b6b77dd2d",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "e88b267e-9344-4c50-bd54-bbe07404e661",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "0b7990c9-e393-4bb2-8837-4900e767fbde",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "1c803048-2fcc-425d-8c06-f0f52ac3f622",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "8b9cd937-c303-4285-9d9b-ff124c56ef1e",
+      "reason": "Lượt chưa hoàn chỉnh"
+    },
+    {
+      "trial_id": "d81d449d-c8b6-4f1a-bd9a-95167c645975",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "62f68654-454a-472e-bbdc-9e96e0069348",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "656c7794-a42e-4f9c-a10c-2d1d71288e60",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "b75789c9-eb5e-4c30-a8bf-1ff0e2219c84",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "0c9b3d63-a68f-487a-9853-ecc402363cc6",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "c5f595e0-65b8-4c78-a97f-6316037c09fd",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "6660d4a2-70df-4ffe-aa9f-328388b6c5e8",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "8ab84c34-5c11-4ff5-a1b0-eeb9c321de54",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "9d7d07d4-4c94-4951-8c0b-bd0a3ff751ed",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "b2be8095-9fce-45cf-9d00-1706bc4b79b5",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "ed319df2-db69-4b3c-bf46-7e808424c97d",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "ac2cf6e1-479a-417b-98d2-362e234904c0",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "298a9dd9-3c01-48ae-a460-431f38be780e",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "1070222e-c9c1-4c07-8d33-b01f8bc22590",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "4baac2a5-9fa6-42f3-9be3-410e254620c5",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "dda566b5-8fbe-4632-ad9b-5a01a896d1ea",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "f0029878-8027-4b6f-be5f-d44e66c7a0cb",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "c6e8c0b8-9935-492a-b848-933001fc64b5",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "346d162c-ccac-4019-8597-6676c9277345",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "23623722-50e1-44bf-915a-4f3c5a165b02",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "c2697ffb-348a-497f-94b2-3436385c237c",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "21060f73-6c5e-4b1c-9611-ba63d9c873fb",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "93048a2d-8091-435b-a6d2-eaab537304b6",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "2a0464d4-970f-43a1-9408-674a6e6f3f7c",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "a3b9cb07-f474-4a68-a4b8-edda8285cf26",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "70ba0b30-5b04-4aa6-a8f9-32247024912e",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "d9eea330-e2fc-49e7-8f4d-bace41ac5398",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "789144c5-35d6-4520-9955-d409b96400dc",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "b609d0cf-7179-46c7-b107-f23d0efe282e",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "84043b8e-d264-46dd-87fc-ec930fa55515",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "2cedfecd-5da6-4a87-9521-45c66cdb62ab",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "f4bf5514-c808-484d-b896-9f62e5a47b34",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "68991ddf-4381-461b-860f-4c37f795f348",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "c7f67601-70e5-4b72-bfd9-9575efaec738",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "fef28616-ddfb-4f4a-9a54-f0c260e1b797",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "a2be2a6d-0b79-471c-80a4-bfcee10d7dc8",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "7a70cb51-d0e9-4191-b501-dbc03f8cd146",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "ce7087fd-a1bb-442e-a0b6-134c4ff6cddf",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "4e8cec34-0808-4370-b37a-df2619983b41",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "2b7285c5-9390-438e-b2f0-1962a6982982",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "2732f290-978e-4847-b2ee-a8006bd0d888",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "f1b6e6ab-d2d2-4a98-a466-094d51824ad6",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "9ce7559f-369a-49bc-bf4e-cb5d32d0d54e",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "06693edc-cae9-4f2a-ae98-1d32dc5377cc",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "ee9b8c11-a7d6-4de8-b921-21ebf5b6f209",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "a0a71a45-f7da-47e2-a3a2-3998ab5c4141",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "265a41c2-bc88-46ec-8dd3-97500d67881b",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "619aa027-ec47-4c3d-a75f-391461a941f9",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "14c5e436-e6bb-4726-a055-5fa123161884",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "99eca6ea-ed65-4b54-a84c-ac9294f8b010",
+      "reason": "Lượt chưa hoàn chỉnh"
+    },
+    {
+      "trial_id": "1757e823-8752-4413-b3f4-67a877c31b8c",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "a831857e-d092-4e99-801a-44f823e5f0d2",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "71b6fde2-3b80-4725-aec9-0ca554ce3e90",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "64c2db31-077f-4bdf-94db-0b305638b727",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "81c77d96-4f3b-42ea-a886-b6414dd12f64",
+      "reason": "Lượt chưa hoàn chỉnh"
+    },
+    {
+      "trial_id": "6bf92083-9e15-436a-a5bc-4664f73c5fe1",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "82e2747c-ec0b-4bdd-9cc2-e7e84867e972",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    }
+  ],
+  "epochs": 20,
+  "validation": {
+    "original": {
+      "queries": 76,
+      "top1": 48,
+      "macro_top1": 0.607009,
+      "mrr": 0.724332,
+      "by_label": {
+        "Dương": [
+          9,
+          14
+        ],
+        "Phúc": [
+          17,
+          29
+        ],
+        "Tài": [
+          2,
+          5
+        ],
+        "son": [
+          10,
+          10
+        ],
+        "tan": [
+          8,
+          11
+        ],
+        "toan": [
+          2,
+          7
+        ]
+      }
+    },
+    "variants": [
+      {
+        "settings": {
+          "gain": 0.5,
+          "relative_context": false,
+          "regularization": 0.25,
+          "contrastive": 0.0
+        },
+        "queries": 76,
+        "top1": 49,
+        "macro_top1": 0.633318,
+        "mrr": 0.732895,
+        "by_label": {
+          "Dương": [
+            10,
+            14
+          ],
+          "Phúc": [
+            18,
+            29
+          ],
+          "Tài": [
+            3,
+            5
+          ],
+          "son": [
+            8,
+            10
+          ],
+          "tan": [
+            7,
+            11
+          ],
+          "toan": [
+            3,
+            7
+          ]
+        }
+      },
+      {
+        "settings": {
+          "gain": 0.5,
+          "relative_context": true,
+          "regularization": 0.25,
+          "contrastive": 0.0
+        },
+        "queries": 76,
+        "top1": 45,
+        "macro_top1": 0.637916,
+        "mrr": 0.677445,
+        "by_label": {
+          "Dương": [
+            8,
+            14
+          ],
+          "Phúc": [
+            13,
+            29
+          ],
+          "Tài": [
+            3,
+            5
+          ],
+          "son": [
+            10,
+            10
+          ],
+          "tan": [
+            7,
+            11
+          ],
+          "toan": [
+            4,
+            7
+          ]
+        }
+      },
+      {
+        "settings": {
+          "gain": 0.5,
+          "relative_context": false,
+          "regularization": 0.25,
+          "contrastive": 0.5
+        },
+        "queries": 76,
+        "top1": 50,
+        "macro_top1": 0.660905,
+        "mrr": 0.740911,
+        "by_label": {
+          "Dương": [
+            10,
+            14
+          ],
+          "Phúc": [
+            17,
+            29
+          ],
+          "Tài": [
+            3,
+            5
+          ],
+          "son": [
+            10,
+            10
+          ],
+          "tan": [
+            7,
+            11
+          ],
+          "toan": [
+            3,
+            7
+          ]
+        }
+      },
+      {
+        "settings": {
+          "gain": 0.5,
+          "relative_context": true,
+          "regularization": 0.25,
+          "contrastive": 0.5
+        },
+        "queries": 76,
+        "top1": 44,
+        "macro_top1": 0.626011,
+        "mrr": 0.666773,
+        "by_label": {
+          "Dương": [
+            7,
+            14
+          ],
+          "Phúc": [
+            13,
+            29
+          ],
+          "Tài": [
+            3,
+            5
+          ],
+          "son": [
+            10,
+            10
+          ],
+          "tan": [
+            7,
+            11
+          ],
+          "toan": [
+            4,
+            7
+          ]
+        }
+      }
+    ]
+  },
+  "selected_settings": {
+    "gain": 0.5,
+    "relative_context": false,
+    "regularization": 0.25,
+    "contrastive": 0.5
+  },
+  "holdout": {
+    "original": {
+      "queries": 13,
+      "top1": 7,
+      "macro_top1": 0.5125,
+      "mrr": 0.669231,
+      "by_label": {
+        "Phúc": [
+          5,
+          8
+        ],
+        "Tài": [
+          2,
+          5
+        ]
+      }
+    },
+    "grouped_v2": {
+      "queries": 13,
+      "top1": 8,
+      "macro_top1": 0.575,
+      "mrr": 0.733333,
+      "by_label": {
+        "Phúc": [
+          6,
+          8
+        ],
+        "Tài": [
+          2,
+          5
+        ]
+      }
+    },
+    "initial_v2": {
+      "queries": 13,
+      "top1": 6,
+      "macro_top1": 0.375,
+      "mrr": 0.578846,
+      "by_label": {
+        "Phúc": [
+          6,
+          8
+        ],
+        "Tài": [
+          0,
+          5
+        ]
+      }
+    }
+  },
+  "holdout_sessions": 4,
+  "excluded_holdout": [
+    {
+      "trial_id": "6d5c9fcd-3d59-472d-8f0b-c9bc1c729a32",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "4a4a0b43-0c17-42f1-82d4-9521a26ca360",
+      "reason": "Lượt chưa hoàn chỉnh"
+    },
+    {
+      "trial_id": "81be29c4-075a-4a4a-b0ac-900d92d95a4a",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "31984efe-84d2-4d01-a543-4f604c7ebaf8",
+      "reason": "Lượt chưa hoàn chỉnh"
+    },
+    {
+      "trial_id": "2a64bb73-f321-433a-bf04-a28dcb8a5e99",
+      "reason": "Lượt chưa hoàn chỉnh"
+    },
+    {
+      "trial_id": "d33b4481-b517-43be-ae75-ec6221c5705d",
+      "reason": "Lượt chưa hoàn chỉnh"
+    },
+    {
+      "trial_id": "cab3718d-4a15-4575-8c18-e5ecb9846c9f",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "94344ea9-08c9-43b4-a9bd-2a497a482171",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "d2412c3a-c0ae-48aa-bf65-8786d4e59159",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    }
+  ],
+  "encoder_sha256": "50e0d6ee1c2a3edd3c0b1f2cd794e83adffe6202395789190d7bb5a3c3d2ea4a"
+}

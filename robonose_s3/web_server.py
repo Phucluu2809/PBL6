@@ -464,7 +464,8 @@ class WebRequestHandler(BaseHTTPRequestHandler):
                 if not isinstance(candidates, list):
                     raise ValueError("candidate_ids must be a list")
                 self._json(self.app.inference.submit_comparison(
-                    payload.get("reference_id"), candidates), HTTPStatus.ACCEPTED)
+                    payload.get("reference_id"), candidates, payload.get("model", "default")),
+                    HTTPStatus.ACCEPTED)
             else:
                 self._error(HTTPStatus.NOT_FOUND, "Not found")
         except ValueError as error:

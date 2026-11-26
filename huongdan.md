@@ -35,6 +35,10 @@ Ví dụ, nếu muốn xem lượt A giống B hay C hơn, tick B và C ở mụ
 
 Khi demo kết quả trên dữ liệu thật, kiểm tra banner **MODEL THẬT · RESCNN64_TORCH**. Banner **MODEL GIẢ LẬP** cho biết kết quả phục vụ kiểm tra giao diện.
 
+Để chạy thử cách tiền xử lý mới với checkpoint đã huấn luyện, đổi **Model đối sánh** sang **ResCNN64 V2 · Hiệu chỉnh toàn bộ baseline (thử nghiệm)** rồi chạy lại cùng các mẫu. Kết quả ghi rõ V2 đã trừ blank hay dùng bù xu hướng khi thiếu blank. Xem cách thu blank trong [hướng dẫn V2](models_v2/README.md).
+
+Để dùng bộ hiệu chỉnh đã được huấn luyện trên baseline, chọn **ResCNN64 V2 · Bộ hiệu chỉnh đã học**. CNN vẫn dùng checkpoint gốc. Có thể chạy cùng các mẫu bằng **Model mặc định** để so thứ hạng.
+
 ## 4. Thu thêm một mẫu thật
 
 1. Cắm ESP32-S3 qua USB. Trong **Device Manager → Ports (COM & LPT)**, xem cổng của ESP và thay `COM5` trong lệnh ở mục 1 nếu cần.

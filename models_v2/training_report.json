@@ -1,0 +1,32 @@
+{
+  "training_trials": 79,
+  "classes": 9,
+  "epochs": 50,
+  "excluded_training_trials": [
+    {
+      "trial_id": "c2941e05-7e24-4886-b34f-ad23f9ac9dec",
+      "reason": "metadata is missing trial_id, session_id, or started_at"
+    },
+    {
+      "trial_id": "b8396a74-cc66-48ec-880b-cbd9338fc562",
+      "reason": "metadata is missing trial_id, session_id, or started_at"
+    }
+  ],
+  "training_cross_entropy_before": 0.496661901473999,
+  "training_cross_entropy_after": 0.19824931025505066,
+  "frozen_encoder_sha256": "50e0d6ee1c2a3edd3c0b1f2cd794e83adffe6202395789190d7bb5a3c3d2ea4a",
+  "evaluation": {
+    "sessions": 4,
+    "retained_trials": 13,
+    "original": {
+      "queries": 13,
+      "top1": 7,
+      "mrr": 0.6692
+    },
+    "learned": {
+      "queries": 13,
+      "top1": 6,
+      "mrr": 0.5788
+    }
+  }
+}

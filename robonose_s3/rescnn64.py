@@ -363,12 +363,26 @@ class ResCNN64Predictor:
         cached = self.cache.get(info["raw_sha256"])
         if cached is not None:
             return cached, info
+        vector = self.encode_tensor(tensor)
+        self.cache[info["raw_sha256"]] = vector
+        return vector, info
+
+    def encode_tensor(self, tensor):
         scaled = (tensor - self.center) / self.scale
         with self.torch.inference_mode():
             vector = self.model.encode(self.torch.as_tensor(scaled[None], dtype=self.torch.float32))
-        vector = vector.detach().to("cpu")
-        self.cache[info["raw_sha256"]] = vector
-        return vector, info
+        return vector.detach().to("cpu")
+
+    def compare_baseline_v2(self, reference_id, candidate_ids):
+        from models_v2.baseline import BaselineComparator
+        from .web_server import TrialCatalog
+
+        return BaselineComparator(TrialCatalog(self.resolver.roots), self).compare(reference_id, candidate_ids)
+
+    def compare_learned_baseline_v2(self, reference_id, candidate_ids):
+        from models_v2.learned import compare
+
+        return compare(self, reference_id, candidate_ids)
 
     def predict_identity(self, sample_id):
         if self.references is None:
@@ -415,18 +429,21 @@ class ResCNN64Predictor:
         }
 
     def compare(self, reference_id, candidate_ids):
+        return self._compare(reference_id, candidate_ids, self._embedding)
+
+    def _compare(self, reference_id, candidate_ids, embedding):
         reference_id = str(uuid.UUID(str(reference_id).strip()))
         candidates = [str(uuid.UUID(str(value).strip())) for value in candidate_ids]
         if len(candidates) < 1:
             raise ValueError("At least one candidate is required")
         if len(set(candidates)) != len(candidates):
             raise ValueError("Candidate UUIDs must be unique")
-        reference, reference_info = self._embedding(reference_id)
+        reference, reference_info = embedding(reference_id)
         ranking = []
         skipped = []
         for input_order, candidate_id in enumerate(candidates, 1):
             try:
-                candidate, info = self._embedding(candidate_id)
+                candidate, info = embedding(candidate_id)
             except (OSError, ValueError) as error:
                 skipped.append({"candidate_id": candidate_id, "reason": str(error)})
                 continue
