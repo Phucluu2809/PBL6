@@ -1,363 +1,283 @@
 # Ứng dụng AI trong hệ thống RoboNose
 
-Tài liệu báo cáo PBL6 · Số liệu đối chiếu với mã nguồn và kết quả thực nghiệm đến 27/11/2026.
+**Cấu hình kết hợp V4**
 
-**Trình tự trình bày khi bảo vệ** · [Chọn và gán nhãn dataset](#3-dataset-và-nhãn) → [Tiền xử lý và làm giàu](#4-tiền-xử-lý-và-làm-giàu-tín-hiệu) → [Kiến trúc AI](#5-kiến-trúc-model) → [Bảng so sánh và quyết định](#6-thử-nghiệm-và-tiêu-chí-chọn-model).
+RoboNose phân tích chuỗi thời gian từ hệ cảm biến mùi ESP32-S3 cho hai tác vụ. **Đối sánh mùi người** nhận một lượt truy vấn và xếp hạng các lượt tham chiếu theo độ tương đồng. **Phát hiện cà phê** nhận một lượt đo và dự đoán có hoặc không có cà phê. Cả hai dùng dữ liệu từ cùng thiết bị, nhưng yêu cầu hai cách biểu diễn khác nhau. Đối sánh giữ nguyên trục thời gian để học hình dạng đáp ứng. Phát hiện cà phê tóm tắt tín hiệu thành các đặc trưng định lượng để phân loại.
 
-## 1. Bài toán và phương án được chọn
+## 1. Dataset và thiết kế đánh giá
 
-RoboNose dùng chuỗi đo từ mảng cảm biến để giải quyết hai bài toán độc lập. Cùng một lượt thu có thể được đưa vào cả hai bài toán.
+### 1.1. Đơn vị dữ liệu và kênh đo
 
-| Bài toán | Model được chọn | Kết quả trả về | Lý do lựa chọn |
-| --- | --- | --- | --- |
-| Nhận diện và đối sánh người | ResCNN64, một CNN tích chập một chiều với các khối residual. Mục 04 có V2 hiệu chỉnh exposure, V3 làm mịn và V4 kết hợp ba nhánh suy luận. | Mục 03 xếp hạng các nhãn trong kho tham chiếu. Mục 04 xếp hạng các lượt được chọn theo điểm cosine với một lượt tham chiếu. | CNN học được hình dạng đáp ứng theo thời gian của nhiều kênh. Embedding 64 chiều dùng được cho cả nhận diện theo kho mẫu và đối sánh từng lượt. |
-| Phát hiện cà phê | Logistic Regression V2 mặc định trên ba kênh **MQ3 #1 A1, MQ135 #2 A2, MQ3 #2 A3**. Mục 06 có thêm V3 làm mịn và V4 kết hợp các nhánh Logistic. | Mục 06 báo có mùi cà phê, không có mùi cà phê hoặc chưa đủ dữ liệu để dự đoán. | V2 và V3 đạt cùng balanced accuracy trên tập 09–20/11. V2 giữ pipeline đơn giản và được dùng làm mặc định. |
+Một mẫu là **một lượt đo** có UUID riêng. Tệp `raw.csv` lưu các lần đọc theo thời gian, nhãn pha, giá trị cảm biến và cờ chất lượng. Tệp `metadata.json` lưu tên lượt, phiên đo, thời điểm bắt đầu, cấu hình thiết bị và trạng thái xuất dữ liệu. Một phiên có thể chứa nhiều lượt. Với thiết lập 1 Hz, lượt chuẩn có 60 giây **BASELINE** để đo nền qua đầu lấy mẫu, 120 giây **EXPOSURE** khi tiếp xúc với mẫu và 60 giây **RECOVERY** qua khí lọc. Tín hiệu đầu vào của hai tác vụ đến từ BASELINE và EXPOSURE.
 
-Mục 03 và mục 06 dùng API và kết quả riêng. Cà phê có thể được kiểm tra ngay cả khi một job nhận diện người thất bại. [Điểm vào API](robonose_s3/web_server.py) · [Job suy luận](robonose_s3/inference.py)
+| Kênh | Đại lượng ghi nhận | Đối sánh mùi người | Phát hiện cà phê |
+| --- | --- | :---: | :---: |
+| A0 · TGS2602 | Điện áp V | ✓ | |
+| A1 · MQ3 #1 | Điện áp V | ✓ | ✓ |
+| A2 · MQ135 #2 | Điện áp V | ✓ | ✓ |
+| A3 · MQ3 #2 | Điện áp V | ✓ | ✓ |
+| BME688 gas | Điện trở Ω | ✓ | ✓ |
+| BME688 RH | Độ ẩm tương đối % | ✓ | |
 
-## 2. Kiến trúc hệ thống và công nghệ
+Bốn kênh analog dùng ADS1115 với hệ số `0,0001875 V/count` và hệ số chia áp bằng 1. Cấu hình tương thích của bộ đối sánh yêu cầu 1 Hz, bơm 80%, đúng sơ đồ kênh và profile BME688 gia nhiệt yêu cầu 300 °C trong 100 ms, oversampling nhiệt độ ×2, độ ẩm ×2 và áp suất ×4. [Cấu hình tương thích của bộ mã hóa](models/rescnn64/20261119_053351_6b8717/artifact.json)
+
+### 1.2. Chọn mẫu, gán nhãn và chia dữ liệu
+
+1. **Kho huấn luyện.** Chọn lượt `HARDWARE` trong khoảng **09–20/11/2026**, trạng thái `COMPLETE` và đã chốt xuất dữ liệu. Giữ riêng thư mục `data/hardware` để đối chiếu. Dùng SHA-256 của `raw.csv` để loại bản sao. Dùng UUID để nhận diện cùng lượt khi kiểm tra giao nhau cho tác vụ đối sánh. Lượt thiếu nhãn phù hợp hoặc thất bại khi kiểm tra đầu vào bị loại khỏi tập tương ứng.
+2. **Nhãn người.** Ánh xạ tên lượt về một trong chín nhãn người đã biết. Có **93 lượt** để học bộ hiệu chỉnh. Trong đánh giá khác ngày, **76 lượt thuộc sáu nhãn** có ít nhất một mẫu cùng nhãn đủ điều kiện để đối chiếu. Tập đo trong `data/hardware` có **13 lượt thuộc bốn phiên**, gồm tám lượt Phúc và năm lượt Tài.
+3. **Nhãn cà phê.** Tên lượt có từ khóa như `cf` hoặc `coffee` được gán dương. Lượt không khí đối chứng có tiền tố `blank` hoặc `khongkhi`. Lượt chỉ mang tên người được gán **âm quy ước**, vì tên lượt chưa xác nhận điều kiện có hay không có cà phê. Tập huấn luyện có **141 lượt trên 10 ngày đo**, gồm **32 lượt cà phê**, **16 lượt không khí** và **93 lượt tên người**. Hai tập đối chiếu gồm **8 lượt mang nhãn cà phê ngày 07/11** và **13 lượt mang tên người trong `data/hardware`**.
+4. **Chia theo nhóm.** Mỗi vòng chọn cấu hình giữ riêng toàn bộ một ngày. Các tham số cần học ở vòng đó được fit trên các ngày còn lại. Khi xếp hạng mùi người, chỉ xét ứng viên khác phiên với lượt truy vấn. Khi chấm trên `data/hardware`, loại lượt trùng UUID hoặc hash với dữ liệu học hoặc kho tham chiếu, và loại phiên giao với tập học bộ hiệu chỉnh. Tên lượt, ngày đo và UUID phục vụ gán nhãn, chia tập và truy xuất dữ liệu.
+
+Bộ mã hóa ResCNN64 dùng một checkpoint đã được fit trên **77 lượt, 9 nhãn**, với ngày đo trong khoảng 06–18/11/2026. Vì khoảng này giao với khoảng 09–20/11, phép chia theo ngày ở tác vụ đối sánh đo việc chọn **bộ hiệu chỉnh và trọng số kết hợp** với CNN cố định. [Nguồn dữ liệu của bộ mã hóa](models/rescnn64/20261119_053351_6b8717/report.json) · [Số lượt đối sánh](models_v4/identity_report.json) · [Số lượt cà phê](models_v4/coffee_report.json)
+
+## 2. Tiền xử lý dữ liệu
+
+Toàn bộ chuỗi xử lý **từ lượt đo thô đến tensor hoặc vector đưa vào mô hình chính** nằm trong phần này. Các bước gồm kiểm tra chất lượng, tách pha, lấy nền, biến đổi tín hiệu, làm mịn, hiệu chỉnh nền bằng MLP, trích đặc trưng và chuẩn hóa. MLP học cách điều chỉnh tín hiệu trong bước tiền xử lý của tác vụ đối sánh. ResCNN64 nhận các tensor đã xử lý. Logistic Regression nhận các vector đặc trưng đã chuẩn hóa.
+
+```mermaid
+flowchart TB
+    RAW["raw.csv và metadata.json của một lượt đo"]
+    subgraph P["TIỀN XỬ LÝ DỮ LIỆU"]
+        direction TB
+        QC["Kiểm tra chất lượng theo tác vụ và tách BASELINE, EXPOSURE"]
+        QC --> PERSON["Đối sánh · lấy nền, tính đáp ứng và chuẩn hóa 6 × 120"]
+        QC --> BASE["Đối sánh · 60 điểm baseline mỗi kênh → 36 đặc trưng nền"]
+        PERSON --> PA["A · Đáp ứng chuẩn hóa"]
+        PERSON --> PB["B · Hiệu chỉnh exposure bằng MLP"]
+        PERSON --> SM["Làm mịn exposure chuẩn hóa bằng bộ lọc 3 điểm"]
+        SM --> PC["C · Hiệu chỉnh exposure đã làm mịn bằng MLP"]
+        BASE --> PB
+        BASE --> PC
+        QC --> CA["A · BME688 gas và A1 → lấy nền, trích và chuẩn hóa 10 đặc trưng"]
+        QC --> CB["B · A1–A3 → lấy nền, trích và chuẩn hóa 15 đặc trưng"]
+        QC --> CC["C · A1–A3 → làm mịn từng pha, lấy nền, trích và chuẩn hóa 15 đặc trưng"]
+    end
+    subgraph M["SUY LUẬN AI VÀ TỔNG HỢP KẾT QUẢ"]
+        direction TB
+        CNN["Cùng ResCNN64 cho cả ba tensor · mỗi lần trả về embedding 64 chiều"]
+        LOG["Một Logistic Regression cho mỗi nhánh · trả về ba logit"]
+        CNN --> MATCH["Kết hợp điểm cosine và xếp hạng mẫu tham chiếu"]
+        LOG --> CLASSIFY["Kết hợp logit và dự đoán có hoặc không có cà phê"]
+    end
+    RAW --> QC
+    PA --> CNN
+    PB --> CNN
+    PC --> CNN
+    CA --> LOG
+    CB --> LOG
+    CC --> LOG
+```
+
+### 2.1. Kiểm tra chất lượng và tách pha
+
+| Kiểm tra | Đối sánh mùi người | Phát hiện cà phê |
+| --- | --- | --- |
+| Điều kiện của lượt | Schema `robonose.dataset.v1`, trạng thái `COMPLETE`, có UUID lượt, UUID phiên, thời gian bắt đầu và cấu hình tương thích checkpoint. | Lượt huấn luyện được chọn theo điều kiện ở mục 1.2. Bộ trích đặc trưng kiểm tra trực tiếp độ phủ và chất lượng từng tín hiệu cần dùng. |
+| Thời gian | Đúng **60 điểm BASELINE** và **120 điểm EXPOSURE**. Thời gian monotonic tăng nghiêm ngặt trên cả lượt. Khoảng giữa hai điểm trong mỗi pha nằm trong **1 ± 0,1 giây**. | Thời gian trong pha hữu hạn, không giảm. Khoảng giữa hai dòng thô liên tiếp và giữa hai điểm hợp lệ liên tiếp tối đa **3 giây**. |
+| Giá trị hợp lệ | Cả sáu kênh đủ điểm hợp lệ và hữu hạn. Bốn điện áp và điện trở gas phải dương. RH nằm trong **0–100%**. Kênh điện áp hoặc gas phẳng suốt EXPOSURE làm lượt bị loại. | Mỗi kênh có ít nhất **90% điểm hợp lệ** trong từng pha. Độ phủ từ điểm hợp lệ đầu đến cuối ít nhất **50 giây ở BASELINE** và **105 giây ở EXPOSURE**. |
+| Cờ thiết bị | Kiểm tra trạng thái đọc `OK`, cờ `fresh`, `valid` và các cờ chất lượng `NEGATIVE`, `ADC_LIMIT`. BME688 gas yêu cầu thêm `gas_valid`, `heater_stable` và `new_data`. | Điểm được đưa vào đặc trưng khi trạng thái đọc là `OK`, giá trị hữu hạn và các cờ `fresh`, `valid` đạt. Với BME688 gas, kiểm tra thêm `gas_valid`, `heater_stable` và `new_data`. |
+
+Ở tác vụ đối sánh, hệ thống tính độ trôi cho năm kênh điện áp và gas trên **30 điểm cuối BASELINE**. Chỉ số theo từng kênh là `100 × max(60 × |độ dốc|, max − min) / trung vị`. Cấu hình đang dùng ghi cảnh báo khi chỉ số vượt **5%**. Nếu có ít nhất **24 điểm** từ BASELINE và WAIT_EXPOSURE trong 30 giây ngay trước EXPOSURE, hệ thống kiểm tra thêm độ trôi và cảnh báo khi trung vị trước exposure lệch hơn **5%** so với mốc nền. Những điểm EXPOSURE nằm qua thời điểm đổi ngữ cảnh cũng được đánh dấu. Các dòng WAIT_EXPOSURE phục vụ kiểm tra chất lượng.
+
+Giá trị thiếu giữ nguyên trong tệp thô. Ở tác vụ đối sánh, thiếu điểm bắt buộc làm lượt không đạt điều kiện đầu vào. Ở tác vụ cà phê, thống kê chỉ dùng điểm hợp lệ nếu kênh vẫn đủ độ phủ. Mọi thao tác làm mịn và biến đổi thực hiện trên dữ liệu đọc vào bộ nhớ. [Chuẩn bị tensor đối sánh](robonose_s3/rescnn64.py) · [Kiểm tra và trích tín hiệu cà phê](robonose_s3/coffee_detection/__init__.py)
+
+### 2.2. Làm mịn nhẹ theo thời gian
+
+Dùng bộ lọc hữu hạn ba điểm đối xứng. Với một điểm giữa hợp lệ:
 
 ```text
-TGS2602 + MQ3 #1 + MQ135 #2 + MQ3 #2 → ADS1115 ┐
-                                             ├─ ESP32-S3 → USB native CDC
-BME688 (điện trở gas, nhiệt độ, RH, áp suất) ────┘
-          → host Python ghi raw.csv và metadata.json theo UUID lượt đo
-          → dashboard chọn mẫu đã lưu → hàng đợi inference
-               ├─ Mục 03 → ResCNN64 → embedding → kho tham chiếu → xếp hạng nhãn
-               ├─ Mục 04 → ResCNN64 gốc, hiệu chỉnh V2, làm mịn V3 hoặc tổ hợp V4 → cosine giữa các lượt
-               └─ Mục 06 → đặc trưng đáp ứng → Logistic V2, Logistic làm mịn V3 hoặc tổ hợp V4
-                         → có/không cà phê
+x_mịn[t] = (x[t−1] + 6 × x[t] + x[t+1]) / 8
 ```
 
-| Lớp | Công nghệ và vai trò |
-| --- | --- |
-| Thiết bị | ESP32-S3 chạy firmware C++, lấy mẫu danh định 1 Hz và điều khiển bơm/van theo pha. ADS1115 số hóa bốn điện áp analog. BME688 cung cấp điện trở gas và dữ liệu môi trường. |
-| Thu và lưu | Host Python trên Windows nhận dữ liệu USB, lưu CSV và metadata. UUID theo từng lượt giúp phân biệt các mẫu trùng tên và đối chiếu dữ liệu giữa các lần chạy. |
-| Huấn luyện | NumPy xử lý tensor và đặc trưng. PyTorch dùng cho ResCNN64, bộ hiệu chỉnh V2 và CNN cà phê thử nghiệm. scikit-learn dùng để fit Logistic Regression, Extra Trees, SVM và LDA. |
-| Suy luận | ResCNN64 dùng PyTorch, có thể chạy qua một tiến trình Python riêng. Logistic dùng hệ số xuất dưới dạng JSON và tính điểm bằng Python tiêu chuẩn. Hàng đợi inference tách việc chấm mẫu khỏi thu dữ liệu. |
-| Giao diện | HTTP server Python cục bộ và HTML/CSS/JavaScript. Dashboard có danh sách mẫu, xếp hạng danh tính, đối sánh và kiểm tra cà phê. |
+Điểm hiện tại giữ **75%** trọng số. Mỗi láng giềng đóng góp **12,5%**. Tổng trọng số bằng 1 nên đoạn tín hiệu hằng giữ nguyên. Bộ lọc làm giảm dao động ngắn với cửa sổ nhỏ và giữ hai điểm ở biên. Ví dụ, ba giá trị điện áp `0,610`, `0,618` và `0,614 V` cho giá trị giữa sau lọc là `0,6165 V`.
 
-[Firmware và thông số thiết bị](firmware/RoboNose_Dataset_S3/config.h) · [Worker ResCNN64](robonose_s3/rescnn_worker.py)
+- **Đối sánh.** Lọc theo thời gian trên từng kênh của **exposure đã trừ nền và chuẩn hóa**. Hệ thống thực hiện bước này ở nhánh C, trước MLP hiệu chỉnh. Chuỗi đầu vào đã qua kiểm tra đủ điểm và nhịp lấy mẫu ở mục 2.1.
+- **Cà phê.** Nhánh C kiểm tra chất lượng tín hiệu thô trước, sau đó lọc **riêng từng pha** BASELINE và EXPOSURE trên A1–A3. Cửa sổ có điểm lỗi hoặc khoảng lấy mẫu dưới 0,9 hay trên 1,1 giây giữ nguyên điểm giữa. Sau khi lọc, hệ thống tính lại trung vị nền và trích đặc trưng.
 
-## 3. Dataset và nhãn
+Bộ lọc dùng cả điểm trước và điểm sau vì xử lý lượt đã ghi. [Đường xử lý đối sánh](models_v4/identity.py) · [Đường xử lý cà phê](models_v4/coffee.py)
 
-### 3.1. Đơn vị dữ liệu
+### 2.3. Tạo ba tensor cho ResCNN64
 
-Một mẫu đưa vào model là **một lượt đo đã lưu hoàn chỉnh**. Mỗi lượt gồm `raw.csv` và `metadata.json`. Raw giữ các giá trị đo, thời gian monotonic, pha, cờ hợp lệ, trạng thái cảm biến, đường khí và PWM. Metadata ghi UUID, phiên, tên mẫu, trạng thái và cấu hình thiết bị. Luồng thu có baseline danh định 60 giây, exposure 120 giây và recovery 60 giây. Baseline và exposure qua đầu lấy mẫu, recovery qua khí lọc. Các pha chờ có nhãn riêng.
+**Bước 1 — Tính đáp ứng theo nền của từng lượt.** Với mỗi kênh `c`, lấy trung vị của 30 điểm cuối BASELINE làm `b[c]`. Gọi `x[c,t]` là điểm EXPOSURE thứ `t`. Với các kênh điện áp và RH, tính hiệu so với nền. Với điện trở gas, dùng log tự nhiên của tỷ số giữa điện trở đo được và điện trở nền.
 
-Lượt `COMPLETE` thể hiện đã đi hết quy trình. Chất lượng tín hiệu được kiểm tra riêng trước khi vào model. Những bản xuất trùng UUID hoặc nội dung raw trùng hash được lọc ở các thử nghiệm có kiểm tra chống trùng. Các tập sau phục vụ mục đích khác nhau, có thể dùng lại một phần lượt đo. [Cấu trúc lưu trữ](data/README.md)
-
-### 3.2. Tập theo từng bài toán
-
-| Tập | Quy mô và cách dùng |
-| --- | --- |
-| ResCNN64 gốc | **77 lượt huấn luyện, 9 nhãn**. Báo cáo artifact ghi `full_fit`, các ngày train nằm trong 06–18/11/2026. Báo cáo gốc không có ngày test độc lập. |
-| Bộ hiệu chỉnh người V2 | **93 lượt thuộc 9 nhãn**, ngày **09–20/11/2026**, tách khỏi cây `data/hardware`. Loại **60 lượt không xác nhận được nhãn danh tính** và **3 lượt chưa hoàn chỉnh**. |
-| Kiểm tra người khác phiên | **13 lượt từ 4 phiên** trong `data/hardware`, gồm 8 lượt Phúc Lưu và 5 lượt Tài. Khi chấm một truy vấn, ứng viên chỉ đến từ phiên khác. Loại trùng theo UUID, hash hoặc phiên theo quy tắc của script. |
-| Cà phê, chọn và huấn luyện model | **141 lượt ngày 09–20/11** gồm **32 lượt tên có cà phê**, **16 đối chứng không khí**, và **93 lượt chỉ mang tên người** được dùng làm nhãn âm quy ước. Nhóm cuối chưa có xác nhận thực nghiệm rằng từng lượt đều không có cà phê. |
-| Cà phê, kiểm tra ngoài khoảng huấn luyện V2 | **8 lượt ghi nhãn cà phê ngày 07/11**. Tập này chỉ có mẫu dương đủ điều kiện trong phép kiểm tra, nên dùng để báo tỷ lệ phát hiện. |
-| Cà phê, kiểm tra `data/hardware` | Có **13 lượt có tên người** trong tập so sánh có nhãn quy ước. Tập đã dùng trong báo cáo chưa có mẫu cà phê được xác nhận, nên chỉ báo số lượt model dự đoán có cà phê. |
-
-[Báo cáo ResCNN64 gốc](models/rescnn64/20261119_053351_6b8717/report.json) · [Tập V2 nhận diện người](models_v2/grouped_training_report.json) · [Tập cà phê](models_v2/coffee_sensor_report.json)
-
-### 3.3. Chọn mẫu trước khi huấn luyện
-
-1. **Chọn đúng nguồn.** Đọc các lượt hardware đã lưu hoàn chỉnh. Khi huấn luyện bộ hiệu chỉnh V2 và cà phê, giới hạn ngày 09–20/11 và loại cây `data/hardware` khỏi tập chọn cấu hình. Với ResCNN64 gốc, số liệu lấy từ báo cáo huấn luyện đã nhập cùng artifact.
-2. **Gán nhãn theo nhiệm vụ.** Nhận diện người ánh xạ những tên mẫu đã biết vào 9 nhãn danh tính. Cà phê dùng tên có từ khóa cà phê làm dương, mẫu không khí làm đối chứng âm và danh sách tên người đã biết làm âm quy ước. Những lượt có tên mơ hồ nằm ngoài tập gán nhãn tương ứng.
-3. **Lọc trùng và lỗi.** Đối chiếu UUID hoặc SHA-256 của raw theo script. Kiểm tra số điểm, thời gian, cấu hình và tín hiệu theo hợp đồng từng model. Tên mẫu, UUID và ngày dùng để gán nhãn, tách tập hoặc phát hiện trùng. Đầu vào classifier chỉ chứa tín hiệu cảm biến đã xử lý.
-4. **Chia theo ngày hoặc phiên.** Các lần so trên archive dùng cả ngày làm nhóm. Bộ hiệu chỉnh danh tính được chấm riêng trên hardware bằng cách đổi truy vấn lần lượt và chỉ chọn ứng viên khác phiên. Tập ngày 07/11 dùng thêm cho cà phê để đánh giá ngoài khoảng huấn luyện. [Chọn dữ liệu người](models_v2/improve.py) · [Chọn dữ liệu cà phê](models_v2/train_coffee.py)
-
-## 4. Tiền xử lý và làm giàu tín hiệu
-
-### 4.1. Nhận diện người
-
-| Bước | Thao tác cụ thể | Đầu ra |
-| --- | --- | --- |
-| 1. Kiểm tra mẫu | Kiểm tra schema `robonose.dataset.v1`, trạng thái `COMPLETE`, cấu hình lấy mẫu 1 Hz, PWM 80%, map kênh, ADS và profile BME. Trong mỗi pha, hai điểm liên tiếp cách `1 ± 0,1` giây. Đồng hồ monotonic toàn lượt phải tăng nghiêm ngặt. | Lượt đủ **60 điểm baseline và 120 điểm exposure**. |
-| 2. Lọc chất lượng | Yêu cầu 6 kênh có số hữu hạn, trạng thái `OK`, cờ `fresh` và `valid` đúng. BME gas cần thêm `gas_valid`, `heater_stable` và `new_data`. Điện áp và điện trở phải dương, RH nằm trong 0–100%. Nếu một trong năm kênh mùi đứng yên suốt exposure hoặc có điểm không hợp lệ, loại lượt. | Hai ma trận **6 × 60** và **6 × 120**. Không điền 0 hay nội suy để ép đủ điểm. |
-| 3. Ghi cảnh báo | Đo độ trôi theo phút và chênh đỉnh–đỉnh trên 30 giây cuối baseline. Giá trị lớn hơn vượt 5% tạo cảnh báo với artifact hiện tại. Các dòng ngay trước exposure và cờ đo cắt qua lúc chuyển pha có thể tạo cảnh báo bổ sung. | Cờ chất lượng đi kèm kết quả suy luận. |
-| 4. Trừ nền | Lấy trung vị 30 điểm cuối của từng kênh làm mốc `b`. Với 4 điện áp và RH, tính `d = x − b`. Với BME gas, tính `d = ln(x/b)`. | Tensor đáp ứng `d[6,120]`. Thứ tự là A0, A1, A2, A3, BME gas, BME RH. |
-| 5. Chuẩn hóa | Tính `X = (d − center) / scale` theo từng kênh với thông số từ `model.json` gốc. Chuyển sang `float32` và thêm chiều batch. | ResCNN64 gốc nhận `[1,6,120]`. |
-| 6. Bổ sung riêng cho V2 | Đọc cả 60 điểm baseline, lấy log kênh điện trở gas rồi lấy trung bình từng cửa sổ 10 điểm. Chuẩn hóa **36 đặc trưng** bằng mean/độ lệch chuẩn của train, giới hạn trong `[-4,4]`. MLP sinh 6 mức bù và 6 độ dốc. Cộng đường bù lên `X`, với biên tối đa 0,5 đơn vị chuẩn hóa. | V2 vẫn đưa `[1,6,120]` qua CNN gốc. |
-
-Nhiệt độ, áp suất và recovery nằm ngoài tensor nhận diện người. `WAIT_EXPOSURE` có thể tham gia kiểm tra chất lượng trước exposure. [Quy trình đầy đủ ở models](models/TIEN_XU_LY_RESCNN64.md) · [Quy trình hiệu chỉnh ở models_v2](models_v2/BAO_CAO_KY_THUAT_V2.md)
-
-### 4.2. Phát hiện cà phê
-
-| Bước | Thao tác cụ thể | Đầu ra |
-| --- | --- | --- |
-| 1. Chọn kênh và pha | Bản V2 chọn A1, A2 và A3 theo thứ tự artifact. Đọc hai pha `BASELINE` và `EXPOSURE`, định vị điểm bằng `phase_elapsed_s`. | Ba chuỗi baseline và ba chuỗi exposure. |
-| 2. Lọc chất lượng | Với mỗi pha và mỗi kênh, kiểm tra thời gian hữu hạn, không giảm và không nhảy quá 3 giây giữa hai dòng liên tiếp. Giữ điểm số hữu hạn, trạng thái `OK` và cờ `valid/fresh` đúng. Mỗi pha cần ít nhất 90% điểm hợp lệ, khoảng trống giữa điểm hợp lệ tối đa 3 giây. Độ phủ từ điểm hợp lệ đầu đến cuối phải đạt ≥ 50 giây ở baseline và ≥ 105 giây ở exposure. | Chuỗi hợp lệ. Thiếu độ phủ sẽ trả chưa dự đoán được. |
-| 3. Tính đáp ứng tương đối | Lấy trung vị **toàn bộ baseline hợp lệ** làm `b`, yêu cầu `b ≠ 0`. Đổi từng điểm exposure `x` thành `r = 100 × (x − b) / abs(b)`. | Đáp ứng phần trăm theo thời gian, riêng cho từng kênh. |
-| 4. Nén thành đặc trưng | Với mỗi kênh, tính trung bình toàn exposure, trung bình trong `40 ≤ t < 80` giây, P10, P90 và độ dốc hồi quy tuyến tính theo phút. Cửa sổ 40–80 giây phải có điểm hợp lệ. | Vector **3 × 5 = 15** giá trị theo thứ tự A1, A2, A3. |
-| 5. Chuẩn hóa và chấm | Tính `z = (đặc trưng − mean) / scale` với scaler fit từ train. Tính logit `intercept + w · z`. | Có cà phê khi logit > 0. |
-
-**Ví dụ một lượt thật dùng cho cả hai pipeline.** Ở lượt UUID đầu `0e3e2d1a`, điểm A3 đầu exposure là **0,61200 V**. ResCNN64 lấy nền 30 điểm cuối là **0,60675 V**, trừ ra **0,00525 V**, chuẩn hóa thành **−0,22383**. Bộ hiệu chỉnh V2 biến giá trị này thành **−0,27970** bằng thông tin nền của cả sáu kênh. Model cà phê lấy nền của toàn pha là **0,60900 V**, đổi cùng điểm đo thành **+0,49261%**. Từ cả exposure của A3, nó rút năm giá trị xấp xỉ **0,79382**, **0,85206**, **0,45874**, **1,29310** và **−0,17508** theo thứ tự đặc trưng trong bảng. Sau khi ghép đủ 15 đặc trưng và chuẩn hóa, Logistic cho logit **−1,99942** và dự đoán không có cà phê. Đây là ví dụ chạy pipeline, nhãn tên người của lượt này vẫn là nhãn âm quy ước.
-
-### 4.3. Làm giàu dữ liệu và đặc trưng
-
-| Biện pháp | Thực hiện trên dữ liệu | Trạng thái |
-| --- | --- | --- |
-| Bổ sung diễn biến nền ở V2 người | Thêm 36 giá trị trung bình cửa sổ baseline. Loss contrastive tận dụng embedding cùng nhãn khác ngày. | Đang dùng cho tùy chọn V2 ở mục 04. |
-| Mở rộng đặc trưng cà phê | Thêm trung bình 5–30 giây, trung bình 85–105 giây, chênh lệch cuối–đầu exposure và P90−P10 của baseline. | Đã so bằng dữ liệu tách ngày. Logistic đang chạy dùng 15 đặc trưng của pipeline đã chọn. |
-| Tạo cặp cà phê và tên người cùng ngày | Tạo hiệu vector đặc trưng giữa các lượt cùng ngày. Dùng các hiệu và hiệu đảo dấu khi fit, rồi hiệu chỉnh intercept bằng lượt train. | Thử nghiệm Logistic, chưa được chọn. |
-| Tăng cường đầu vào CNN cà phê | Nén exposure thành 12 cửa sổ 10 giây. Trong train, nhân hệ số biên độ theo lượt/kênh và cộng nhiễu nhẹ. Cả scaler và tăng cường chỉ dựa trên fold train. | Thử nghiệm CNN, chưa được chọn. |
-| Làm mịn nhẹ ở V3 | Dùng cửa sổ đối xứng 3 hoặc 5 điểm để giảm dao động ngắn trước bộ hiệu chỉnh danh tính hoặc bước rút đặc trưng cà phê. Huấn luyện lại phần dùng tín hiệu đã lọc. | Tùy chọn thử nghiệm riêng ở mục 04 và mục 06. |
-| Kết hợp nhiều đường xử lý ở V4 | Cùng một lượt được xử lý theo nhiều nhánh. Đối sánh gộp điểm cosine. Phát hiện cà phê gộp logit của các nhánh Logistic dùng bộ kênh hoặc phép lọc khác nhau. | Tùy chọn thử nghiệm riêng ở mục 04 và mục 06. |
-
-Các đặc trưng và biến thể tăng cường được tính cho model. CSV gốc chỉ được đọc. [Tiền xử lý ResCNN64](robonose_s3/rescnn64.py#L117) · [Tiền xử lý cà phê](robonose_s3/coffee_detection/__init__.py) · [CNN cà phê thử nghiệm](models_v2/benchmark_coffee_cnn.py)
-
-### 4.4. Làm mịn nhẹ trong V3
-
-V3 kiểm tra giả thuyết rằng giảm dao động trong vài nhịp đo có thể giúp model giữ phần biến thiên đặc trưng của mùi. Bộ lọc áp dụng cho từng kênh sau khi kiểm tra chất lượng của raw. Mỗi điểm sau lọc dùng các điểm lân cận trong cùng pha. Thời gian, số dòng và dữ liệu lưu trên đĩa giữ nguyên. Đây là phép biến đổi tín hiệu cho các lượt đã ghi.
-
-| Cấu hình | Công thức tại điểm giữa cửa sổ | Mục đích thử |
-| --- | --- | --- |
-| `none` | `y[t] = x[t]` | Đối chứng để đo riêng ảnh hưởng của làm mịn. |
-| `light3` | `y[t] = (x[t-1] + 6x[t] + x[t+1]) / 8` | Giữ 75% điểm giữa, dùng hai điểm lân cận để giảm dao động ngắn. |
-| `sg5_half` | `y[t] = (−3x[t-2] + 12x[t-1] + 52x[t] + 12x[t+1] − 3x[t+2]) / 70` | Pha 50% tín hiệu gốc với Savitzky–Golay bậc 2, cửa sổ 5 điểm, để thử khả năng giữ hình dạng cục bộ. |
-
-Giữ nguyên điểm đầu và cuối nếu cửa sổ thiếu điểm. Ở pipeline cà phê, bỏ qua việc lọc tại tâm cửa sổ nếu có điểm lỗi hoặc hai mẫu liên tiếp lệch khỏi khoảng 0,9–1,1 giây. Ở pipeline người, tensor chỉ được đưa đến bộ lọc sau khi đã đạt kiểm tra đúng số mẫu và nhịp lấy mẫu. Bộ lọc không trộn các pha hoặc điền giá trị thiếu. [Mã bộ lọc V3](models_v3/smoothing.py) · [Bài báo Savitzky–Golay](https://doi.org/10.1021/ac60214a047)
-
-**Vị trí làm mịn khác nhau theo tác vụ.** Với người, V3 lọc tensor exposure đã trừ nền và chuẩn hóa. Vẫn dùng 36 đặc trưng baseline của V2, sau đó huấn luyện lại bộ hiệu chỉnh với tensor đã lọc và giữ checkpoint ResCNN64. Với cà phê, V3 lọc riêng baseline và exposure trên A1–A3 trước khi tính trung vị nền. Sau đó rút lại 15 đặc trưng và huấn luyện lại scaler cùng Logistic Regression. Lúc suy luận, từng bản dùng đúng bộ lọc đã dùng khi huấn luyện. [Đường chạy V3 người](models_v3/identity.py) · [Đường chạy V3 cà phê](models_v3/coffee.py)
-
-## 5. Kiến trúc model
-
-### 5.1. ResCNN64 cho người
-
-```mermaid
-flowchart TD
-    A["Exposure chuẩn hóa · B × 6 × 120"] --> B["Conv1D k7, s1 · B × 32 × 120"]
-    B --> C["Residual 1 · B × 32 × 120"]
-    C --> D["Residual 2 · B × 64 × 60"]
-    D --> E["Residual 3 · B × 128 × 30"]
-    E --> F["Gộp trung bình và cực đại · B × 256"]
-    F --> G["Linear 256 → 128 · GELU · Dropout 0,2"]
-    G --> H["Linear 128 → 64 · chuẩn L2"]
-    H --> I["Huấn luyện · đầu cosine 9 nhãn"]
-    H --> J["Mục 03 · cosine với kho tham chiếu, giữ mẫu gần nhất theo nhãn"]
-    H --> K["Mục 04 · cosine với từng lượt ứng viên"]
+```text
+d[c,t] = x[c,t] − b[c]          cho A0, A1, A2, A3 và BME688 RH
+d[c,t] = ln(x[c,t] / b[c])      cho BME688 gas
+X[c,t] = (d[c,t] − center[c]) / scale[c]
 ```
 
-`B` là kích thước batch, `k` là kích thước kernel và `s` là stride.
+Hai tham số `center[c]` và `scale[c]` được đọc từ cấu hình của bộ mã hóa để giữ đúng thang đo khi suy luận. Ví dụ, một điểm A3 là `0,61200 V` và trung vị nền `0,60675 V` cho hiệu `0,00525 V`. Dùng `center = 0,00815625 V` và `scale = 0,01298437 V` của kênh A3 cho `X ≈ −0,22383`. Tensor đáp ứng có kích thước **6 × 120**, theo thứ tự A0, A1, A2, A3, BME688 gas, BME688 RH. [Tham số chuẩn hóa từng kênh](models/rescnn64/20261119_053351_6b8717/model.json)
 
-| Khối | Cấu hình |
-| --- | --- |
-| Đầu vào | Chuỗi `[batch, 6, 120]`, bốn kênh điện áp, điện trở gas và độ ẩm. |
-| Trích xuất theo thời gian | `Conv1d 6 → 32`, kernel 7, GroupNorm, GELU. |
-| Khối residual | `32 → 32`, kernel 5, stride 1. Tiếp theo `32 → 64`, kernel 5, stride 2 và `64 → 128`, kernel 3, stride 2. Mỗi khối gồm hai lớp tích chập và một nhánh nối tắt. |
-| Gộp theo thời gian | Nối trung bình và cực đại của từng kênh đặc trưng để được vector 256 chiều. |
-| Đầu embedding | `Linear 256 → 128 → 64`, GELU, dropout 0,2 trong train và chuẩn L2 ở đầu ra. |
-| Đầu phân lớp | Nhân cosine giữa embedding và vector trọng số lớp chuẩn L2 với hệ số 12. Lúc chạy dashboard, hệ thống dùng embedding để tính cosine. Mục 03 lấy ứng viên tốt nhất của từng nhãn trong kho, bỏ lượt có UUID hoặc raw hash trùng truy vấn. |
+**Bước 2 — Tóm tắt diễn biến của toàn bộ baseline.** Lấy đủ 60 điểm BASELINE trên mỗi kênh. Chuyển riêng điện trở gas sang log tự nhiên rồi chia mỗi kênh thành sáu cửa sổ liên tiếp, mỗi cửa sổ 10 điểm. Lấy trung bình từng cửa sổ để tạo **6 kênh × 6 cửa sổ = 36 đặc trưng**. Nhờ giữ thứ tự các cửa sổ, bộ hiệu chỉnh có thông tin về mức nền và cách mức nền thay đổi trong suốt pha. Mỗi đặc trưng được chuẩn hóa bằng trung bình và độ lệch chuẩn fit trên tập học, rồi giới hạn trong **[−4, 4]**.
 
-CNN 1D phù hợp vì mỗi lượt là chuỗi nhiều kênh đồng bộ. Tích chập học đặc trưng biến thiên cục bộ theo thời gian. Embedding cho phép mục 04 xếp hạng các mẫu do người dùng chọn, kể cả khi tên mẫu khác tên lớp trong kho. Ngưỡng xác nhận danh tính chưa được hiệu chuẩn, nên giao diện trình bày thứ hạng thay vì khẳng định danh tính. [Kiến trúc ResCNN64](robonose_s3/rescnn64.py#L217) · [Trạng thái hiệu chuẩn](models/rescnn64/20261119_053351_6b8717/artifact.json)
+**Bước 3 — Học đường bù cho từng kênh.** Mỗi MLP có cấu trúc **36 → 16 → 12**, với `Tanh` sau lớp ẩn. Áp dụng `0,5 × tanh` lên 12 đầu ra để lấy sáu mức bù `offset[c]` và sáu độ dốc `slope[c]`. Với `u[t]` chạy đều từ −1 đến 1 qua 120 điểm:
 
-### 5.2. Bộ hiệu chỉnh trước CNN trong V2
+```text
+q[c,t] = 0,5 × (offset[c] + slope[c] × u[t])
+X_hiệu_chỉnh[c,t] = X_đầu_vào[c,t] + q[c,t]
+```
+
+Phần bù theo thời gian bị giới hạn về trị tuyệt đối ở **0,5 đơn vị chuẩn hóa**. Mỗi bộ hiệu chỉnh có **796 tham số có thể học**. Hai bộ được fit riêng vì nhánh B và C nhận exposure khác nhau. Đường bù của mỗi kênh có dạng tuyến tính theo thời gian, còn quan hệ giữa 36 đặc trưng nền và các hệ số bù do MLP học.
+
+| Nhánh | Thao tác cuối trong tiền xử lý | Tensor đưa vào ResCNN64 |
+| --- | --- | --- |
+| A · Đáp ứng chuẩn hóa | Giữ `X` từ bước 1. | `X`, kích thước 6 × 120 |
+| B · Hiệu chỉnh theo baseline | Dùng 36 đặc trưng nền để dự đoán và cộng đường bù lên `X`. | `X + q_B`, kích thước 6 × 120 |
+| C · Làm mịn và hiệu chỉnh | Lọc `X` theo mục 2.2, rồi dùng bộ hiệu chỉnh đã học cho tín hiệu sau lọc. | `smooth(X) + q_C`, kích thước 6 × 120 |
+
+[Chương trình chuẩn bị ba đầu vào và học bộ hiệu chỉnh](models_v4/train.py) · [Luồng suy luận đối sánh](models_v4/identity.py)
+
+### 2.4. Tạo ba vector cho Logistic Regression
+
+**Bước 1 — Chọn kênh và lấy nền.** Nhánh A dùng BME688 gas và A1. Hai nhánh B và C dùng A1–A3. Nhánh C lấy tín hiệu đã làm mịn ở mục 2.2. Với mỗi kênh của mỗi nhánh, lấy trung vị **toàn bộ điểm BASELINE hợp lệ** làm `b`. Từ các điểm EXPOSURE hợp lệ, tính mức thay đổi tương đối `r[t] = 100 × (x[t] − b) / |b|`. Bộ trích đặc trưng yêu cầu mốc nền khác 0.
+
+**Bước 2 — Trích năm đặc trưng từ mỗi kênh.** Tính theo thứ tự sau để tái tạo đúng vector đầu vào.
+
+| Đặc trưng | Cách tính | Thông tin giữ lại |
+| --- | --- | --- |
+| Trung bình cả pha | Trung bình `r[t]` của các điểm hợp lệ trong EXPOSURE. | Mức đáp ứng chung. |
+| Trung bình giữa pha | Trung bình `r[t]` với `40 ≤ t < 80` giây theo `phase_elapsed_s`. | Mức đáp ứng trong một khoảng đo thống nhất giữa các lượt. |
+| Phân vị P10 | Phân vị 10% của `r[t]`, nội suy theo cách tính inclusive. | Mức đáp ứng ở phần thấp của phân bố. |
+| Phân vị P90 | Phân vị 90% của `r[t]`, cùng phương pháp với P10. | Mức đáp ứng ở phần cao của phân bố. |
+| Độ dốc theo phút | Hồi quy tuyến tính bình phương tối thiểu của `r[t]` theo thời gian pha, rồi nhân độ dốc với 60. | Xu hướng thay đổi, đơn vị điểm phần trăm mỗi phút. |
+
+Ví dụ, nếu trung vị của cả BASELINE trên A3 là `0,60900 V` và điểm EXPOSURE là `0,61200 V` thì `r ≈ +0,493%`. Hệ thống tính năm thống kê trên chuỗi thay đổi tương đối, sau đó nối theo thứ tự kênh.
+
+**Bước 3 — Chuẩn hóa đặc trưng.** Từng nhánh fit một `StandardScaler` trên phần train. Mỗi giá trị `f[j]` được chuyển thành `z[j] = (f[j] − μ[j]) / σ[j]`. Khi dự đoán, dùng đúng `μ` và `σ` đã đóng gói với trọng số Logistic.
+
+| Nhánh | Kênh theo thứ tự | Dữ liệu dùng để tính trung vị và đặc trưng | Vector cho Logistic |
+| --- | --- | --- | ---: |
+| A · BME688 gas và A1 | BME688 gas, A1 | Tín hiệu hợp lệ trong hai pha | 10 |
+| B · A1–A3 | A1, A2, A3 | Tín hiệu hợp lệ trong hai pha | 15 |
+| C · A1–A3 làm mịn | A1, A2, A3 | Tín hiệu sau lọc riêng từng pha | 15 |
+
+[Trích năm thống kê cảm biến](robonose_s3/coffee_detection/__init__.py) · [Kênh, scaler và trình tự suy luận](models_v4/coffee.py)
+
+### 2.5. Làm giàu biểu diễn dữ liệu
+
+Tác vụ đối sánh bổ sung thông tin về **diễn biến đường nền** qua 36 đặc trưng, đồng thời khai thác ba biểu diễn exposure của cùng một lượt. Tác vụ cà phê làm giàu đầu vào bằng **năm thống kê trên mỗi kênh**, kết hợp đặc trưng mức đáp ứng, khoảng phân bố và xu hướng. Đây là làm giàu đặc trưng. Số lượt huấn luyện vẫn là 93 và 141 tương ứng. Các cặp cùng nhãn và khác nhãn ở tác vụ đối sánh được dùng trong hàm mất mát của MLP.
+
+## 3. Kiến trúc AI và công nghệ
+
+| Tác vụ | Mô hình và công nghệ | Lý do lựa chọn kiến trúc |
+| --- | --- | --- |
+| Đối sánh mùi người | **ResCNN64** dùng PyTorch. Cùng một bộ mã hóa tích chập một chiều được áp dụng cho ba tensor. | Tích chập 1D học quan hệ giữa các kênh và các đoạn thời gian lân cận. Embedding chuẩn hóa cho phép đưa một lượt truy vấn và các lượt tham chiếu lên cùng thang cosine. |
+| Phát hiện cà phê | **Logistic Regression** dùng scikit-learn để huấn luyện, bộ hệ số và scaler lưu dạng JSON. | Đầu vào gồm 10 hoặc 15 đặc trưng định lượng đã chuẩn hóa. Logistic dùng ít hệ số, có điều chuẩn và kiểm tra được đóng góp của từng thống kê qua hệ số. |
+
+### 3.1. ResCNN64 và điểm đối sánh
+
+Gọi `N` là số lượt trong batch. Hai chiều sau lần lượt là số kênh và số bước thời gian.
 
 ```mermaid
 flowchart LR
-    A["Baseline 6 × 60"] --> B["Trung bình 6 cửa sổ mỗi kênh · 36 giá trị"]
-    B --> C["Chuẩn hóa · Linear 36 → 16 · Tanh · Linear 16 → 12"]
-    C --> D["6 mức bù + 6 độ dốc · giới hạn bằng tanh"]
-    E["Exposure chuẩn hóa theo pipeline gốc · 6 × 120"] --> F["Cộng đường hiệu chỉnh theo kênh"]
-    D --> F
-    F --> G["ResCNN64 khóa trọng số"]
-    G --> H["Embedding 64 chiều → cosine"]
+    INPUT["Tensor mỗi nhánh · 6 × 120"] --> STEM["Conv1d · 32 × 120"]
+    STEM --> RES["Ba khối dư · 32 × 120 → 64 × 60 → 128 × 30"]
+    RES --> POOL["Nối trung bình và cực đại theo thời gian · 256"]
+    POOL --> HEAD["Linear · 256 → 128 → 64"]
+    HEAD --> NORM["Chuẩn L2 · embedding 64 chiều"]
 ```
 
-Với từng kênh `c`, bộ hiệu chỉnh có dạng `X_v2[c,t] = X[c,t] + 0,5 × (offset[c] + slope[c] × u[t])`. `u[t]` chạy đều từ −1 đến 1 trên 120 điểm. Sau `0,5 × tanh`, từng hệ số `offset` và `slope` có độ lớn tối đa 0,5, nên biên chỉnh tại mỗi điểm được giới hạn ở 0,5 đơn vị chuẩn hóa.
-
-**Trọng số ResCNN64 được khóa**, còn gradient đi qua CNN để học 796 tham số của bộ hiệu chỉnh. Các cấu hình dùng AdamW với learning rate 0,003, batch tối đa 24 và 20 epoch. Hàm mất mát của cấu hình được chọn gồm cross-entropy có trọng số lớp, phạt bình phương độ lớn đường chỉnh với hệ số 0,25, và thành phần contrastive khác ngày với hệ số 0,5. Contrastive dùng embedding CNN gốc của các lượt train khác ngày làm mốc để tăng độ gần tương đối với lượt cùng nhãn. [Chi tiết kiến trúc V2](models_v2/BAO_CAO_KY_THUAT_V2.md) · [Nguồn gốc supervised contrastive learning](https://proceedings.neurips.cc/paper_files/paper/2020/hash/d89a66c7c80a29b1bdbab0f2a1a94af8-Abstract.html)
-
-### 5.3. Model Logistic Regression cho cà phê
-
-```mermaid
-flowchart LR
-    A["A1, A2, A3 · baseline và exposure"] --> B["Lọc cờ hợp lệ, kiểm tra độ phủ"]
-    B --> C["Phần trăm chênh so với trung vị baseline"]
-    C --> D["5 đặc trưng mỗi kênh · tổng 15"]
-    D --> E["StandardScaler từ tập train · 15 giá trị z"]
-    E --> F["Logistic · logit = b + w · z"]
-    F --> G["Logit lớn hơn 0 · Có cà phê"]
-    F --> H["Logit nhỏ hơn hoặc bằng 0 · Không có cà phê"]
-    B --> I["Thiếu tín hiệu hợp lệ · Chưa thể dự đoán"]
-```
-
-Với vector 15 đặc trưng sau chuẩn hóa `z`, model tính logit `b + w · z`. Logit lớn hơn 0 thì model trả có cà phê. Logistic dùng L2 với `C = 0,1` và cân bằng trọng số lớp khi train. Có thể so chuẩn L2 của hệ số theo nhóm kênh để diễn giải mức đóng góp trong model này. Thứ tự đo được là **MQ3 #2**, **MQ3 #1**, rồi **MQ135 #2**. Đây là độ lớn hệ số trong mô hình đã fit, còn đáp ứng từng cảm biến có thể thay đổi theo điều kiện đo. [Artifact Logistic V2](robonose_s3/coffee_detection/model_sensor_v2.json) · [Kết quả chọn kênh](models_v2/coffee_sensor_report.json)
-
-### 5.4. Kiến trúc các model cà phê đối chứng
-
-| Model | Kiến trúc hoặc nguyên tắc | Lý do đưa vào so sánh |
+| Tầng | Cấu hình | Kích thước đầu ra |
 | --- | --- | --- |
-| Logistic Regression | Tổ hợp tuyến tính của đặc trưng chuẩn hóa. L2 hạn chế hệ số lớn. Bản thử đầu/cuối và bản học cặp thay đổi dữ liệu đầu vào hoặc mục tiêu fit. | Mốc đơn giản, ít tham số, dễ xem kênh nào đóng góp vào quyết định. |
-| Extra Trees | Trung bình điểm của 80 cây, độ sâu tối đa 6. Mỗi cây dùng các phép chia phi tuyến trên đặc trưng. | Kiểm tra tương tác giữa các kênh mà bộ phân lớp tuyến tính có thể bỏ qua. |
-| SVM RBF | Chuẩn hóa robust theo khoảng P10–P90. Ranh giới phi tuyến theo khoảng cách tới các support vector. | Thử ranh giới phi tuyến với tập dữ liệu vừa và nhỏ. |
-| LDA có shrinkage | Ranh giới tuyến tính từ trung bình lớp và hiệp phương sai chung được regularize. | Thử cách dùng tương quan giữa đặc trưng với mẫu ít. |
-| CNN 1D | Hai Conv1D kernel 3, mỗi lớp 12 kênh và GELU. Ghép mean/max pooling thành 24 giá trị, qua dropout 0,25 và Linear `24 → 1`. Lấy trung bình logit của ba seed. | Kiểm tra xem hình dạng phản ứng theo thời gian có thêm thông tin so với thống kê rút gọn hay không. |
+| Đầu vào | Một tensor đã tiền xử lý | `N × 6 × 120` |
+| Stem | `Conv1d 6→32`, kernel 7, stride 1, GroupNorm 8 nhóm và GELU | `N × 32 × 120` |
+| Khối dư 1 | `32→32`, kernel 5, stride 1 | `N × 32 × 120` |
+| Khối dư 2 | `32→64`, kernel 5, stride 2 | `N × 64 × 60` |
+| Khối dư 3 | `64→128`, kernel 3, stride 2 | `N × 128 × 30` |
+| Pooling | Nối trung bình và giá trị cực đại trên trục thời gian | `N × 256` |
+| Đầu embedding | `Linear 256→128`, GELU, dropout 0,2 trong huấn luyện, `Linear 128→64`, chuẩn L2 | `N × 64` |
 
-```mermaid
-flowchart LR
-    A["CNN cà phê thử nghiệm · B × C × 12 cửa sổ"]
-    A --> B["Conv1D k3 + GELU · B × 12 × 12"]
-    B --> C["Conv1D k3 + GELU · B × 12 × 12"]
-    C --> D["Mean pooling và max pooling · B × 24"]
-    D --> E["Dropout 0,25 · Linear 24 → 1"]
-    E --> F["Trung bình logit từ 3 seed · ngưỡng 0"]
+Mỗi khối dư có hai lớp tích chập, GroupNorm sau mỗi lớp và GELU sau lớp thứ nhất và sau phép cộng với nhánh tắt. Khi kích thước thay đổi, nhánh tắt dùng tích chập kernel 1 với stride tương ứng. Kiến trúc có **168.960 tham số**, tính cả đầu phân lớp chín nhãn dùng trong huấn luyện. Khi đối sánh, hệ thống gọi đầu embedding.
+
+Với embedding 64 chiều đã chuẩn L2 của từng nhánh `e_A`, `e_B`, `e_C`, nối ba vector sau khi nhân lần lượt với căn bậc hai của `0,60`, `0,20` và `0,20`. Vector gộp có **192 chiều**. Tích vô hướng của vector gộp giữa lượt truy vấn `u` và ứng viên `v` cho điểm:
+
+```text
+S(u,v) = 0,60 × cosine_A(u,v) + 0,20 × cosine_B(u,v) + 0,20 × cosine_C(u,v)
 ```
 
-`C` là số kênh cảm biến được thử, gồm bộ 3 kênh V2 hoặc toàn bộ 5 kênh mùi. Các model đối chứng được chạy ngoại tuyến. Việc thử thêm model không làm thay đổi artifact đã chọn cho dashboard. [Extra Trees và Logistic](models_v2/benchmark_coffee.py) · [SVM và LDA](models_v2/benchmark_coffee_ml.py) · [CNN](models_v2/benchmark_coffee_cnn.py)
+Hệ thống xếp hạng từ điểm cao xuống thấp. Điểm biểu thị độ tương đồng với ứng viên trong danh sách đã chọn. Cấu hình hiện tại dùng để xếp hạng, chưa có ngưỡng xác nhận danh tính đã hiệu chuẩn. [Kiến trúc bộ mã hóa](robonose_s3/rescnn64.py) · [Cách gộp embedding](models_v4/identity.py)
 
-### 5.5. Kiến trúc hai đường suy luận V3
+### 3.2. Logistic Regression và quyết định có cà phê
 
-```mermaid
-flowchart TD
-    Q["Dữ liệu lượt đo đã lưu và kiểm tra chất lượng"]
-    Q --> A["Người · exposure chuẩn hóa 6 × 120"]
-    Q --> B["Người · baseline 36 đặc trưng"]
-    A --> C["Làm mịn exposure từng kênh"]
-    C --> D["Bộ hiệu chỉnh đã huấn luyện lại · giữ kích thước 6 × 120"]
-    B --> D
-    D --> E["ResCNN64 checkpoint gốc → embedding 64 chiều → cosine"]
-    Q --> F["Cà phê · baseline và exposure trên A1, A2, A3"]
-    F --> G["Làm mịn từng pha → tính lại mốc nền và 15 đặc trưng"]
-    G --> H["Scaler và Logistic Regression đã fit lại → logit > 0"]
+Mỗi nhánh có một Logistic Regression riêng. Với vector đầu vào đã chuẩn hóa `z`, mô hình tính `l = intercept + Σ(w[j] × z[j])`. Hệ số `w[j]` được học cho từng đặc trưng. Hai nhánh dùng cùng bộ kênh vẫn có scaler và hệ số riêng vì một nhánh dùng tín hiệu đã làm mịn.
+
+```text
+L = 0,10 × l_A + 0,45 × l_B + 0,45 × l_C
+L > 0 → Có cà phê
+L ≤ 0 → Không có cà phê
 ```
 
-Phần mới của V3 là bộ lọc và các tham số được huấn luyện lại trên dữ liệu đã lọc. Artifact V3 lưu trong `models_v3`. Dashboard cung cấp **ResCNN64 V3 · Làm mịn nhẹ** tại mục 04 và **Logistic V3 · Làm mịn nhẹ** tại mục 06. [Tổng quan V3 và lệnh huấn luyện lại](models_v3/README.md)
+Trọng số kết hợp áp dụng cho **logit của nhánh**. Độ nhạy với từng kênh nằm trong các hệ số đã học của nhánh đó. Nếu một nhánh có trọng số dương thất bại khi kiểm tra đầu vào, hệ thống trả trạng thái không đủ điều kiện dự đoán cho lượt đó. [Trọng số và tham số Logistic](models_v4/coffee_ensemble.json) · [Mã quyết định](models_v4/coffee.py)
 
-### 5.6. Kiến trúc kết hợp ba nhánh V4
+## 4. Huấn luyện, so sánh và chọn cấu hình
 
-```mermaid
-flowchart TD
-    R["Lượt đo đã kiểm tra chất lượng"] --> A["Người V1 · Exposure chuẩn hóa"]
-    R --> B["Người V2 · Hiệu chỉnh bằng baseline"]
-    R --> C["Người V3 · Lọc 3 điểm và hiệu chỉnh"]
-    A --> I["Cùng checkpoint ResCNN64 · mỗi nhánh tạo embedding 64 chiều"]
-    B --> I
-    C --> I
-    I --> O["Xếp hạng cosine · 60% V1 + 20% V2 + 20% V3"]
-    R --> D["Cà phê V1 · BME688 gas và A1"]
-    R --> E["Cà phê V2 · A1–A3"]
-    R --> F["Cà phê V3 · A1–A3 làm mịn"]
-    D --> J["Ba nhánh Logistic được fit lại · mỗi nhánh tạo một logit"]
-    E --> J
-    F --> J
-    J --> P["Logit tổng · 10% V1 + 45% V2 + 45% V3"]
-```
+### 4.1. Phương pháp huấn luyện
 
-Ở tác vụ người, V4 dùng cùng một ResCNN64 với trọng số cố định. Bộ hiệu chỉnh V2 và V3 được fit riêng với dữ liệu đầu vào tương ứng. Ba embedding chuẩn L2 được nhân với căn bậc hai của trọng số, rồi nối thành 192 chiều. Tích vô hướng giữa hai vector nối bằng tổng cosine có trọng số của từng nhánh.
+**Đối sánh mùi người.** Đóng băng ResCNN64 và học hai MLP tiền xử lý. Gradient đi qua bộ mã hóa để tối ưu MLP. Mỗi MLP dùng AdamW, learning rate **0,003**, batch tối đa **24**, **20 epoch** và seed **42**. Các tham số lớp đầu ra của MLP khởi tạo bằng 0 để lúc bắt đầu đường bù bằng 0. Hàm mất mát có ba thành phần:
 
-Ở tác vụ cà phê, mỗi nhánh học scaler và Logistic Regression riêng. Công thức cuối là `s = 0,10 × logit_V1 + 0,45 × logit_V2 + 0,45 × logit_V3`. Nếu `s > 0`, model trả có cà phê. Nhánh bổ sung đặc trưng đầu và cuối exposure cũng được thử nhưng có trọng số 0 ở cấu hình được chọn. [Kiến trúc và cách chạy V4](models_v4/README.md)
+1. **Cross-entropy theo nhãn người.** Điểm lớp lấy từ cosine giữa embedding và vector lớp của bộ mã hóa, nhân 12. Trọng số lớp lấy căn bậc hai số lượt của lớp trong tập học.
+2. **Phạt hiệu chỉnh quá mạnh.** Cộng trung bình bình phương của phần thay đổi `X_hiệu_chỉnh − X_đầu_vào`, nhân hệ số **0,25**.
+3. **Mất mát tương phản khác ngày.** So embedding đã hiệu chỉnh với embedding mốc của lượt train khác ngày. Khuyến khích điểm gần mẫu cùng người cao tương đối so với mẫu khác người. Thành phần này có hệ số **0,5**, với tham số nhiệt độ **0,15**.
 
-## 6. Thử nghiệm và tiêu chí chọn model
+**Phát hiện cà phê.** Với từng nhánh, fit scaler trước rồi huấn luyện Logistic Regression với điều chuẩn L2, `C = 0,1`, `class_weight="balanced"` và tối đa 1.000 vòng lặp. Trong từng vòng đánh giá, cả scaler lẫn hệ số Logistic chỉ được học trên các ngày thuộc phần train. Sau khi chọn trọng số kết hợp, fit lại các thành phần cần học trên toàn bộ kho ngày 09–20/11. [Mã huấn luyện và chọn trọng số](models_v4/train.py)
 
-### 6.1. Đối sánh danh tính
+### 4.2. Kết quả đối sánh mùi người
 
-Trên archive, bộ hiệu chỉnh được chọn bằng cách lần lượt giữ riêng một ngày. Trong bốn cấu hình, phép thử dùng **top 1 trung bình theo lớp** làm chỉ số chính để mỗi nhãn có trọng số ngang nhau. MRR là trung bình nghịch đảo thứ hạng của ứng viên cùng nhãn đầu tiên, dùng để so khi điểm chính bằng nhau. Sau khi chốt cấu hình mới đánh giá 13 lượt hardware.
+**Top 1** đếm số lượt có ứng viên hạng nhất cùng người. **Top 1 trung bình theo nhãn** tính tỷ lệ đúng riêng từng người rồi lấy trung bình đều giữa các nhãn. **MRR** là trung bình `1 / hạng` của ứng viên đúng đầu tiên. Chọn trọng số theo Top 1 trung bình theo nhãn, dùng MRR để phân xử khi bằng điểm.
 
-**Bước 1. Chọn cấu hình trên archive 09–20/11.** Vòng này có 76 truy vấn hợp lệ từ 6 nhãn có đối chiếu cùng người khác ngày. Khi giữ riêng một ngày, bộ hiệu chỉnh và bộ chuẩn hóa baseline được fit lại bằng các ngày còn lại. CNN gốc là checkpoint đã huấn luyện trước, mức tách ngày áp dụng cho phần hiệu chỉnh V2.
+| Cấu hình đối chứng | Trọng số A / B / C | Top 1 khác ngày | Top 1 trung bình theo nhãn | MRR khác ngày |
+| --- | --- | ---: | ---: | ---: |
+| Chỉ dùng đáp ứng chuẩn hóa | 1 / 0 / 0 | 48/76 | 60,70% | 0,7243 |
+| Chỉ dùng hiệu chỉnh baseline | 0 / 1 / 0 | 50/76 | 66,09% | 0,7409 |
+| Chỉ dùng làm mịn và hiệu chỉnh | 0 / 0 / 1 | 47/76 | 63,27% | 0,7176 |
+| Kết hợp đều | ⅓ / ⅓ / ⅓ | 52/76 | 67,24% | 0,7564 |
+| Ưu tiên hiệu chỉnh baseline | 0,15 / 0,65 / 0,20 | 49/76 | 65,52% | 0,7351 |
+| Ưu tiên làm mịn và hiệu chỉnh | 0,15 / 0,20 / 0,65 | 48/76 | 64,94% | 0,7267 |
+| **Kết hợp được chọn** | **0,60 / 0,20 / 0,20** | **54/76** | **71,14%** | **0,7705** |
 
-| Cấu hình | Top 1 | Trung bình Top 1 theo lớp | MRR |
-| --- | ---: | ---: | ---: |
-| CNN gốc | 48/76 | 60,70% | 0,7243 |
-| Giữ mức baseline, dùng cross-entropy và phạt mức chỉnh | 49/76 | 63,33% | 0,7329 |
-| Trừ trung bình baseline, dùng cross-entropy và phạt mức chỉnh | 45/76 | 63,79% | 0,6774 |
-| **Giữ mức baseline và thêm contrastive** | **50/76** | **66,09%** | **0,7409** |
-| Trừ trung bình baseline và thêm contrastive | 44/76 | 62,60% | 0,6668 |
+Trên kho dữ liệu dùng để chọn trọng số, cấu hình kết hợp đạt **54/76 lượt đúng hạng nhất**, tương đương **71,05%** tính theo lượt. Top 1 trung bình theo nhãn cao hơn mỗi nhánh riêng khi xét trên cùng tập truy vấn.
 
-**Bước 2. Fit lại cấu hình đã chọn trên 93 lượt, rồi chấm khác phiên.** Với từng truy vấn hardware, xếp hạng ứng viên bằng cosine và kiểm tra ứng viên đầu tiên có cùng nhãn hay không. Nếu ứng viên cùng nhãn đầu tiên ở hạng 3, lượt đó có Top 1 = 0 và đóng góp `1/3` vào MRR.
-
-| Model | Top 1 trên 13 lượt hardware khác phiên | MRR hardware | Kết luận sử dụng |
-| --- | ---: | ---: | --- |
-| ResCNN64 gốc | 7/13 (53,8%) | 0,6692 | Giữ cho mục 03 và lựa chọn mặc định ở mục 04. |
-| V2 bù theo công thức | 4/13 (30,8%) | 0,5231 | Giữ dưới dạng thử nghiệm. |
-| V2 bộ hiệu chỉnh đã học lần đầu | 6/13 (46,2%) | 0,5788 | Bản thử trước khi chọn cấu hình theo ngày. |
-| **V2 hiện tại, `v2-grouped`** | **8/13 (61,5%)** | **0,7333** | Tùy chọn **Bộ hiệu chỉnh đã học** ở mục 04. |
-| V2 thử thêm trọng số cảm biến | 8/13 (61,5%) | 0,7418 | Top 1 trung bình theo lớp trên archive giảm từ 66,09% xuống 65,15%. Mục 04 tiếp tục dùng `v2-grouped`. |
-
-Trên archive, V2 hiện tại đạt **50/76** truy vấn đúng hạng 1, so với **48/76** của CNN gốc. Trên hardware, V2 cải thiện tổng cộng một lượt đúng so với CNN gốc. Tập hardware chỉ có hai nhãn và đã dùng qua nhiều lần đánh giá, nên cần phiên mới để xác nhận khả năng tổng quát. [Báo cáo V2](models_v2/grouped_training_report.json) · [Thử nghiệm trọng số](models_v2/identity_sensor_report.json) · [Kết quả các bản V2](models_v2/BAO_CAO_KY_THUAT_V2.md)
-
-### 6.2. Phát hiện cà phê
-
-Mỗi fold giữ riêng toàn bộ một ngày. Model và scaler được fit trên các ngày còn lại. Báo cáo dùng **balanced accuracy** = trung bình của tỷ lệ bắt đúng cà phê và tỷ lệ nhận đúng nhóm âm. Chỉ số này giúp đánh giá khi mẫu âm nhiều hơn mẫu dương. Kiểm tra riêng ngày 07/11 cho thấy khả năng phát hiện ngoài khoảng ngày train. Với phép thử tối ưu Logistic, vòng trong chọn cấu hình và ngưỡng, vòng ngoài chấm trên ngày được giữ riêng. [Nghiên cứu về kiểm định lồng](https://pubmed.ncbi.nlm.nih.gov/16504092/)
-
-**Bước 1. Chọn kênh và mức regularization.** So tất cả 31 tập con khác rỗng của 5 kênh mùi, mỗi tập thử `C ∈ {0,1; 1; 10}`, tổng cộng **93 cấu hình Logistic**. Chọn theo balanced accuracy trên dự đoán khác ngày. Nếu bằng điểm, ưu tiên ít bỏ sót hơn, ít kênh hơn, rồi `C` nhỏ hơn. Tập A1–A2–A3 với `C = 0,1` đạt 71,8%. Tập A2–A3 với cùng `C` đạt 71,6% và bắt đúng ít hơn một lượt cà phê.
-
-**Bước 2. So với các phương án AI khác.** Bảng dưới dùng cùng nguồn archive có 141 lượt. Model cũ được chạy như mốc tham chiếu cố định. Các điểm dùng để chọn cấu hình trên archive chưa tương đương một phép đánh giá xác nhận trên tập mới. Dòng kiểm định lồng được ghi riêng vì cách chấm chặt hơn.
-
-| Phương án | Balanced accuracy trên tập 09–20/11 | Bắt đúng lượt cà phê | Ghi chú |
-| --- | ---: | ---: | --- |
-| Logistic cũ, BME688 gas và MQ3 #1 | 54,6% | 10/32 | Chạy lại checkpoint cũ để tham chiếu. Phạm vi trùng tập train cũ chưa xác minh. |
-| **Logistic V2, ba kênh analog** | **71,8%** | **21/32** | Bản được chọn. Nhận đúng 85/109 lượt âm theo quy ước. |
-| Logistic bổ sung đặc trưng đầu/cuối exposure tốt nhất | 71,6% | 20/32 | Trên hardware mang tên người, báo dương 5/13 so với 1/13 của V2. |
-| Extra Trees tốt nhất | 59,9% | 14/32 | Ensemble cây chưa vượt Logistic trên dữ liệu này. |
-| LDA có shrinkage tốt nhất | 70,2% | 20/32 | Ngày 07/11 bắt được 1/8, bằng V2. |
-| SVM RBF tốt nhất | 65,2% | 20/32 | Báo dương 35/109 lượt âm theo quy ước khi kiểm tra khác ngày. |
-| Logistic tinh chỉnh bằng kiểm định lồng | 62,3% | 17/32 | Thử 36 cấu hình và 9 ngưỡng. Dùng kết quả vòng ngoài để báo cáo. |
-| Logistic học thêm từ cặp cùng ngày | 68,2% | 19/32 | Chưa cải thiện so với V2. |
-| CNN 1D ba kênh | 61,9% | 22/32 | Bắt 4/8 ngày 07/11, đồng thời báo dương 49/109 lượt âm theo quy ước. |
-| Kết hợp Logistic và CNN | 70,9% | 21/32 | Bản kết hợp được chọn vẫn bắt 1/8 ngày 07/11. |
-
-**Căn cứ chọn Logistic V2.** Bản này đạt 71,8% balanced accuracy, bắt **21/32** lượt cà phê, báo dương **0/16** đối chứng không khí trong kiểm tra theo ngày và **1/13** lượt hardware mang tên người. Accuracy thông thường là **106/141 (75,2%)**, còn recall cà phê là **65,6%**. Balanced accuracy vẫn dưới 75%, và đợt 07/11 chỉ phát hiện **1/8**. Vì vậy có thể trình bày bản demo và đo lường kết quả, còn khả năng nhận diện ổn định qua nhiều đợt đo vẫn cần xác nhận.
-
-| Nhãn theo bộ dữ liệu | Model báo có cà phê | Model báo không có cà phê |
+| Cấu hình | Top 1 khác phiên trên hardware | MRR khác phiên |
 | --- | ---: | ---: |
-| 32 lượt mang nhãn cà phê | 21 | 11 |
-| 109 lượt âm gồm không khí và tên người quy ước | 24 | 85 |
+| Chỉ dùng đáp ứng chuẩn hóa | 7/13 | 0,6692 |
+| Chỉ dùng hiệu chỉnh baseline | **8/13** | 0,7333 |
+| Chỉ dùng làm mịn và hiệu chỉnh | **8/13** | **0,7372** |
+| Kết hợp được chọn | 7/13 | 0,6859 |
 
-Từ bảng, tỷ lệ phát hiện là `21/32 = 65,6%`, tỷ lệ nhận đúng nhóm âm là `85/109 ≈ 78,0%`, và balanced accuracy là `(21/32 + 85/109) / 2 ≈ 71,8%`. CNN 1D bắt đúng **22/32** nhưng báo dương trên **49/109** lượt nhóm âm. So cả hai tỷ lệ giải thích vì sao Logistic V2 được chọn dù CNN bắt được thêm một lượt dương trên archive.
+Trên 13 lượt hardware, cấu hình kết hợp xếp đúng **5/8 lượt Phúc** và **2/5 lượt Tài**. Hai nhánh hiệu chỉnh độc lập đúng thêm một lượt. Kết quả khác phiên hiện có cho thấy lợi thế quan sát trên kho khác ngày cần được kiểm chứng thêm. [Báo cáo từng nhãn, từng trọng số và tập hardware](models_v4/identity_report.json)
 
-[Logistic cũ và V2](models_v2/coffee_sensor_report.json) · [Logistic thêm đặc trưng và Extra Trees](models_v2/coffee_v3_report.json) · [SVM và LDA](models_v2/coffee_ml_report.json) · [Kiểm định lồng](models_v2/coffee_logistic_tuned_report.json) · [Học cặp](models_v2/coffee_pairs_report.json) · [CNN và kết hợp](models_v2/coffee_cnn_report.json)
+### 4.3. Kết quả phát hiện cà phê
 
-### 6.3. So sánh V3 làm mịn với V2
+Chỉ số chính là **balanced accuracy**, bằng trung bình của recall cà phê `TP / (TP + FN)` và tỷ lệ nhận đúng nhóm âm `TN / (TN + FP)`. Cách tính này cho mỗi lớp trọng số bằng nhau khi chấm điểm, trong khi tập có 32 lượt dương và 109 lượt âm. Khi hai tổ hợp bằng điểm, chọn theo balanced accuracy tính riêng trên **cà phê và mẫu không khí**. Các dòng một nhánh dùng cùng cách chia ngày và cùng 141 lượt để đo đóng góp của kênh và bước làm mịn.
 
-Để đo riêng ảnh hưởng của làm mịn, cả ba cấu hình `none`, `light3` và `sg5_half` dùng cùng bộ mẫu, kênh và quy trình chia theo ngày. Với người, huấn luyện lại bộ hiệu chỉnh trên 93 lượt ngày 09–20/11 và so Top 1 trung bình theo lớp, dùng MRR khi bằng điểm. Với cà phê, fit lại scaler và Logistic trên các fold của 141 lượt, rồi chọn theo balanced accuracy. Sau khi chọn bộ lọc, mới kiểm tra trên các tập đối chiếu ở bảng dưới.
+| Cấu hình đối chứng | Trọng số A / B / C | Bắt đúng cà phê | Đúng nhóm âm | Balanced accuracy toàn tập | Balanced accuracy cà phê và không khí |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Chỉ BME688 gas và A1 | 1 / 0 / 0 | 15/32 | 86/109 | 62,89% | 73,44% |
+| Chỉ A1–A3 | 0 / 1 / 0 | **21/32** | 85/109 | **71,80%** | **82,81%** |
+| Chỉ A1–A3 làm mịn | 0 / 0 / 1 | **21/32** | 85/109 | **71,80%** | **82,81%** |
+| Kết hợp đều | ⅓ / ⅓ / ⅓ | 16/32 | 85/109 | 63,99% | 75,00% |
+| **Kết hợp được chọn** | **0,10 / 0,45 / 0,45** | **20/32** | **84/109** | **69,78%** | **81,25%** |
 
-| Kiểm tra khác ngày trên archive | Đối chứng V2, không lọc | V3 lọc 3 điểm | V3 Savitzky–Golay pha 50% |
-| --- | ---: | ---: | ---: |
-| Người · Top 1 | **50/76** | 47/76 | 47/76 |
-| Người · Top 1 trung bình theo lớp | **66,09%** | 63,27% | 62,33% |
-| Cà phê · balanced accuracy | 71,8% | 71,8% | 71,8% |
-| Cà phê · phát hiện đúng | 21/32 | 21/32 | 21/32 |
+Thực nghiệm còn thử thêm một nhánh động học trên A0–A3. Nhánh này bổ sung trung bình đầu pha `[5, 30)` giây, trung bình cuối pha `[85, 105)` giây, độ chênh cuối–đầu và độ trải P90 − P10 của baseline, cùng các đặc trưng ở mục 2.4. Khi cấp 30% trọng số cho nhánh động học và chia 70% còn lại theo tỷ lệ `0,10 / 0,30 / 0,30`, balanced accuracy toàn tập vẫn là **69,78%**, còn điểm riêng trên cà phê và không khí là **78,13%**. Khi cấp 10% cho nhánh động học, với ba nhánh kia nhận `0,10 / 0,40 / 0,40`, hai chỉ số lần lượt là **68,68%** và **79,69%**. Cấu hình ba nhánh được chọn trong nhóm tổ hợp theo hai tiêu chí đã nêu. Hai đối chứng A1–A3 đứng cao nhất khi xét cả các dòng một nhánh.
 
-Trong hai cách làm mịn, chọn `light3` cho cả hai tác vụ. Bản người có Top 1 trung bình theo lớp cao hơn `sg5_half`. Bản cà phê bằng điểm và dùng cửa sổ ngắn hơn.
+Ma trận nhầm lẫn của cấu hình kết hợp trên dữ liệu chấm khác ngày:
 
-| Kiểm tra sau khi chốt bộ lọc | V2 | V3 lọc 3 điểm |
+| Nhãn đối chiếu | Dự đoán có cà phê | Dự đoán không có cà phê |
 | --- | ---: | ---: |
-| Người · Top 1 trên hardware khác phiên | 8/13 | 8/13 |
-| Người · MRR trên hardware khác phiên | 0,7333 | 0,7372 |
-| Cà phê · phát hiện ngày 07/11 ngoài khoảng huấn luyện | 1/8 | 1/8 |
-| Cà phê · báo dương trên mẫu hardware mang tên người | 1/13 | 1/13 |
+| Có cà phê | 20 | 12 |
+| Âm theo quy ước của tập | 25 | 84 |
 
-V3 giữ số lượt đúng trên hardware nhưng giảm Top 1 đối sánh người trên archive. Với cà phê, các chỉ số chính giữ nguyên và balanced accuracy vẫn dưới 75%. Vì vậy, dashboard đưa V3 vào mục 04 và mục 06 dưới dạng lựa chọn thử nghiệm. [Số liệu đối sánh V3](models_v3/identity_report.json) · [Số liệu cà phê V3](models_v3/coffee_report.json)
+Cấu hình bắt đúng **62,50%** lượt cà phê và nhận đúng **77,06%** lượt âm. Độ chính xác thông thường là **104/141 = 73,76%**. Trong 16 lượt không khí đối chứng, hệ thống nhận đúng cả 16.
 
-### 6.4. So sánh V4 với từng nhánh
+| Kiểm tra trên tập đối chiếu | Kết quả cấu hình kết hợp | Cách đọc |
+| --- | ---: | --- |
+| Cà phê ngày 07/11 | **1/8** lượt dự đoán dương | Tập có tám lượt mang nhãn cà phê. Chỉ số đo tỷ lệ bắt đúng trong ngày này. |
+| Lượt mang tên người trong `data/hardware` | **1/13** lượt báo dương | Tỷ lệ báo dương trên nhóm âm quy ước theo tên lượt. |
 
-Dùng archive **09–20/11/2026** để fit các nhánh và chọn trọng số. Mỗi lần giữ riêng một ngày. Với người, dùng 93 lượt và chọn theo Top 1 trung bình theo lớp, dùng MRR khi bằng điểm. Với cà phê, dùng 141 lượt và chọn theo balanced accuracy, dùng điểm trên mẫu cà phê và không khí để phân xử. Sau khi chốt các trọng số, fit lại trên archive rồi chấm trên tập đối chiếu.
+Kết quả ngày 07/11 cho thấy khả năng bắt cà phê thay đổi đáng kể giữa các điều kiện thu. Chỉ số balanced accuracy của cấu hình kết hợp trên tập chọn trọng số vẫn dưới **75%**. Hai tập đối chiếu mỗi tập chỉ có một lớp nhãn, nên báo số lượt tương ứng với lớp hiện diện. [Ma trận nhầm lẫn, tổ hợp động học và các tập đối chiếu](models_v4/coffee_report.json)
 
-| Đối sánh người | Top 1 khác ngày trên archive | Top 1 trung bình theo lớp trên archive | Top 1 khác phiên trên hardware | MRR hardware |
-| --- | ---: | ---: | ---: | ---: |
-| V1 · ResCNN64 gốc | 48/76 | 60,70% | 7/13 | 0,6692 |
-| V2 · Hiệu chỉnh baseline | 50/76 | 66,09% | **8/13** | 0,7333 |
-| V3 · Làm mịn và hiệu chỉnh | 47/76 | 63,27% | **8/13** | **0,7372** |
-| V4 · Kết hợp 60% V1, 20% V2, 20% V3 | **54/76** | **71,14%** | 7/13 | 0,6859 |
+## 5. Tích hợp vào dashboard và phạm vi kết quả
 
-V4 tốt nhất trong vòng chọn trọng số trên archive. Trên 13 lượt từ 4 phiên hardware, V4 hụt một lượt đúng so với V2 và V3. [Kết quả theo nhãn và tổ hợp trọng số](models_v4/identity_report.json)
+Trong **04 · Đối sánh**, người dùng chọn một lượt truy vấn cùng danh sách tham chiếu đã lưu, rồi chọn mô hình ResCNN64 kết hợp ba nhánh. Dashboard hiển thị thứ hạng và điểm tương đồng. Trong **06 · Phát hiện cà phê**, chọn một lượt đã lưu và mô hình Logistic kết hợp ba nhánh để nhận dự đoán nhị phân. Pipeline áp dụng lại đúng thứ tự tiền xử lý và các tham số đã lưu khi chạy trên lượt mới.
 
-| Phát hiện cà phê | Balanced accuracy khác ngày | Bắt đúng cà phê khác ngày | Bắt đúng ngày 07/11 | Báo dương trên mẫu hardware mang tên người |
-| --- | ---: | ---: | ---: | ---: |
-| V1 · Bộ kênh gốc được fit lại | 62,9% | 15/32 | 1/8 | 2/13 |
-| V2 · Logistic ba kênh được fit lại | **71,8%** | **21/32** | 1/8 | 1/13 |
-| V3 · Logistic làm mịn được fit lại | **71,8%** | **21/32** | 1/8 | 1/13 |
-| V4 · Kết hợp 10% V1, 45% V2, 45% V3 | 69,8% | 20/32 | 1/8 | 1/13 |
-
-Các nhánh cà phê trong bảng được fit trên cùng dữ liệu, nên dòng V1 là đối chứng về bộ kênh. V4 thấp hơn V2 và V3 về balanced accuracy. Cột hardware dùng nhãn âm quy ước theo tên người. Kết quả trên archive dùng để chọn trọng số và cần phiên đo mới để kiểm chứng. [Ma trận nhầm lẫn và kết quả từng cấu hình](models_v4/coffee_report.json)
-
-V4 được triển khai trong dashboard cục bộ dưới dạng tùy chọn thử nghiệm. Vào **04 · Đối sánh → ResCNN64 V4 · Kết hợp ba nhánh** hoặc **06 · Phát hiện cà phê → Logistic V4 · Kết hợp ba nhánh**. Các lựa chọn mặc định vẫn theo kết quả đánh giá của các bản trước.
-
-## 7. Điểm cần nêu khi bảo vệ
-
-1. **Hai tác vụ, hai mục tiêu.** Nhận diện người cần xếp hạng hình dạng mùi giữa nhiều lượt; phát hiện cà phê là phân loại nhị phân. Hai bài toán dùng bộ đặc trưng và tiêu chí đánh giá riêng.
-2. **Chọn model bằng dữ liệu khác phiên hoặc khác ngày.** Tách theo ngày hạn chế việc mẫu cùng điều kiện đo rơi vào cả train và test. Báo riêng kết quả chọn cấu hình, kết quả hardware và các tập chỉ có một lớp.
-3. **Đánh giá theo ngữ cảnh mẫu.** Một mẫu chỉ mang tên người là nhãn âm quy ước. Muốn đo báo nhầm chắc chắn, cần ghi rõ có hay không có cà phê khi thu. Lượt cà phê riêng và lượt người kèm cà phê cũng nên được báo cáo riêng.
-4. **Hướng kiểm chứng tiếp.** Thu xen kẽ cùng người có và không có cà phê trong cùng phiên, thêm đối chứng không khí và mùi dễ nhầm. Giữ riêng các phiên mới để chấm đồng thời recall, tỷ lệ báo nhầm và balanced accuracy.
+Cả hai lựa chọn được đánh dấu thử nghiệm. Các bảng khác ngày là căn cứ chọn cấu hình và các phép đối chiếu hardware dùng số lượt nhỏ. Để đánh giá trên điều kiện đo mới, cần giữ riêng các phiên có cả mẫu cà phê, không khí đối chứng và lượt người được ghi rõ có hay không có cà phê. Khi đó có thể so recall, tỷ lệ báo nhầm và balanced accuracy trên cùng điều kiện thu. [Mã tích hợp giao diện](robonose_s3/web/index.html) · [Hướng dẫn tái lập thực nghiệm](models_v4/README.md)
