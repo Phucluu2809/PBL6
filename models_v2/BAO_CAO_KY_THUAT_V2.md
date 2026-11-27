@@ -2,6 +2,8 @@
 
 **Trạng thái ngày 27/11/2026** · Bản đang dùng ở mục 04 là `v2-grouped`.
 
+Đọc [tiền xử lý ResCNN64 gốc](../models/TIEN_XU_LY_RESCNN64.md) để đối chiếu từng bước dùng chung. Xem [báo cáo AI tổng hợp](../BAO_CAO_AI_ROBONOSE.md) để so sánh toàn bộ pipeline nhận diện người và cà phê.
+
 ## 1. Phạm vi thay đổi so với model gốc
 
 `models/` chứa ResCNN64 gốc cùng trọng số, tham số chuẩn hóa và kho embedding tham chiếu. `models_v2/` bổ sung bộ hiệu chỉnh exposure dựa trên toàn bộ baseline. Bộ hiệu chỉnh có checkpoint riêng, đặt trước ResCNN64 khi chọn V2 trong dashboard. Cả hai đường chạy tạo embedding 64 chiều và xếp hạng theo cosine.
@@ -17,21 +19,24 @@ SHA-256 của checkpoint CNN gốc vẫn là `50e0d6ee1c2a3edd3c0b1f2cd794e83adf
 
 ## 2. Kiến trúc và luồng dữ liệu
 
-```text
-raw.csv + metadata.json
-  |
-  +-- BASELINE 6 × 60 ------> trung bình mỗi 10 giây, 36 giá trị
-  |                             |
-  |                             +--> chuẩn hóa baseline theo tập train
-  |                             +--> MLP 36 → 16 → 12
-  |                             +--> mức bù và độ dốc cho 6 kênh
-  |
-  +-- EXPOSURE 6 × 120 -----> hiệu chỉnh mốc bằng 30 điểm cuối baseline
-                                +--> chuẩn hóa theo model.json gốc
-                                +--> cộng đường hiệu chỉnh đã học
-                                +--> ResCNN64 gốc
-                                +--> embedding 64 chiều, chuẩn L2
-                                +--> cosine và xếp hạng
+```mermaid
+flowchart TD
+    A["raw.csv + metadata.json"] --> B["Kiểm tra schema, cấu hình, thời gian và cờ tín hiệu"]
+    B --> C["Baseline · 6 × 60"]
+    B --> D["Exposure · 6 × 120"]
+    C --> E["Log kênh gas, chia mỗi kênh thành 6 cửa sổ 10 điểm"]
+    E --> F["Trung bình cửa sổ · 36 giá trị"]
+    F --> G["Chuẩn hóa theo train và giới hạn trong khoảng −4 đến 4"]
+    G --> H["Linear 36 → 16 + Tanh + Linear 16 → 12"]
+    H --> I["0,5 × tanh · 6 mức bù và 6 độ dốc"]
+    C --> J["Trung vị 30 điểm cuối theo từng kênh"]
+    J --> K["Tính hiệu hoặc log-ratio, rồi chuẩn hóa theo artifact gốc"]
+    D --> K
+    I --> L["Cộng đường hiệu chỉnh với gain 0,5"]
+    K --> L
+    L --> M["Exposure V2 · 6 × 120"]
+    M --> N["ResCNN64 khóa trọng số · embedding L2 64 chiều"]
+    N --> O["Cosine giữa truy vấn và từng ứng viên"]
 ```
 
 Sáu kênh theo thứ tự của artifact là **TGS2602 A0, MQ3 #1 A1, MQ135 #2 A2, MQ3 #2 A3, điện trở gas BME688 và độ ẩm tương đối BME688**. Đầu vào CNN có dạng `[batch, 6, 120]`. Đầu vào riêng của bộ hiệu chỉnh có dạng `[batch, 36]`.
@@ -65,6 +70,8 @@ Mạng gồm `Linear(36 → 16)`, Tanh và `Linear(16 → 12)`, tổng cộng **
    `X_v2[c,t] = X[c,t] + 0,5 × (d[c] + s[c] × u[t])`
 
    `u` là 120 điểm chạy đều từ −1 đến 1. Mức hiệu chỉnh tuyệt đối bị chặn ở **0,5 đơn vị chuẩn hóa** trên mỗi kênh và thời điểm, bằng một nửa biên tối đa của V2 đã học lần đầu. Đường bù vừa có thể nâng hoặc hạ mức tín hiệu, vừa có thể đổi xu hướng tuyến tính. Đường raw trên đĩa chỉ được đọc.
+
+**Ví dụ trên lượt thực có UUID đầu `0e3e2d1a`.** Sáu giá trị trung bình baseline của A3, làm tròn 5 chữ số, lần lượt là `0,61260`, `0,61061`, `0,60953`, `0,60722`, `0,60645` và `0,60686 V`. Ở điểm exposure đầu tiên, giá trị chuẩn hóa gốc của A3 là **−0,22383**. Sau bộ hiệu chỉnh, giá trị này thành **−0,27970**, tức thay đổi **−0,05587 đơn vị chuẩn hóa**. Bộ hiệu chỉnh tính từ đủ 36 đặc trưng của sáu kênh. Cả lượt vẫn có 120 điểm mỗi kênh. Phép chạy thực tế trả tensor `[1,6,120]` trước CNN và embedding `[1,64]` có chuẩn L2 xấp xỉ 1.
 
 Bản V2 đã học dùng nhãn danh tính làm mục tiêu. Nó chưa được huấn luyện để tái tạo nền vật lý hoặc tách chính xác dư âm của mẫu trước. Tùy chọn thử nghiệm bù theo công thức trong `baseline.py` là một đường chạy riêng, có thể dùng blank cùng phiên và cấu hình khi dữ liệu đáp ứng điều kiện. [Tiền xử lý gốc](../robonose_s3/rescnn64.py#L117) · [Tiền xử lý V2](learned.py) · [Bản công thức](baseline.py)
 
@@ -139,6 +146,8 @@ Chạy lại từ thư mục gốc bằng môi trường có PyTorch. Script s�
 ### Phát hiện cà phê
 
 Model cũ dùng điện trở gas BME688 và MQ3 #1. Thử nghiệm mới xét các tổ hợp của năm kênh mùi và ba mức regularization logistic regression. Mỗi kênh đóng góp năm đặc trưng từ mức thay đổi exposure so với trung vị baseline, gồm trung bình toàn pha, trung bình giây 40–80, P10, P90 và độ dốc. Scaler và hệ số logistic được học lại ở từng fold giữ riêng ngày. Ngưỡng phân loại là điểm logit lớn hơn 0.
+
+Pipeline cà phê đọc `phase_elapsed_s` và lọc theo `status = OK`, `valid` và `fresh` của từng kênh. Mỗi pha cần ≥ 90% điểm hợp lệ, khoảng cách giữa các điểm hợp lệ ≤ 3 giây, độ phủ từ điểm đầu đến cuối ≥ 50 giây cho baseline và ≥ 105 giây cho exposure. Tính `100 × (exposure − median_baseline) / abs(median_baseline)`, trong đó trung vị lấy từ toàn bộ điểm baseline hợp lệ. Với A1, A2 và A3, ghép 15 đặc trưng, chuẩn hóa bằng tham số học trên train, rồi tính logit. [Bảng từng bước, ví dụ từ raw và sơ đồ các model cà phê](../BAO_CAO_AI_ROBONOSE.md#42-phát-hiện-cà-phê)
 
 Tổ hợp được chọn gồm **MQ3 #1 A1, MQ135 #2 A2 và MQ3 #2 A3**. Theo chuẩn L2 của các hệ số trên đặc trưng đã chuẩn hóa, MQ3 #2 có hệ số nhóm lớn nhất, tiếp đến MQ3 #1 rồi MQ135 #2. Đây là mức đóng góp của nhóm đặc trưng trong model đã fit.
 
