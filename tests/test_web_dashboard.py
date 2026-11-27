@@ -103,6 +103,7 @@ def test_web_mock_identity_and_reference_comparison_jobs(tmp_path):
         jobs = get_json(base, "/api/inference/results?after=0")["jobs"]
         result_by_task = {job["task"]: job["result"] for job in jobs}
         assert result_by_task["identity"]["is_unknown"] is True
+        assert "coffee_check" not in next(job for job in jobs if job["task"] == "identity")
         ranking = result_by_task["reference_comparison"]["ranking"]
         assert {item["candidate_id"] for item in ranking} == set(candidates)
         assert [item["rank"] for item in ranking] == list(range(1, len(candidates) + 1))
@@ -119,6 +120,43 @@ def test_comparison_requires_unique_candidates():
         predictor.compare("X", [])
     with pytest.raises(ValueError, match="must be unique"):
         predictor.compare("X", ["A", "A"])
+
+
+def test_coffee_job_does_not_call_identity_predictor(tmp_path, monkeypatch):
+    trial_id = "44444444-4444-4444-8444-444444444444"
+    folder = tmp_path / "session" / "trials" / "coffee"
+    folder.mkdir(parents=True)
+    (folder / "metadata.json").write_text(json.dumps({
+        "trial_id": trial_id, "status": "COMPLETE", "export_finalized": True, "mode": "HARDWARE",
+    }), encoding="utf-8")
+    raw_path = folder / "raw.csv"
+    raw_path.touch()
+
+    class UnavailableIdentity(MockPredictor):
+        def predict_identity(self, sample_id):
+            raise RuntimeError("Identity backend offline")
+
+    def check_coffee(path):
+        assert path == str(raw_path.resolve())
+        return {"status": "PREDICTED", "has_coffee": True, "model": "test-model"}
+
+    web = RoboNoseWebServer(None, tmp_path, port=0, predictor=UnavailableIdentity())
+    monkeypatch.setattr(web.app.inference, "_check_coffee", check_coffee)
+    base = web.start()
+    try:
+        with pytest.raises(HTTPError) as error:
+            post_json(base, "/api/inference/coffee", {"sample_id": "unknown"})
+        assert error.value.code == 400
+        assert post_json(base, "/api/inference/coffee", {"sample_id": trial_id})[0] == 202
+        assert post_json(base, "/api/inference/identity", {"sample_id": trial_id})[0] == 202
+        wait_until(lambda: len(get_json(base, "/api/inference/results")["jobs"]) == 2 and
+                   all(job["state"] in {"SUCCEEDED", "FAILED"}
+                       for job in get_json(base, "/api/inference/results")["jobs"]))
+        jobs = {job["task"]: job for job in get_json(base, "/api/inference/results")["jobs"]}
+        assert jobs["coffee"]["result"]["has_coffee"] is True
+        assert jobs["identity"]["state"] == "FAILED"
+    finally:
+        web.stop()
 
 
 def test_trial_catalog_reports_saved_qc_status(tmp_path):

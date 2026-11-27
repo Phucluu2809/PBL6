@@ -1,0 +1,145 @@
+{
+  "train_window": [
+    "2026-11-09",
+    "2026-11-20"
+  ],
+  "signals": [
+    "mq3_1_voltage_v",
+    "mq135_2_voltage_v",
+    "mq3_2_voltage_v"
+  ],
+  "C": 0.1,
+  "archive_trials": 141,
+  "days": [
+    "2026-11-09",
+    "2026-11-10",
+    "2026-11-12",
+    "2026-11-13",
+    "2026-11-14",
+    "2026-11-16",
+    "2026-11-17",
+    "2026-11-18",
+    "2026-11-19",
+    "2026-11-20"
+  ],
+  "excluded_archive_signals": [],
+  "archive_grouped_v2": {
+    "tp": 21,
+    "fn": 11,
+    "tn": 85,
+    "fp": 24,
+    "balanced_accuracy": 0.7180332568807339
+  },
+  "archive_old_reference_only": {
+    "tp": 10,
+    "fn": 22,
+    "tn": 85,
+    "fp": 24,
+    "balanced_accuracy": 0.5461582568807339
+  },
+  "archive_named_coffee_vs_air_only": {
+    "grouped_v2": {
+      "tp": 21,
+      "fn": 11,
+      "tn": 16,
+      "fp": 0,
+      "balanced_accuracy": 0.828125
+    },
+    "old_reference_only": {
+      "tp": 10,
+      "fn": 22,
+      "tn": 16,
+      "fp": 0,
+      "balanced_accuracy": 0.65625
+    }
+  },
+  "validation_top5": [
+    {
+      "signals": [
+        "mq3_1_voltage_v",
+        "mq135_2_voltage_v",
+        "mq3_2_voltage_v"
+      ],
+      "C": 0.1,
+      "tp": 21,
+      "fn": 11,
+      "tn": 85,
+      "fp": 24,
+      "balanced_accuracy": 0.7180332568807339
+    },
+    {
+      "signals": [
+        "mq135_2_voltage_v",
+        "mq3_2_voltage_v"
+      ],
+      "C": 0.1,
+      "tp": 20,
+      "fn": 12,
+      "tn": 88,
+      "fp": 21,
+      "balanced_accuracy": 0.7161697247706422
+    },
+    {
+      "signals": [
+        "gas_resistance_ohm",
+        "mq3_1_voltage_v",
+        "tgs2602_voltage_v",
+        "mq135_2_voltage_v"
+      ],
+      "C": 0.1,
+      "tp": 20,
+      "fn": 12,
+      "tn": 88,
+      "fp": 21,
+      "balanced_accuracy": 0.7161697247706422
+    },
+    {
+      "signals": [
+        "gas_resistance_ohm",
+        "mq3_1_voltage_v",
+        "tgs2602_voltage_v",
+        "mq135_2_voltage_v",
+        "mq3_2_voltage_v"
+      ],
+      "C": 0.1,
+      "tp": 19,
+      "fn": 13,
+      "tn": 90,
+      "fp": 19,
+      "balanced_accuracy": 0.7097190366972477
+    },
+    {
+      "signals": [
+        "mq3_1_voltage_v",
+        "mq135_2_voltage_v"
+      ],
+      "C": 10.0,
+      "tp": 22,
+      "fn": 10,
+      "tn": 73,
+      "fp": 36,
+      "balanced_accuracy": 0.6786123853211009
+    }
+  ],
+  "sensor_weight_l2": {
+    "mq3_1_voltage_v": 0.4515804378063582,
+    "mq135_2_voltage_v": 0.40861693810118516,
+    "mq3_2_voltage_v": 0.5015160988176304
+  },
+  "hardware_excluded_signals": [],
+  "hardware_v2": {
+    "tp": 0,
+    "fn": 0,
+    "tn": 12,
+    "fp": 1,
+    "balanced_accuracy": null
+  },
+  "hardware_old": {
+    "tp": 0,
+    "fn": 0,
+    "tn": 9,
+    "fp": 4,
+    "balanced_accuracy": null
+  },
+  "activated": true
+}

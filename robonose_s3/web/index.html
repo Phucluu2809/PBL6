@@ -20,6 +20,7 @@
         <button class="nav-item" type="button" data-page="identity"><span>03</span>Dự đoán danh tính</button>
         <button class="nav-item" type="button" data-page="comparison"><span>04</span>Đối sánh</button>
         <button class="nav-item" type="button" data-page="library"><span>05</span>Danh sách mẫu</button>
+        <button class="nav-item" type="button" data-page="coffee"><span>06</span>Phát hiện cà phê</button>
       </nav>
       <div class="sidebar-note">
         <span class="status-dot" id="sidebar-dot"></span>
@@ -261,10 +262,23 @@
             <div class="empty-state">Chưa có lượt dự đoán.</div>
           </article>
         </div>
-        <article class="panel">
-          <div class="panel-head"><h2>Kiểm tra mùi cà phê</h2></div>
-          <div id="coffee-result" aria-live="polite" class="result-trace">Chờ mẫu đã lưu.</div>
-        </article>
+      </section>
+
+      <section class="page" id="page-coffee" aria-labelledby="page-title" hidden>
+        <div class="inference-layout">
+          <article class="panel inference-form">
+            <h2>Mẫu cần kiểm tra</h2>
+            <label>Mẫu hardware
+              <input id="coffee-sample" list="coffee-options" placeholder="Chọn hoặc nhập trial_id">
+            </label>
+            <datalist id="coffee-options"></datalist>
+            <button class="primary" type="button" id="coffee-button">Kiểm tra cà phê</button>
+          </article>
+          <article class="panel result-panel">
+            <h2>Kết quả kiểm tra</h2>
+            <div id="coffee-result" aria-live="polite"><div class="empty-state">Chưa kiểm tra mẫu.</div></div>
+          </article>
+        </div>
       </section>
 
       <section class="page" id="page-comparison" aria-labelledby="page-title" hidden>

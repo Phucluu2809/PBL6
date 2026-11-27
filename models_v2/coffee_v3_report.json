@@ -1,0 +1,453 @@
+{
+  "archive_trials": 141,
+  "invalid_archive": [],
+  "archive_grouped": {
+    "reference_v2": {
+      "all": {
+        "tp": 21,
+        "fn": 11,
+        "tn": 85,
+        "fp": 24,
+        "balanced_accuracy": 0.7180332568807339
+      },
+      "coffee_and_air": {
+        "tp": 21,
+        "fn": 11,
+        "tn": 16,
+        "fp": 0,
+        "balanced_accuracy": 0.828125
+      }
+    },
+    "logistic_mos_kinetics": {
+      "all": {
+        "tp": 20,
+        "fn": 12,
+        "tn": 88,
+        "fp": 21,
+        "balanced_accuracy": 0.7161697247706422
+      },
+      "coffee_and_air": {
+        "tp": 20,
+        "fn": 12,
+        "tn": 15,
+        "fp": 1,
+        "balanced_accuracy": 0.78125
+      }
+    },
+    "logistic_all_kinetics": {
+      "all": {
+        "tp": 20,
+        "fn": 12,
+        "tn": 85,
+        "fp": 24,
+        "balanced_accuracy": 0.7024082568807339
+      },
+      "coffee_and_air": {
+        "tp": 20,
+        "fn": 12,
+        "tn": 14,
+        "fp": 2,
+        "balanced_accuracy": 0.75
+      }
+    },
+    "logistic_current_kinetics": {
+      "all": {
+        "tp": 18,
+        "fn": 14,
+        "tn": 83,
+        "fp": 26,
+        "balanced_accuracy": 0.6619839449541285
+      },
+      "coffee_and_air": {
+        "tp": 18,
+        "fn": 14,
+        "tn": 13,
+        "fp": 3,
+        "balanced_accuracy": 0.6875
+      }
+    },
+    "trees_mos_kinetics": {
+      "all": {
+        "tp": 11,
+        "fn": 21,
+        "tn": 87,
+        "fp": 22,
+        "balanced_accuracy": 0.5709575688073394
+      },
+      "coffee_and_air": {
+        "tp": 11,
+        "fn": 21,
+        "tn": 16,
+        "fp": 0,
+        "balanced_accuracy": 0.671875
+      }
+    },
+    "trees_all_kinetics": {
+      "all": {
+        "tp": 12,
+        "fn": 20,
+        "tn": 87,
+        "fp": 22,
+        "balanced_accuracy": 0.5865825688073394
+      },
+      "coffee_and_air": {
+        "tp": 12,
+        "fn": 20,
+        "tn": 16,
+        "fp": 0,
+        "balanced_accuracy": 0.6875
+      }
+    },
+    "trees_current": {
+      "all": {
+        "tp": 14,
+        "fn": 18,
+        "tn": 83,
+        "fp": 26,
+        "balanced_accuracy": 0.5994839449541285
+      },
+      "coffee_and_air": {
+        "tp": 14,
+        "fn": 18,
+        "tn": 16,
+        "fp": 0,
+        "balanced_accuracy": 0.71875
+      }
+    }
+  },
+  "positive_threshold_sweep": {
+    "reference_v2": [
+      {
+        "score_threshold": 0.5,
+        "true_positive": 21,
+        "false_positive": 24,
+        "positive_precision": 0.4666666666666667,
+        "recall": 0.65625
+      },
+      {
+        "score_threshold": 0.6,
+        "true_positive": 11,
+        "false_positive": 18,
+        "positive_precision": 0.3793103448275862,
+        "recall": 0.34375
+      },
+      {
+        "score_threshold": 0.7,
+        "true_positive": 8,
+        "false_positive": 8,
+        "positive_precision": 0.5,
+        "recall": 0.25
+      },
+      {
+        "score_threshold": 0.8,
+        "true_positive": 3,
+        "false_positive": 6,
+        "positive_precision": 0.3333333333333333,
+        "recall": 0.09375
+      },
+      {
+        "score_threshold": 0.9,
+        "true_positive": 2,
+        "false_positive": 3,
+        "positive_precision": 0.4,
+        "recall": 0.0625
+      }
+    ],
+    "logistic_mos_kinetics": [
+      {
+        "score_threshold": 0.5,
+        "true_positive": 20,
+        "false_positive": 21,
+        "positive_precision": 0.4878048780487805,
+        "recall": 0.625
+      },
+      {
+        "score_threshold": 0.6,
+        "true_positive": 14,
+        "false_positive": 16,
+        "positive_precision": 0.4666666666666667,
+        "recall": 0.4375
+      },
+      {
+        "score_threshold": 0.7,
+        "true_positive": 10,
+        "false_positive": 7,
+        "positive_precision": 0.5882352941176471,
+        "recall": 0.3125
+      },
+      {
+        "score_threshold": 0.8,
+        "true_positive": 6,
+        "false_positive": 6,
+        "positive_precision": 0.5,
+        "recall": 0.1875
+      },
+      {
+        "score_threshold": 0.9,
+        "true_positive": 3,
+        "false_positive": 4,
+        "positive_precision": 0.42857142857142855,
+        "recall": 0.09375
+      }
+    ],
+    "logistic_all_kinetics": [
+      {
+        "score_threshold": 0.5,
+        "true_positive": 20,
+        "false_positive": 24,
+        "positive_precision": 0.45454545454545453,
+        "recall": 0.625
+      },
+      {
+        "score_threshold": 0.6,
+        "true_positive": 16,
+        "false_positive": 15,
+        "positive_precision": 0.5161290322580645,
+        "recall": 0.5
+      },
+      {
+        "score_threshold": 0.7,
+        "true_positive": 10,
+        "false_positive": 7,
+        "positive_precision": 0.5882352941176471,
+        "recall": 0.3125
+      },
+      {
+        "score_threshold": 0.8,
+        "true_positive": 8,
+        "false_positive": 6,
+        "positive_precision": 0.5714285714285714,
+        "recall": 0.25
+      },
+      {
+        "score_threshold": 0.9,
+        "true_positive": 3,
+        "false_positive": 5,
+        "positive_precision": 0.375,
+        "recall": 0.09375
+      }
+    ],
+    "logistic_current_kinetics": [
+      {
+        "score_threshold": 0.5,
+        "true_positive": 18,
+        "false_positive": 26,
+        "positive_precision": 0.4090909090909091,
+        "recall": 0.5625
+      },
+      {
+        "score_threshold": 0.6,
+        "true_positive": 14,
+        "false_positive": 20,
+        "positive_precision": 0.4117647058823529,
+        "recall": 0.4375
+      },
+      {
+        "score_threshold": 0.7,
+        "true_positive": 11,
+        "false_positive": 10,
+        "positive_precision": 0.5238095238095238,
+        "recall": 0.34375
+      },
+      {
+        "score_threshold": 0.8,
+        "true_positive": 9,
+        "false_positive": 8,
+        "positive_precision": 0.5294117647058824,
+        "recall": 0.28125
+      },
+      {
+        "score_threshold": 0.9,
+        "true_positive": 4,
+        "false_positive": 7,
+        "positive_precision": 0.36363636363636365,
+        "recall": 0.125
+      }
+    ],
+    "trees_mos_kinetics": [
+      {
+        "score_threshold": 0.5,
+        "true_positive": 11,
+        "false_positive": 22,
+        "positive_precision": 0.3333333333333333,
+        "recall": 0.34375
+      },
+      {
+        "score_threshold": 0.6,
+        "true_positive": 7,
+        "false_positive": 14,
+        "positive_precision": 0.3333333333333333,
+        "recall": 0.21875
+      },
+      {
+        "score_threshold": 0.7,
+        "true_positive": 2,
+        "false_positive": 8,
+        "positive_precision": 0.2,
+        "recall": 0.0625
+      },
+      {
+        "score_threshold": 0.8,
+        "true_positive": 1,
+        "false_positive": 6,
+        "positive_precision": 0.14285714285714285,
+        "recall": 0.03125
+      },
+      {
+        "score_threshold": 0.9,
+        "true_positive": 0,
+        "false_positive": 2,
+        "positive_precision": 0.0,
+        "recall": 0.0
+      }
+    ],
+    "trees_all_kinetics": [
+      {
+        "score_threshold": 0.5,
+        "true_positive": 12,
+        "false_positive": 22,
+        "positive_precision": 0.35294117647058826,
+        "recall": 0.375
+      },
+      {
+        "score_threshold": 0.6,
+        "true_positive": 9,
+        "false_positive": 12,
+        "positive_precision": 0.42857142857142855,
+        "recall": 0.28125
+      },
+      {
+        "score_threshold": 0.7,
+        "true_positive": 4,
+        "false_positive": 9,
+        "positive_precision": 0.3076923076923077,
+        "recall": 0.125
+      },
+      {
+        "score_threshold": 0.8,
+        "true_positive": 1,
+        "false_positive": 6,
+        "positive_precision": 0.14285714285714285,
+        "recall": 0.03125
+      },
+      {
+        "score_threshold": 0.9,
+        "true_positive": 0,
+        "false_positive": 2,
+        "positive_precision": 0.0,
+        "recall": 0.0
+      }
+    ],
+    "trees_current": [
+      {
+        "score_threshold": 0.5,
+        "true_positive": 14,
+        "false_positive": 26,
+        "positive_precision": 0.35,
+        "recall": 0.4375
+      },
+      {
+        "score_threshold": 0.6,
+        "true_positive": 9,
+        "false_positive": 14,
+        "positive_precision": 0.391304347826087,
+        "recall": 0.28125
+      },
+      {
+        "score_threshold": 0.7,
+        "true_positive": 2,
+        "false_positive": 8,
+        "positive_precision": 0.2,
+        "recall": 0.0625
+      },
+      {
+        "score_threshold": 0.8,
+        "true_positive": 0,
+        "false_positive": 6,
+        "positive_precision": 0.0,
+        "recall": 0.0
+      },
+      {
+        "score_threshold": 0.9,
+        "true_positive": 0,
+        "false_positive": 2,
+        "positive_precision": 0.0,
+        "recall": 0.0
+      }
+    ]
+  },
+  "selected": "logistic_mos_kinetics",
+  "holdout": {
+    "nov07": {
+      "v2": {
+        "all": {
+          "tp": 1,
+          "fn": 7,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        },
+        "coffee_and_air": {
+          "tp": 1,
+          "fn": 7,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        }
+      },
+      "candidate": {
+        "all": {
+          "tp": 1,
+          "fn": 7,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        },
+        "coffee_and_air": {
+          "tp": 1,
+          "fn": 7,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        }
+      },
+      "invalid": []
+    },
+    "hardware": {
+      "v2": {
+        "all": {
+          "tp": 0,
+          "fn": 0,
+          "tn": 12,
+          "fp": 1,
+          "balanced_accuracy": null
+        },
+        "coffee_and_air": {
+          "tp": 0,
+          "fn": 0,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        }
+      },
+      "candidate": {
+        "all": {
+          "tp": 0,
+          "fn": 0,
+          "tn": 8,
+          "fp": 5,
+          "balanced_accuracy": null
+        },
+        "coffee_and_air": {
+          "tp": 0,
+          "fn": 0,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        }
+      },
+      "invalid": []
+    }
+  },
+  "activated": false
+}

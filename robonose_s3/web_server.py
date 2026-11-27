@@ -453,12 +453,16 @@ class WebRequestHandler(BaseHTTPRequestHandler):
                 known = self.app.catalog.find(sample_id)
                 if known and (known.get("status") != "COMPLETE" or not known.get("export_finalized")):
                     raise ValueError("Mẫu đã bị hủy hoặc chưa lưu hoàn chỉnh; chỉ mẫu COMPLETE mới được dự đoán")
-                coffee_raw = None
-                if known and known.get("mode") == "HARDWARE":
-                    candidate = Path(known["folder"]).joinpath("raw.csv").resolve()
-                    if any(candidate.is_relative_to(root) for root in self.app.catalog.data_roots):
-                        coffee_raw = str(candidate)
-                self._json(self.app.inference.submit_identity(sample_id, coffee_raw), HTTPStatus.ACCEPTED)
+                self._json(self.app.inference.submit_identity(sample_id), HTTPStatus.ACCEPTED)
+            elif parsed.path == "/api/inference/coffee":
+                sample_id = str(payload.get("sample_id") or "").strip()
+                known = self.app.catalog.find(sample_id)
+                if not known or known["mode"] != "HARDWARE" or known["status"] != "COMPLETE" or not known["export_finalized"]:
+                    raise ValueError("Hãy chọn một mẫu hardware đã lưu hoàn chỉnh (COMPLETE).")
+                candidate = (Path(known["folder"]) / "raw.csv").resolve()
+                if not any(candidate.is_relative_to(root) for root in self.app.catalog.data_roots):
+                    raise ValueError("File tín hiệu nằm ngoài thư mục dữ liệu.")
+                self._json(self.app.inference.submit_coffee(sample_id, candidate), HTTPStatus.ACCEPTED)
             elif parsed.path == "/api/inference/compare":
                 candidates = payload.get("candidate_ids")
                 if not isinstance(candidates, list):

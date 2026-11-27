@@ -66,7 +66,7 @@ chủ ý:
 Chỉ mở web trong mạng tin cậy. Bản hiện tại chưa có đăng nhập/TLS; mặc định
 bind `127.0.0.1` để không vô tình công khai điều khiển.
 
-## Năm chức năng
+## Chức năng
 
 1. **Tín hiệu & thiết bị:** đúng 5 cảm biến vật lý: TGS2602, MQ3 #1,
    MQ135 #2, MQ3 #2 và BME688. Tám đại lượng A0–A3, Gas, nhiệt độ, độ ẩm và
@@ -90,6 +90,8 @@ bind `127.0.0.1` để không vô tình công khai điều khiển.
    ngày lồng cũ, khử trùng theo trial UUID và ưu tiên hardware trước nguồn khác.
    Tick các mẫu đã lưu hoàn chỉnh rồi bấm **Lưu lựa chọn** để giữ danh sách trong
    trình duyệt. Thanh lọc và tiêu đề bảng giữ nguyên vị trí khi cuộn các dòng mẫu.
+6. **Phát hiện cà phê** chạy model logistic riêng trên một lượt hardware
+   đã lưu hoàn chỉnh. Chọn mẫu và bấm **Kiểm tra cà phê** ngay tại mục 06.
 Model ResCNN64 hiện tại được train với đúng 60 điểm baseline và 120 điểm
 exposure. Web vẫn cho đổi thời lượng để thí nghiệm/thu dữ liệu mới, nhưng sẽ
 cảnh báo khi cấu hình khác 60/120 vì mẫu đó chưa tương thích đầu vào model này.
@@ -110,6 +112,7 @@ Catalog web refresh hai giây một lần, còn COMPLETE chỉ được gán sau
 | `GET /api/messages` | Xác nhận queue/engine/MCU dạng message |
 | `GET /api/trials` | Catalog chỉ đọc của trial export |
 | `POST /api/inference/identity` | Tạo identity job cho backend đang chọn |
+| `POST /api/inference/coffee` | Tạo job phát hiện cà phê cho một mẫu hardware |
 | `POST /api/inference/compare` | Tạo comparison job cho backend đang chọn |
 | `GET /api/inference/results` | Trạng thái/kết quả job |
 

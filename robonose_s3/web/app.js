@@ -3,6 +3,8 @@
 const state = { snapshot: null, messageAfter: 0, renderedJobs: new Set(), trials: [], connected: false, pendingSavedTrial: null, savedTrial: null, sessionRequestPending: false };
 let identityRequest = 0;
 let identityJob;
+let coffeeRequest = 0;
+let coffeeJob;
 let autoPredictedTrial;
 let comparisonJob;
 let comparisonBusy = false;
@@ -16,7 +18,8 @@ const titles = {
   control: "Điều khiển thu mẫu",
   identity: "Dự đoán danh tính",
   comparison: "Đối sánh",
-  library: "Danh sách mẫu"
+  library: "Danh sách mẫu",
+  coffee: "Phát hiện cà phê"
 };
 const phases = ["MONITOR", "BASELINE", "WAIT_EXPOSURE", "EXPOSURE", "WAIT_RECOVERY", "RECOVERY", "WAIT_FINISH", "WAIT_NAME", "MONITOR_NEXT"];
 const chartColors = ["#46d2bb", "#73a9ff", "#f4a261", "#bd93f9", "#62d69b", "#f07178", "#56c6e1", "#d9c678"];
@@ -418,25 +421,40 @@ function renderCoffee(sampleId, result) {
   const predicted = result?.status === "PREDICTED";
   const label = predicted ? (result.has_coffee ? "Có mùi cà phê" : "Không có mùi cà phê")
     : "Không thể kiểm tra mẫu";
+  const channelNames = {
+    gas_resistance_ohm: "BME688 gas", tgs2602_voltage_v: "TGS2602 A0",
+    mq3_1_voltage_v: "MQ3 #1 A1", mq135_2_voltage_v: "MQ135 #2 A2", mq3_2_voltage_v: "MQ3 #2 A3"
+  };
+  const channels = (result?.signals || []).map(key => channelNames[key] || key).join(", ");
+  const detail = predicted ? `Model ${result.model}${channels ? ` · ${channels}` : ""}`
+    : (result?.reason || "Chưa có kết quả cà phê.");
   target.innerHTML = `<h3>${label}</h3><code>${escapeHtml(sampleId)}</code>
-    <p>${escapeHtml(predicted ? "Dự đoán từ mô hình thử nghiệm." : (result?.reason || "Chưa có kết quả cà phê."))}</p>`;
+    <p>${escapeHtml(detail)}</p>`;
 }
 
 async function runIdentity(sampleId) {
   const request = ++identityRequest;
   identityJob = null;
   const target = byId("identity-result");
-  const coffee = byId("coffee-result");
   target.textContent = "Đang xếp hạng danh tính…";
-  coffee.textContent = "Đang kiểm tra mùi cà phê…";
   try {
     const job = await api("/api/inference/identity", {method: "POST", body: JSON.stringify({sample_id: sampleId})});
     if (request === identityRequest) identityJob = job.job_id;
   } catch (error) {
-    if (request === identityRequest) {
-      target.textContent = error.message;
-      renderCoffee(sampleId, {reason: error.message});
-    }
+    if (request === identityRequest) target.textContent = error.message;
+  }
+}
+
+async function runCoffee() {
+  const request = ++coffeeRequest;
+  coffeeJob = null;
+  const sampleId = byId("coffee-sample").value.trim();
+  byId("coffee-result").textContent = "Đang kiểm tra mùi cà phê…";
+  try {
+    const job = await api("/api/inference/coffee", {method: "POST", body: JSON.stringify({sample_id: sampleId})});
+    if (request === coffeeRequest) coffeeJob = job.job_id;
+  } catch (error) {
+    if (request === coffeeRequest) renderCoffee(sampleId, {reason: error.message});
   }
 }
 
@@ -489,6 +507,7 @@ async function pollInference() {
     payload.jobs.forEach(job => {
       if (state.renderedJobs.has(job.job_id) || !["SUCCEEDED", "FAILED"].includes(job.state)) return;
       if (job.task === "identity" && identityJob !== undefined && job.job_id !== identityJob) return;
+      if (job.task === "coffee" && job.job_id !== coffeeJob) return;
       if (job.task === "reference_comparison" && job.job_id !== comparisonJob) return;
       state.renderedJobs.add(job.job_id);
       if (job.task === "reference_comparison") {
@@ -497,8 +516,9 @@ async function pollInference() {
         byId("comparison-model").disabled = false;
         renderComparisonSelection();
       }
-      if (job.task === "identity") renderCoffee(job.payload.sample_id, job.coffee_check);
-      if (job.state === "FAILED") {
+      if (job.task === "coffee") {
+        renderCoffee(job.payload.sample_id, job.result || {reason: job.error});
+      } else if (job.state === "FAILED") {
         const target = job.task === "identity" ? byId("identity-result") : byId("comparison-result");
         target.innerHTML = `<div class="empty-state">${escapeHtml(job.error || "Inference failed")}</div>`;
       } else if (job.result.task === "identity") renderIdentity(job.result);
@@ -524,7 +544,10 @@ async function loadTrials() {
     const updatedCatalog = JSON.stringify(payload.trials);
     if (trialCatalogJson !== updatedCatalog) {
       trialCatalogJson = updatedCatalog;
-      byId("trial-options").innerHTML = state.trials.filter(canCompare).map(item => `<option value="${escapeHtml(item.trial_id)}">${escapeHtml(item.name || "Chưa đặt tên")} · COMPLETE · QC ${escapeHtml(item.quality || "NOT_EVALUATED")}</option>`).join("");
+      const options = eligible => eligible.map(item => `<option value="${escapeHtml(item.trial_id)}">${escapeHtml(item.name || "Chưa đặt tên")} · COMPLETE · QC ${escapeHtml(item.quality || "NOT_EVALUATED")}</option>`).join("");
+      const complete = state.trials.filter(canCompare);
+      byId("trial-options").innerHTML = options(complete);
+      byId("coffee-options").innerHTML = options(complete.filter(item => item.mode === "HARDWARE"));
       renderLibrary();
       renderComparisonSelection();
     }
@@ -699,6 +722,7 @@ function initControls() {
     byId("control-window-select").value = byId("window-select").value;
   });
   byId("identity-button").addEventListener("click", () => runIdentity(byId("identity-sample").value.trim()));
+  byId("coffee-button").addEventListener("click", runCoffee);
   byId("reference-id").addEventListener("input", renderComparisonSelection);
   byId("comparison-model").addEventListener("change", () => renderModelStatus(defaultModel));
   byId("open-comparison-selection").addEventListener("click", () => {

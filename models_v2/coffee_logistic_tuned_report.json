@@ -1,0 +1,271 @@
+{
+  "archive_trials": 141,
+  "configurations": 36,
+  "thresholds": [
+    -0.8,
+    -0.6,
+    -0.4,
+    -0.2,
+    0.0,
+    0.2,
+    0.4,
+    0.6,
+    0.8
+  ],
+  "invalid_archive": [],
+  "nested_validation": {
+    "all": {
+      "tp": 17,
+      "fn": 15,
+      "tn": 78,
+      "fp": 31,
+      "balanced_accuracy": 0.6234231651376148
+    },
+    "coffee_and_air": {
+      "tp": 17,
+      "fn": 15,
+      "tn": 16,
+      "fp": 0,
+      "balanced_accuracy": 0.765625
+    }
+  },
+  "reference_v2": {
+    "all": {
+      "tp": 21,
+      "fn": 11,
+      "tn": 85,
+      "fp": 24,
+      "balanced_accuracy": 0.7180332568807339
+    },
+    "coffee_and_air": {
+      "tp": 21,
+      "fn": 11,
+      "tn": 16,
+      "fp": 0,
+      "balanced_accuracy": 0.828125
+    }
+  },
+  "selected_for_fit": {
+    "signals": [
+      "mq3_1_voltage_v",
+      "tgs2602_voltage_v",
+      "mq135_2_voltage_v",
+      "mq3_2_voltage_v"
+    ],
+    "feature_set": "kinetics",
+    "C": 0.15,
+    "person_proxy_weight": 0.55,
+    "logit_threshold": -0.2
+  },
+  "selection_only": {
+    "all": {
+      "tp": 23,
+      "fn": 9,
+      "tn": 80,
+      "fp": 29,
+      "balanced_accuracy": 0.7263474770642202
+    },
+    "coffee_and_air": {
+      "tp": 23,
+      "fn": 9,
+      "tn": 14,
+      "fp": 2,
+      "balanced_accuracy": 0.796875
+    }
+  },
+  "outer_folds": {
+    "2026-11-09": {
+      "signals": [
+        "gas_resistance_ohm",
+        "mq3_1_voltage_v",
+        "tgs2602_voltage_v",
+        "mq135_2_voltage_v",
+        "mq3_2_voltage_v"
+      ],
+      "feature_set": "kinetics",
+      "C": 0.15,
+      "person_proxy_weight": 0.55,
+      "logit_threshold": -0.2
+    },
+    "2026-11-10": {
+      "signals": [
+        "mq3_1_voltage_v",
+        "mq135_2_voltage_v",
+        "mq3_2_voltage_v"
+      ],
+      "feature_set": "legacy",
+      "C": 0.15,
+      "person_proxy_weight": 1.0,
+      "logit_threshold": 0.0
+    },
+    "2026-11-12": {
+      "signals": [
+        "mq3_1_voltage_v",
+        "mq135_2_voltage_v",
+        "mq3_2_voltage_v"
+      ],
+      "feature_set": "kinetics",
+      "C": 0.03,
+      "person_proxy_weight": 1.0,
+      "logit_threshold": -0.2
+    },
+    "2026-11-13": {
+      "signals": [
+        "mq3_1_voltage_v",
+        "tgs2602_voltage_v",
+        "mq135_2_voltage_v",
+        "mq3_2_voltage_v"
+      ],
+      "feature_set": "legacy",
+      "C": 0.15,
+      "person_proxy_weight": 0.55,
+      "logit_threshold": 0.2
+    },
+    "2026-11-14": {
+      "signals": [
+        "gas_resistance_ohm",
+        "mq3_1_voltage_v",
+        "tgs2602_voltage_v",
+        "mq135_2_voltage_v",
+        "mq3_2_voltage_v"
+      ],
+      "feature_set": "kinetics",
+      "C": 1.0,
+      "person_proxy_weight": 0.55,
+      "logit_threshold": -0.6
+    },
+    "2026-11-16": {
+      "signals": [
+        "mq3_1_voltage_v",
+        "tgs2602_voltage_v",
+        "mq135_2_voltage_v",
+        "mq3_2_voltage_v"
+      ],
+      "feature_set": "kinetics",
+      "C": 0.15,
+      "person_proxy_weight": 0.55,
+      "logit_threshold": -0.2
+    },
+    "2026-11-17": {
+      "signals": [
+        "gas_resistance_ohm",
+        "mq3_1_voltage_v",
+        "tgs2602_voltage_v",
+        "mq135_2_voltage_v",
+        "mq3_2_voltage_v"
+      ],
+      "feature_set": "legacy",
+      "C": 1.0,
+      "person_proxy_weight": 0.55,
+      "logit_threshold": -0.4
+    },
+    "2026-11-18": {
+      "signals": [
+        "mq3_1_voltage_v",
+        "mq135_2_voltage_v",
+        "mq3_2_voltage_v"
+      ],
+      "feature_set": "legacy",
+      "C": 1.0,
+      "person_proxy_weight": 0.55,
+      "logit_threshold": -0.2
+    },
+    "2026-11-19": {
+      "signals": [
+        "mq3_1_voltage_v",
+        "mq135_2_voltage_v",
+        "mq3_2_voltage_v"
+      ],
+      "feature_set": "legacy",
+      "C": 0.15,
+      "person_proxy_weight": 0.55,
+      "logit_threshold": -0.2
+    },
+    "2026-11-20": {
+      "signals": [
+        "gas_resistance_ohm",
+        "mq3_1_voltage_v",
+        "tgs2602_voltage_v",
+        "mq135_2_voltage_v",
+        "mq3_2_voltage_v"
+      ],
+      "feature_set": "legacy",
+      "C": 0.15,
+      "person_proxy_weight": 1.0,
+      "logit_threshold": 0.0
+    }
+  },
+  "holdout": {
+    "nov07": {
+      "v2": {
+        "all": {
+          "tp": 1,
+          "fn": 7,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        },
+        "coffee_and_air": {
+          "tp": 1,
+          "fn": 7,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        }
+      },
+      "candidate": {
+        "all": {
+          "tp": 1,
+          "fn": 7,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        },
+        "coffee_and_air": {
+          "tp": 1,
+          "fn": 7,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        }
+      },
+      "invalid": []
+    },
+    "hardware": {
+      "v2": {
+        "all": {
+          "tp": 0,
+          "fn": 0,
+          "tn": 12,
+          "fp": 1,
+          "balanced_accuracy": null
+        },
+        "coffee_and_air": {
+          "tp": 0,
+          "fn": 0,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        }
+      },
+      "candidate": {
+        "all": {
+          "tp": 0,
+          "fn": 0,
+          "tn": 7,
+          "fp": 6,
+          "balanced_accuracy": null
+        },
+        "coffee_and_air": {
+          "tp": 0,
+          "fn": 0,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        }
+      },
+      "invalid": []
+    }
+  },
+  "activated": false
+}

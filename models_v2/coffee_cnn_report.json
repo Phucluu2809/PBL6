@@ -1,0 +1,163 @@
+{
+  "archive_trials": 141,
+  "invalid_archive": [],
+  "archive_grouped": {
+    "all": {
+      "all": {
+        "tp": 17,
+        "fn": 15,
+        "tn": 75,
+        "fp": 34,
+        "balanced_accuracy": 0.6096616972477065
+      },
+      "coffee_and_air": {
+        "tp": 17,
+        "fn": 15,
+        "tn": 16,
+        "fp": 0,
+        "balanced_accuracy": 0.765625
+      }
+    },
+    "v2_channels": {
+      "all": {
+        "tp": 22,
+        "fn": 10,
+        "tn": 60,
+        "fp": 49,
+        "balanced_accuracy": 0.6189793577981652
+      },
+      "coffee_and_air": {
+        "tp": 22,
+        "fn": 10,
+        "tn": 14,
+        "fp": 2,
+        "balanced_accuracy": 0.78125
+      }
+    }
+  },
+  "selected": "v2_channels",
+  "archive_blends": {
+    "0.15": {
+      "all": {
+        "tp": 21,
+        "fn": 11,
+        "tn": 83,
+        "fp": 26,
+        "balanced_accuracy": 0.7088589449541285
+      },
+      "coffee_and_air": {
+        "tp": 21,
+        "fn": 11,
+        "tn": 16,
+        "fp": 0,
+        "balanced_accuracy": 0.828125
+      }
+    },
+    "0.3": {
+      "all": {
+        "tp": 21,
+        "fn": 11,
+        "tn": 80,
+        "fp": 29,
+        "balanced_accuracy": 0.6950974770642202
+      },
+      "coffee_and_air": {
+        "tp": 21,
+        "fn": 11,
+        "tn": 16,
+        "fp": 0,
+        "balanced_accuracy": 0.828125
+      }
+    },
+    "0.5": {
+      "all": {
+        "tp": 23,
+        "fn": 9,
+        "tn": 75,
+        "fp": 34,
+        "balanced_accuracy": 0.7034116972477065
+      },
+      "coffee_and_air": {
+        "tp": 23,
+        "fn": 9,
+        "tn": 15,
+        "fp": 1,
+        "balanced_accuracy": 0.828125
+      }
+    }
+  },
+  "selected_blend": 0.15,
+  "holdout": {
+    "nov07": {
+      "metrics": {
+        "all": {
+          "tp": 4,
+          "fn": 4,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        },
+        "coffee_and_air": {
+          "tp": 4,
+          "fn": 4,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        }
+      },
+      "blend": {
+        "all": {
+          "tp": 1,
+          "fn": 7,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        },
+        "coffee_and_air": {
+          "tp": 1,
+          "fn": 7,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        }
+      },
+      "invalid": []
+    },
+    "hardware": {
+      "metrics": {
+        "all": {
+          "tp": 0,
+          "fn": 0,
+          "tn": 11,
+          "fp": 2,
+          "balanced_accuracy": null
+        },
+        "coffee_and_air": {
+          "tp": 0,
+          "fn": 0,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        }
+      },
+      "blend": {
+        "all": {
+          "tp": 0,
+          "fn": 0,
+          "tn": 12,
+          "fp": 1,
+          "balanced_accuracy": null
+        },
+        "coffee_and_air": {
+          "tp": 0,
+          "fn": 0,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        }
+      },
+      "invalid": []
+    }
+  },
+  "activated": false
+}

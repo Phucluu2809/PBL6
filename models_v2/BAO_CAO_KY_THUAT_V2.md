@@ -133,3 +133,63 @@ Chạy lại từ thư mục gốc bằng môi trường có PyTorch. Script s�
 ```
 
 Để chạy trên web, lưu lựa chọn ở **05 · Danh sách mẫu**, rồi vào **04 · Đối sánh** và chọn **ResCNN64 V2 · Bộ hiệu chỉnh đã học**. Kết quả bản hiện tại có `corrector_version = v2-grouped`. Có thể giữ nguyên mẫu tham chiếu và ứng viên, rồi chạy lại bằng **Model mặc định** để so thứ hạng. [Hướng dẫn sử dụng](../huongdan.md)
+
+## 7. Thử trọng số cảm biến theo tác vụ
+
+### Phát hiện cà phê
+
+Model cũ dùng điện trở gas BME688 và MQ3 #1. Thử nghiệm mới xét các tổ hợp của năm kênh mùi và ba mức regularization logistic regression. Mỗi kênh đóng góp năm đặc trưng từ mức thay đổi exposure so với trung vị baseline, gồm trung bình toàn pha, trung bình giây 40–80, P10, P90 và độ dốc. Scaler và hệ số logistic được học lại ở từng fold giữ riêng ngày. Ngưỡng phân loại là điểm logit lớn hơn 0.
+
+Tổ hợp được chọn gồm **MQ3 #1 A1, MQ135 #2 A2 và MQ3 #2 A3**. Theo chuẩn L2 của các hệ số trên đặc trưng đã chuẩn hóa, MQ3 #2 có hệ số nhóm lớn nhất, tiếp đến MQ3 #1 rồi MQ135 #2. Đây là mức đóng góp của nhóm đặc trưng trong model đã fit.
+
+| Phép kiểm tra | Model cũ | Model mới |
+| --- | ---: | ---: |
+| Phát hiện trong 32 lượt ghi nhãn cà phê | 10/32 | 21/32 |
+| Lượt báo cà phê trong 16 đối chứng không khí | 0/16 | 0/16 |
+| Lượt báo cà phê trong 13 mẫu hardware mang nhãn người | 4/13 | 1/13 |
+
+Tập 09–20/11 có 141 lượt dùng để chọn tổ hợp và fit cuối. Trong đó, 93 lượt mang tên danh tính được dùng như nhãn âm quy ước. Nhãn âm kiểu này có thể chứa nhiễu. Điểm model mới ở bảng archive là dự đoán khi giữ riêng từng ngày, còn phạm vi trùng dữ liệu huấn luyện của model cũ chưa được xác minh. Tập hardware hiện chưa có lượt cà phê ghi nhãn trong phép thử này, nên hai dòng archive phản ánh khả năng phát hiện cà phê và dòng hardware chỉ phản ánh xu hướng báo nhầm trên mẫu mang tên người.
+
+Kiểm tra bổ sung trên 8 lượt ghi nhãn cà phê trong kho `curated_raw` ngày 07/11, ngoài khoảng ngày huấn luyện V2, cho kết quả model mới **1/8**, model cũ **2/8**. Cả hai còn bỏ sót nhiều trên nhóm này. Kết quả tốt hơn ở tập 09–20/11 chưa xác nhận khả năng nhận diện ổn định trên các đợt đo khác.
+
+Dashboard mục **06 · Phát hiện cà phê** chạy model riêng và hiển thị phiên bản cùng các kênh dùng. Mục 03 chạy riêng model danh tính. Notebook gọi cùng bộ phát hiện cà phê khi chạy lại. [Mã huấn luyện cà phê](train_coffee.py) · [Số liệu đầy đủ](coffee_sensor_report.json)
+
+### Đối sánh danh tính
+
+Phép thử học sáu hệ số nhân trên exposure đã hiệu chỉnh, riêng cho tác vụ danh tính. Khi học các hệ số, ResCNN64 và bộ hiệu chỉnh baseline được khóa. Mục tiêu dùng cặp khác ngày và cân trọng số theo nhãn. Trong bốn mức giới hạn được thử, mức nhẹ nhất cho kết quả tốt nhất trong nhóm có trọng số. Nó tăng nhẹ BME688 gas, MQ135 #2 và TGS2602, đồng thời giảm hai kênh MQ3 và độ ẩm. Cả V2 hiện tại và bản có trọng số đều đạt **50/76** top 1 trên archive và **8/13** trên hardware. Top 1 trung bình theo lớp trên archive giảm từ **66,09% xuống 65,15%**, nên mục 04 tiếp tục dùng `v2-grouped`. [Mã thử nghiệm trọng số theo kênh](train_sensor_weights.py) · [Kết quả theo nhãn](identity_sensor_report.json)
+
+## 8. Kiểm tra ứng viên cà phê V3
+
+Thử sáu cấu hình logistic regression và Extra Trees. Một số cấu hình thêm đặc trưng trung bình giây 5–30, trung bình giây 85–105, chênh lệch cuối–đầu và độ rộng P90−P10 của baseline. Mỗi fold huấn luyện lại trên các ngày còn lại. So sánh dùng 141 lượt từ 09–20/11, gồm 32 lượt mang nhãn cà phê, 16 đối chứng không khí và 93 lượt danh tính được dùng như nhãn âm quy ước.
+
+| Kết quả | V2 đang dùng | Ứng viên V3 tốt nhất |
+| --- | ---: | ---: |
+| Độ chính xác cân bằng khi giữ riêng ngày, tính cả nhãn âm quy ước | 71,8% | 71,6% |
+| Cà phê phát hiện được trong phép kiểm tra theo ngày | 21/32 | 20/32 |
+| Báo có cà phê trên đối chứng không khí | 0/16 | 1/16 |
+| Cà phê 07/11 nằm ngoài khoảng huấn luyện | 1/8 | 1/8 |
+| Báo có cà phê trên mẫu hardware mang tên người | 1/13 | 5/13 |
+
+Thử nâng ngưỡng điểm model lên 0,7 cho ứng viên V3 tốt nhất. Trong 17 lượt được báo có cà phê, 10 lượt mang nhãn cà phê. Ngưỡng này bỏ sót 22/32 lượt cà phê. Điểm của model dùng để chọn ngưỡng, chưa được hiệu chuẩn thành xác suất trên dữ liệu mới.
+
+Dashboard mục 06 tiếp tục dùng V2. Để đo được mức chính xác cao trên dữ liệu mới, cần mẫu cà phê và mẫu âm xác nhận rõ, gồm các mùi dễ nhầm, thu xen kẽ qua nhiều phiên. Giữ riêng một số phiên để đánh giá lần cuối. [Mã kiểm tra V3](benchmark_coffee.py) · [Kết quả từng ứng viên và ngưỡng](coffee_v3_report.json)
+
+### Thử bổ sung SVM và LDA
+
+Đã kiểm tra 24 cấu hình kết hợp SVM kernel RBF hoặc LDA có shrinkage với các tập kênh và hai cách trích đặc trưng. Scaler được fit lại trong mỗi fold giữ riêng ngày. Kết quả tốt nhất của LDA đạt **70,2% độ chính xác cân bằng**, còn SVM đạt **65,2%**, so với **71,8%** của V2. LDA bắt đúng **20/32** lượt cà phê trong tập theo ngày và **1/8** lượt ngoài khoảng huấn luyện ngày 07/11. Cả LDA và V2 đều báo có cà phê trên **1/13** lượt hardware mang tên người. Do kết quả chưa vượt V2, mục 06 vẫn dùng logistic regression V2. [Mã đánh giá](benchmark_coffee_ml.py) · [Số liệu đủ 24 cấu hình](coffee_ml_report.json)
+
+### Thử đạt mốc 75% khi giữ riêng ngày đo
+
+Mốc được tính theo độ chính xác cân bằng, là trung bình của tỷ lệ phát hiện cà phê và tỷ lệ nhận đúng nhãn âm. Chỉ số này tính hai nhóm ngang nhau dù tập gồm 32 lượt cà phê và 109 lượt âm gồm đối chứng không khí và nhãn người quy ước. Accuracy thường của V2 là **106/141 (75,2%)**, còn độ chính xác cân bằng là **71,8%**. [Nghiên cứu về việc tách vòng chọn cấu hình và vòng chấm](https://pubmed.ncbi.nlm.nih.gov/16504092/)
+
+| Phép thử | Độ chính xác cân bằng trên 141 lượt | Bắt đúng cà phê 07/11 | Báo có cà phê trên hardware mang tên người |
+| --- | ---: | ---: | ---: |
+| V2 hiện tại | **71,8%** | 1/8 | **1/13** |
+| Logistic, chọn 36 cấu hình và 9 ngưỡng bằng kiểm định lồng theo ngày | 62,3% | 1/8 | 6/13 |
+| Logistic học thêm hiệu giữa các cặp cà phê–tên người cùng ngày | 68,2% | 1/8 | 5/13 |
+| CNN thời gian ba kênh, trung bình ba seed | 61,9% | **4/8** | 2/13 |
+| Kết hợp Logistic và CNN với trọng số CNN 0,15 | 70,9% | 1/8 | **1/13** |
+
+Điểm 72,6% của vòng chọn cấu hình Logistic tính trên dữ liệu dùng để chọn ngưỡng. Điểm 62,3% trong bảng đến từ vòng ngoài giữ riêng ngày, nên dùng để đánh giá quy trình chọn cấu hình. Tập 07/11 chỉ có mẫu cà phê ghi nhãn đủ điều kiện trong phép kiểm tra. Tập hardware chưa có mẫu cà phê ghi nhãn, nên số hardware chỉ là số lượt báo dương trên nhãn người quy ước.
+
+CNN dùng 12 cửa sổ trung bình 10 giây của mỗi kênh exposure, chuẩn hóa theo baseline từng lượt. Hai lớp tích chập nhận dạng hình dạng biến thiên theo thời gian. CNN bắt thêm mẫu ở ngày 07/11, nhưng báo dương 49/109 lượt âm trong kiểm tra theo ngày. Kết hợp với Logistic giảm báo dương nhưng không giữ được mức phát hiện ngày 07/11. Mục 06 tiếp tục dùng V2. [Logistic kiểm định lồng](coffee_logistic_tuned_report.json) · [Logistic học cặp](coffee_pairs_report.json) · [CNN và phép kết hợp](coffee_cnn_report.json)

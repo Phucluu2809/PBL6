@@ -280,7 +280,7 @@ footer { display: flex; justify-content: space-between; gap: 1rem; color: #60757
   .library-tools { grid-template-columns: minmax(0,1fr) auto; }
   .library-tools input { grid-column: 1 / -1; }
   .contained-page .sidebar { padding: .4rem; }
-  .contained-page .nav { grid-template-columns: repeat(5,minmax(0,1fr)); gap: .2rem; }
+  .contained-page .nav { grid-template-columns: repeat(3,minmax(0,1fr)); gap: .2rem; }
   .contained-page .nav-item { padding: .35rem .2rem; line-height: 1.2; }
   .contained-page .workspace { padding: .6rem .65rem; }
   .contained-page .topbar { flex-direction: row; margin-bottom: .65rem; }

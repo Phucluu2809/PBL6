@@ -13,15 +13,19 @@ from robonose_s3.rescnn64 import MODEL_CHANNELS, prepare_trial
 
 CHECKPOINT = Path(__file__).with_name("baseline_corrector.pt")
 GROUPED_CHECKPOINT = Path(__file__).with_name("baseline_corrector_grouped.pt")
+SENSOR_CHECKPOINT = Path(__file__).with_name("baseline_corrector_sensor.pt")
 
 
 class BaselineCorrector(nn.Module):
     """Predict bounded offset and slope per channel from all 60 baseline points."""
 
-    def __init__(self, gain=1.0, relative_context=False):
+    def __init__(self, gain=1.0, relative_context=False, sensor_limit=0.0):
         super().__init__()
         self.gain = gain
         self.relative_context = relative_context
+        self.sensor_limit = sensor_limit
+        if sensor_limit:
+            self.sensor_logits = nn.Parameter(torch.zeros(6))
         self.register_buffer("center", torch.zeros(36))
         self.register_buffer("scale", torch.ones(36))
         self.register_buffer("time", torch.linspace(-1, 1, 120))
@@ -38,7 +42,13 @@ class BaselineCorrector(nn.Module):
     def forward(self, baseline, exposure):
         features = ((self.context(baseline) - self.center) / self.scale).clamp(-4, 4)
         offset, slope = (.5 * self.network(features).tanh()).unsqueeze(-1).chunk(2, dim=1)
-        return exposure + self.gain * (offset + slope * self.time)
+        corrected = exposure + self.gain * (offset + slope * self.time)
+        if self.sensor_limit:
+            corrected = corrected * self.sensor_gains()[None, :, None]
+        return corrected
+
+    def sensor_gains(self):
+        return 1 + self.sensor_limit * self.sensor_logits.tanh()
 
 
 def checkpoint_hash(path):
@@ -62,7 +72,9 @@ def inputs(folder, encoder):
 
 
 def load_corrector(encoder, path=None):
-    path = path or (GROUPED_CHECKPOINT if GROUPED_CHECKPOINT.is_file() else CHECKPOINT)
+    if path is None:
+        path = next((candidate for candidate in (SENSOR_CHECKPOINT, GROUPED_CHECKPOINT)
+                     if candidate.is_file()), CHECKPOINT)
     state = torch.load(path, map_location="cpu", weights_only=True)
     if (state["schema"] != 1
             or state["encoder_sha256"] != checkpoint_hash(encoder.model_dir / "model.pt")

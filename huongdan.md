@@ -49,7 +49,11 @@ Khi demo kết quả trên dữ liệu thật, kiểm tra banner **MODEL THẬT 
 6. Nhập và **Lưu tên mẫu**, ghi chú nếu cần, rồi bấm **Lưu mẫu**. Lượt đã chốt xuất hiện ở mục 05 và được ghi vào `data/hardware`.
 7. Khi thu xong, bấm **Kết thúc phiên**. Dùng **Ctrl+C** trong PowerShell khi muốn tắt luôn server.
 
-## 5. Kiểm tra cà phê với notebook
+## 5. Kiểm tra cà phê
+
+Trên dashboard, vào **06 · Phát hiện cà phê**, chọn một mẫu hardware hoàn chỉnh và bấm **Kiểm tra cà phê**. Mục **03 · Dự đoán danh tính** chạy riêng model nhận diện người.
+
+Để kiểm tra cả tập bằng notebook, làm theo các bước sau.
 
 1. Mở [test_coffee_hardware.ipynb](test_coffee_hardware.ipynb) trong VS Code.
 2. Chọn kernel Python có `ipykernel` rồi bấm **Run All**.

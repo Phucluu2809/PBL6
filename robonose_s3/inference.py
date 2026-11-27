@@ -154,11 +154,14 @@ class InferenceCoordinator:
             raise RuntimeError("Inference queue full")
         return deepcopy(job)
 
-    def submit_identity(self, sample_id, coffee_raw=None):
+    def submit_identity(self, sample_id):
         sample_id = str(sample_id or "").strip()
         if not sample_id:
             raise ValueError("sample_id is required")
-        return self._submit("identity", {"sample_id": sample_id, "coffee_raw": coffee_raw})
+        return self._submit("identity", {"sample_id": sample_id})
+
+    def submit_coffee(self, sample_id, raw_path):
+        return self._submit("coffee", {"sample_id": sample_id, "raw_path": str(raw_path)})
 
     @staticmethod
     def _check_coffee(path):
@@ -209,10 +212,15 @@ class InferenceCoordinator:
                 with self.lock:
                     job["state"] = "PREDICTING"
                 if job["task"] == "identity":
-                    coffee = self._check_coffee(job["payload"]["coffee_raw"])
-                    with self.lock:
-                        job["coffee_check"] = coffee
                     result = self.predictor.predict_identity(job["payload"]["sample_id"])
+                elif job["task"] == "coffee":
+                    result = {
+                        "schema": PREDICTION_SCHEMA, "task": "coffee",
+                        "sample_id": job["payload"]["sample_id"], "model_backend": "COFFEE_LOGISTIC",
+                        **self._check_coffee(job["payload"]["raw_path"]), "created_at": _timestamp(),
+                    }
+                    if result.get("model"):
+                        result["model_id"] = result["model"]
                 else:
                     compare = getattr(self.predictor, COMPARISON_METHODS[job["payload"]["model"]])
                     result = compare(
