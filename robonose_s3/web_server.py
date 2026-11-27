@@ -462,7 +462,8 @@ class WebRequestHandler(BaseHTTPRequestHandler):
                 candidate = (Path(known["folder"]) / "raw.csv").resolve()
                 if not any(candidate.is_relative_to(root) for root in self.app.catalog.data_roots):
                     raise ValueError("File tín hiệu nằm ngoài thư mục dữ liệu.")
-                self._json(self.app.inference.submit_coffee(sample_id, candidate), HTTPStatus.ACCEPTED)
+                self._json(self.app.inference.submit_coffee(
+                    sample_id, candidate, payload.get("model", "default")), HTTPStatus.ACCEPTED)
             elif parsed.path == "/api/inference/compare":
                 candidates = payload.get("candidate_ids")
                 if not isinstance(candidates, list):

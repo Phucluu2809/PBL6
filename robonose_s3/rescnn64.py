@@ -384,6 +384,11 @@ class ResCNN64Predictor:
 
         return compare(self, reference_id, candidate_ids)
 
+    def compare_smoothed_v3(self, reference_id, candidate_ids):
+        from models_v3.identity import compare
+
+        return compare(self, reference_id, candidate_ids)
+
     def predict_identity(self, sample_id):
         if self.references is None:
             raise ValueError("Thiếu references.json chứa embedding từng mẫu của model.")

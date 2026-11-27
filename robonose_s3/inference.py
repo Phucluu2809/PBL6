@@ -16,11 +16,14 @@ import threading
 import uuid
 
 from .coffee_detection import predict_trial
+from models_v3 import COFFEE_ARTIFACT, IDENTITY_ARTIFACT
+from models_v3.coffee import predict_trial as predict_smoothed_coffee
 
 
 PREDICTION_SCHEMA = "robonose.prediction.v1"
 COMPARISON_METHODS = {"default": "compare", "baseline_v2": "compare_baseline_v2",
-                      "learned_baseline_v2": "compare_learned_baseline_v2"}
+                      "learned_baseline_v2": "compare_learned_baseline_v2",
+                      "smoothed_v3": "compare_smoothed_v3"}
 
 
 def _timestamp():
@@ -160,16 +163,18 @@ class InferenceCoordinator:
             raise ValueError("sample_id is required")
         return self._submit("identity", {"sample_id": sample_id})
 
-    def submit_coffee(self, sample_id, raw_path):
-        return self._submit("coffee", {"sample_id": sample_id, "raw_path": str(raw_path)})
+    def submit_coffee(self, sample_id, raw_path, model="default"):
+        if model not in ("default", "smoothed_v3") or (model == "smoothed_v3" and not COFFEE_ARTIFACT.is_file()):
+            raise ValueError("Model cà phê không khả dụng.")
+        return self._submit("coffee", {"sample_id": sample_id, "raw_path": str(raw_path), "model": model})
 
     @staticmethod
-    def _check_coffee(path):
+    def _check_coffee(path, predict=predict_trial):
         if path is None:
             return {"status": "UNAVAILABLE", "reason": "Cần mẫu thiết bị đã lưu hoàn chỉnh."}
         try:
             with Path(path).open(encoding="utf-8-sig", newline="") as handle:
-                return predict_trial(csv.DictReader(handle, strict=True))
+                return predict(csv.DictReader(handle, strict=True))
         except (OSError, UnicodeError, csv.Error) as error:
             return {"status": "UNAVAILABLE", "reason": f"Không đọc được tín hiệu. {error}"}
 
@@ -183,7 +188,8 @@ class InferenceCoordinator:
         if len(set(candidates)) != len(candidates):
             raise ValueError("Candidate UUIDs must be unique")
         if (not isinstance(model, str) or model not in COMPARISON_METHODS
-                or not hasattr(self.predictor, COMPARISON_METHODS[model])):
+                or not hasattr(self.predictor, COMPARISON_METHODS[model])
+                or (model == "smoothed_v3" and not IDENTITY_ARTIFACT.is_file())):
             raise ValueError("Model đối sánh không khả dụng.")
         return self._submit("reference_comparison", {
             "reference_id": reference_id, "candidate_ids": candidates, "model": model})
@@ -194,13 +200,16 @@ class InferenceCoordinator:
 
     def describe(self):
         describe = getattr(self.predictor, "describe", None)
-        if describe:
-            return deepcopy(describe())
-        return {
+        info = deepcopy(describe()) if describe else {
             "model_id": getattr(self.predictor, "model_id", "unknown"),
             "model_backend": getattr(self.predictor, "backend", "UNKNOWN"),
             "synthetic_prediction": None,
         }
+        info["smoothed_v3"] = {
+            "coffee": COFFEE_ARTIFACT.is_file(),
+            "comparison": IDENTITY_ARTIFACT.is_file() and hasattr(self.predictor, "compare_smoothed_v3"),
+        }
+        return info
 
     def _run(self):
         while not self.stopping.is_set() or not self.queue.empty():
@@ -214,10 +223,14 @@ class InferenceCoordinator:
                 if job["task"] == "identity":
                     result = self.predictor.predict_identity(job["payload"]["sample_id"])
                 elif job["task"] == "coffee":
+                    payload = job["payload"]
+                    smoothed = payload["model"] == "smoothed_v3"
+                    coffee = (self._check_coffee(payload["raw_path"], predict_smoothed_coffee)
+                              if smoothed else self._check_coffee(payload["raw_path"]))
                     result = {
                         "schema": PREDICTION_SCHEMA, "task": "coffee",
-                        "sample_id": job["payload"]["sample_id"], "model_backend": "COFFEE_LOGISTIC",
-                        **self._check_coffee(job["payload"]["raw_path"]), "created_at": _timestamp(),
+                        "sample_id": payload["sample_id"], "model_backend": "COFFEE_LOGISTIC",
+                        **coffee, "created_at": _timestamp(),
                     }
                     if result.get("model"):
                         result["model_id"] = result["model"]

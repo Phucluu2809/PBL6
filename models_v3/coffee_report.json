@@ -1,0 +1,132 @@
+{
+  "train_days": [
+    "2026-11-09",
+    "2026-11-20"
+  ],
+  "train_trials": 141,
+  "excluded_train": [],
+  "validation": {
+    "none": {
+      "all": {
+        "tp": 21,
+        "fn": 11,
+        "tn": 85,
+        "fp": 24,
+        "balanced_accuracy": 0.7180332568807339
+      },
+      "coffee_and_air": {
+        "tp": 21,
+        "fn": 11,
+        "tn": 16,
+        "fp": 0,
+        "balanced_accuracy": 0.828125
+      }
+    },
+    "light3": {
+      "all": {
+        "tp": 21,
+        "fn": 11,
+        "tn": 85,
+        "fp": 24,
+        "balanced_accuracy": 0.7180332568807339
+      },
+      "coffee_and_air": {
+        "tp": 21,
+        "fn": 11,
+        "tn": 16,
+        "fp": 0,
+        "balanced_accuracy": 0.828125
+      }
+    },
+    "sg5_half": {
+      "all": {
+        "tp": 21,
+        "fn": 11,
+        "tn": 85,
+        "fp": 24,
+        "balanced_accuracy": 0.7180332568807339
+      },
+      "coffee_and_air": {
+        "tp": 21,
+        "fn": 11,
+        "tn": 16,
+        "fp": 0,
+        "balanced_accuracy": 0.828125
+      }
+    }
+  },
+  "selected": "light3",
+  "holdout": {
+    "nov07": {
+      "v2": {
+        "all": {
+          "tp": 1,
+          "fn": 7,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        },
+        "coffee_and_air": {
+          "tp": 1,
+          "fn": 7,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        }
+      },
+      "v3": {
+        "all": {
+          "tp": 1,
+          "fn": 7,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        },
+        "coffee_and_air": {
+          "tp": 1,
+          "fn": 7,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        }
+      },
+      "invalid": []
+    },
+    "hardware": {
+      "v2": {
+        "all": {
+          "tp": 0,
+          "fn": 0,
+          "tn": 12,
+          "fp": 1,
+          "balanced_accuracy": null
+        },
+        "coffee_and_air": {
+          "tp": 0,
+          "fn": 0,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        }
+      },
+      "v3": {
+        "all": {
+          "tp": 0,
+          "fn": 0,
+          "tn": 12,
+          "fp": 1,
+          "balanced_accuracy": null
+        },
+        "coffee_and_air": {
+          "tp": 0,
+          "fn": 0,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        }
+      },
+      "invalid": []
+    }
+  },
+  "deployment": "optional_experimental"
+}

@@ -94,9 +94,13 @@ function renderModelStatus(model = {}) {
   const backend = model.model_backend || "UNKNOWN";
   const selector = byId("comparison-model");
   for (const option of selector.options) {
-    if (option.value !== "default") option.disabled = backend !== "RESCNN64_TORCH";
+    if (option.value === "smoothed_v3") option.disabled = !model.smoothed_v3?.comparison;
+    else if (option.value !== "default") option.disabled = backend !== "RESCNN64_TORCH";
   }
   if (selector.selectedOptions[0]?.disabled) selector.value = "default";
+  const coffeeSelector = byId("coffee-model");
+  coffeeSelector.querySelector('option[value="smoothed_v3"]').disabled = !model.smoothed_v3?.coffee;
+  if (coffeeSelector.selectedOptions[0]?.disabled) coffeeSelector.value = "default";
   const title = mock ? "MODEL GIẢ LẬP" : `MODEL THẬT · ${backend}`;
   const detail = mock
     ? "Chỉ kiểm tra UI/API; kết quả không có giá trị nhận diện."
@@ -106,6 +110,11 @@ function renderModelStatus(model = {}) {
   ["identity-model-banner", "comparison-model-banner"].forEach(id => {
     const banner = byId(id);
     if (!banner) return;
+    if (id === "comparison-model-banner" && selector.value === "smoothed_v3") {
+      banner.classList.remove("real");
+      banner.innerHTML = "<strong>RESCNN64 V3 · THỬ NGHIỆM</strong><span>Lọc nhẹ exposure rồi chạy bộ hiệu chỉnh đã huấn luyện trên tín hiệu làm mịn.</span>";
+      return;
+    }
     if (id === "comparison-model-banner" && selector.value === "learned_baseline_v2") {
       banner.classList.add("real");
       banner.innerHTML = "<strong>RESCNN64 V2 · BỘ HIỆU CHỈNH ĐÃ HỌC</strong><span>Hiệu chỉnh exposure từ toàn bộ baseline, sau đó tính embedding bằng CNN gốc.</span>";
@@ -416,6 +425,10 @@ function renderIdentity(result) {
     ${note ? `<p>${note}</p>` : ""}`;
 }
 
+function smoothingLabel(method) {
+  return ({light3: "trung bình có trọng số 3 điểm", sg5_half: "Savitzky–Golay 5 điểm, pha 50%"})[method] || method;
+}
+
 function renderCoffee(sampleId, result) {
   const target = byId("coffee-result");
   const predicted = result?.status === "PREDICTED";
@@ -426,7 +439,8 @@ function renderCoffee(sampleId, result) {
     mq3_1_voltage_v: "MQ3 #1 A1", mq135_2_voltage_v: "MQ135 #2 A2", mq3_2_voltage_v: "MQ3 #2 A3"
   };
   const channels = (result?.signals || []).map(key => channelNames[key] || key).join(", ");
-  const detail = predicted ? `Model ${result.model}${channels ? ` · ${channels}` : ""}`
+  const filter = result?.smoothing ? ` · Thử nghiệm lọc ${smoothingLabel(result.smoothing)}` : "";
+  const detail = predicted ? `Model ${result.model}${channels ? ` · ${channels}` : ""}${filter}`
     : (result?.reason || "Chưa có kết quả cà phê.");
   target.innerHTML = `<h3>${label}</h3><code>${escapeHtml(sampleId)}</code>
     <p>${escapeHtml(detail)}</p>`;
@@ -451,7 +465,9 @@ async function runCoffee() {
   const sampleId = byId("coffee-sample").value.trim();
   byId("coffee-result").textContent = "Đang kiểm tra mùi cà phê…";
   try {
-    const job = await api("/api/inference/coffee", {method: "POST", body: JSON.stringify({sample_id: sampleId})});
+    const job = await api("/api/inference/coffee", {method: "POST", body: JSON.stringify({
+      sample_id: sampleId, model: byId("coffee-model").value
+    })});
     if (request === coffeeRequest) coffeeJob = job.job_id;
   } catch (error) {
     if (request === coffeeRequest) renderCoffee(sampleId, {reason: error.message});
@@ -479,7 +495,9 @@ function renderComparison(result) {
     <code>${escapeHtml(item.candidate_id)}</code> · ${escapeHtml(item.reason)}
   </li>`).join("");
   const warnings = (result.reference_warnings || []).length + result.ranking.reduce((total, item) => total + (item.warnings || []).length, 0);
-  const preprocessing = result.preprocessing_mode === "learned_baseline"
+  const preprocessing = result.preprocessing_mode === "smoothed_v3"
+    ? `V3 thử nghiệm · Làm mịn exposure bằng ${smoothingLabel(result.smoothing)} trước bộ hiệu chỉnh. CNN dùng trọng số gốc.`
+    : result.preprocessing_mode === "learned_baseline"
     ? "Bộ hiệu chỉnh đã học dự đoán mức bù và độ dốc cho từng kênh. Trọng số ResCNN64 giữ nguyên."
     : result.preprocessing_mode === "matched_blank"
     ? `Trừ đường blank cùng phiên. Blank của mẫu tham chiếu: ${names.get(result.reference_blank_id) || result.reference_blank_id}.`

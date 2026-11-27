@@ -268,6 +268,12 @@
         <div class="inference-layout">
           <article class="panel inference-form">
             <h2>Mẫu cần kiểm tra</h2>
+            <label>Model cà phê
+              <select id="coffee-model">
+                <option value="default">Model mặc định</option>
+                <option value="smoothed_v3" disabled>Logistic V3 · Làm mịn nhẹ (thử nghiệm)</option>
+              </select>
+            </label>
             <label>Mẫu hardware
               <input id="coffee-sample" list="coffee-options" placeholder="Chọn hoặc nhập trial_id">
             </label>
@@ -290,6 +296,7 @@
               <select id="comparison-model">
                 <option value="default">Model mặc định</option>
                 <option value="learned_baseline_v2" disabled>ResCNN64 V2 · Bộ hiệu chỉnh đã học</option>
+                <option value="smoothed_v3" disabled>ResCNN64 V3 · Làm mịn nhẹ (thử nghiệm)</option>
                 <option value="baseline_v2" disabled>ResCNN64 V2 · Hiệu chỉnh toàn bộ baseline (thử nghiệm)</option>
               </select>
             </label>

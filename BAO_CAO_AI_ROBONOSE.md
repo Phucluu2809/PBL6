@@ -10,8 +10,8 @@ RoboNose dùng chuỗi đo từ mảng cảm biến để giải quyết hai bà
 
 | Bài toán | Model được chọn | Kết quả trả về | Lý do lựa chọn |
 | --- | --- | --- | --- |
-| Nhận diện và đối sánh người | ResCNN64, một CNN tích chập một chiều với các khối residual. Mục 04 có thêm tùy chọn V2 hiệu chỉnh exposure trước CNN. | Mục 03 xếp hạng các nhãn trong kho tham chiếu. Mục 04 xếp hạng các lượt được chọn theo điểm cosine với một lượt tham chiếu. | CNN học được hình dạng đáp ứng theo thời gian của nhiều kênh. Embedding 64 chiều dùng được cho cả nhận diện theo kho mẫu và đối sánh từng lượt. |
-| Phát hiện cà phê | Logistic Regression V2 trên ba kênh **MQ3 #1 A1, MQ135 #2 A2, MQ3 #2 A3**. | Mục 06 báo có mùi cà phê, không có mùi cà phê hoặc chưa đủ dữ liệu để dự đoán. | Đây là bản có kết quả cân bằng cao nhất trong các phương án đã thử trên tập 09–20/11. Model nhỏ, dễ triển khai và truy vết đóng góp của từng kênh. |
+| Nhận diện và đối sánh người | ResCNN64, một CNN tích chập một chiều với các khối residual. Mục 04 có thêm V2 hiệu chỉnh exposure và V3 thử nghiệm làm mịn exposure trước bộ hiệu chỉnh đã huấn luyện lại. | Mục 03 xếp hạng các nhãn trong kho tham chiếu. Mục 04 xếp hạng các lượt được chọn theo điểm cosine với một lượt tham chiếu. | CNN học được hình dạng đáp ứng theo thời gian của nhiều kênh. Embedding 64 chiều dùng được cho cả nhận diện theo kho mẫu và đối sánh từng lượt. |
+| Phát hiện cà phê | Logistic Regression V2 mặc định trên ba kênh **MQ3 #1 A1, MQ135 #2 A2, MQ3 #2 A3**. V3 dùng cùng ba kênh với bước làm mịn trước khi trích đặc trưng. | Mục 06 báo có mùi cà phê, không có mùi cà phê hoặc chưa đủ dữ liệu để dự đoán. | V2 và V3 đạt cùng balanced accuracy trên tập so sánh 09–20/11. V2 giữ pipeline đơn giản hơn và được dùng làm mặc định. |
 
 Mục 03 và mục 06 dùng API và kết quả riêng. Cà phê có thể được kiểm tra ngay cả khi một job nhận diện người thất bại. [Điểm vào API](robonose_s3/web_server.py) · [Job suy luận](robonose_s3/inference.py)
 
@@ -24,8 +24,9 @@ BME688 (điện trở gas, nhiệt độ, RH, áp suất) ────┘
           → host Python ghi raw.csv và metadata.json theo UUID lượt đo
           → dashboard chọn mẫu đã lưu → hàng đợi inference
                ├─ Mục 03 → ResCNN64 → embedding → kho tham chiếu → xếp hạng nhãn
-               ├─ Mục 04 → tùy chọn hiệu chỉnh V2 → ResCNN64 → cosine giữa các lượt
-               └─ Mục 06 → đặc trưng đáp ứng → Logistic Regression → có/không cà phê
+               ├─ Mục 04 → ResCNN64 gốc, hiệu chỉnh V2 hoặc làm mịn V3 → cosine giữa các lượt
+               └─ Mục 06 → đặc trưng đáp ứng từ chuỗi gốc hoặc chuỗi làm mịn V3
+                         → Logistic Regression → có/không cà phê
 ```
 
 | Lớp | Công nghệ và vai trò |
@@ -101,8 +102,23 @@ Nhiệt độ, áp suất và recovery nằm ngoài tensor nhận diện ngườ
 | Mở rộng đặc trưng cà phê | Thêm trung bình 5–30 giây, trung bình 85–105 giây, chênh lệch cuối–đầu exposure và P90−P10 của baseline. | Đã so bằng dữ liệu tách ngày. Logistic đang chạy dùng 15 đặc trưng của pipeline đã chọn. |
 | Tạo cặp cà phê và tên người cùng ngày | Tạo hiệu vector đặc trưng giữa các lượt cùng ngày. Dùng các hiệu và hiệu đảo dấu khi fit, rồi hiệu chỉnh intercept bằng lượt train. | Thử nghiệm Logistic, chưa được chọn. |
 | Tăng cường đầu vào CNN cà phê | Nén exposure thành 12 cửa sổ 10 giây. Trong train, nhân hệ số biên độ theo lượt/kênh và cộng nhiễu nhẹ. Cả scaler và tăng cường chỉ dựa trên fold train. | Thử nghiệm CNN, chưa được chọn. |
+| Làm mịn nhẹ ở V3 | Dùng cửa sổ đối xứng 3 hoặc 5 điểm để giảm dao động ngắn trước bộ hiệu chỉnh danh tính hoặc bước rút đặc trưng cà phê. Huấn luyện lại phần dùng tín hiệu đã lọc. | Tùy chọn thử nghiệm riêng ở mục 04 và mục 06. |
 
 Các đặc trưng và biến thể tăng cường được tính cho model. CSV gốc chỉ được đọc. [Tiền xử lý ResCNN64](robonose_s3/rescnn64.py#L117) · [Tiền xử lý cà phê](robonose_s3/coffee_detection/__init__.py) · [CNN cà phê thử nghiệm](models_v2/benchmark_coffee_cnn.py)
+
+### 4.4. Làm mịn nhẹ trong V3
+
+V3 kiểm tra giả thuyết rằng giảm dao động trong vài nhịp đo có thể giúp model giữ phần biến thiên đặc trưng của mùi. Bộ lọc áp dụng cho từng kênh sau khi kiểm tra chất lượng của raw. Mỗi điểm sau lọc dùng các điểm lân cận trong cùng pha. Thời gian, số dòng và dữ liệu lưu trên đĩa giữ nguyên. Đây là phép biến đổi tín hiệu cho các lượt đã ghi.
+
+| Cấu hình | Công thức tại điểm giữa cửa sổ | Mục đích thử |
+| --- | --- | --- |
+| `none` | `y[t] = x[t]` | Đối chứng để đo riêng ảnh hưởng của làm mịn. |
+| `light3` | `y[t] = (x[t-1] + 6x[t] + x[t+1]) / 8` | Giữ 75% điểm giữa, dùng hai điểm lân cận để giảm dao động ngắn. |
+| `sg5_half` | `y[t] = (−3x[t-2] + 12x[t-1] + 52x[t] + 12x[t+1] − 3x[t+2]) / 70` | Pha 50% tín hiệu gốc với Savitzky–Golay bậc 2, cửa sổ 5 điểm, để thử khả năng giữ hình dạng cục bộ. |
+
+Giữ nguyên điểm đầu và cuối nếu cửa sổ thiếu điểm. Ở pipeline cà phê, bỏ qua việc lọc tại tâm cửa sổ nếu có điểm lỗi hoặc hai mẫu liên tiếp lệch khỏi khoảng 0,9–1,1 giây. Ở pipeline người, tensor chỉ được đưa đến bộ lọc sau khi đã đạt kiểm tra đúng số mẫu và nhịp lấy mẫu. Bộ lọc không trộn các pha hoặc điền giá trị thiếu. [Mã bộ lọc V3](models_v3/smoothing.py) · [Bài báo Savitzky–Golay](https://doi.org/10.1021/ac60214a047)
+
+**Vị trí làm mịn khác nhau theo tác vụ.** Với người, V3 lọc tensor exposure đã trừ nền và chuẩn hóa. Vẫn dùng 36 đặc trưng baseline của V2, sau đó huấn luyện lại bộ hiệu chỉnh với tensor đã lọc và giữ checkpoint ResCNN64. Với cà phê, V3 lọc riêng baseline và exposure trên A1–A3 trước khi tính trung vị nền. Sau đó rút lại 15 đặc trưng và huấn luyện lại scaler cùng Logistic Regression. Lúc suy luận, từng bản dùng đúng bộ lọc đã dùng khi huấn luyện. [Đường chạy V3 người](models_v3/identity.py) · [Đường chạy V3 cà phê](models_v3/coffee.py)
 
 ## 5. Kiến trúc model
 
@@ -190,6 +206,24 @@ flowchart LR
 
 `C` là số kênh cảm biến được thử, gồm bộ 3 kênh V2 hoặc toàn bộ 5 kênh mùi. Các model đối chứng được chạy ngoại tuyến. Việc thử thêm model không làm thay đổi artifact đã chọn cho dashboard. [Extra Trees và Logistic](models_v2/benchmark_coffee.py) · [SVM và LDA](models_v2/benchmark_coffee_ml.py) · [CNN](models_v2/benchmark_coffee_cnn.py)
 
+### 5.5. Kiến trúc hai đường suy luận V3
+
+```mermaid
+flowchart TD
+    Q["Dữ liệu lượt đo đã lưu và kiểm tra chất lượng"]
+    Q --> A["Người · exposure chuẩn hóa 6 × 120"]
+    Q --> B["Người · baseline 36 đặc trưng"]
+    A --> C["Làm mịn exposure từng kênh"]
+    C --> D["Bộ hiệu chỉnh đã huấn luyện lại · giữ kích thước 6 × 120"]
+    B --> D
+    D --> E["ResCNN64 checkpoint gốc → embedding 64 chiều → cosine"]
+    Q --> F["Cà phê · baseline và exposure trên A1, A2, A3"]
+    F --> G["Làm mịn từng pha → tính lại mốc nền và 15 đặc trưng"]
+    G --> H["Scaler và Logistic Regression đã fit lại → logit > 0"]
+```
+
+Phần mới của V3 là bộ lọc và các tham số được huấn luyện lại trên dữ liệu đã lọc. Artifact V3 lưu trong `models_v3`. Dashboard cung cấp **ResCNN64 V3 · Làm mịn nhẹ** tại mục 04 và **Logistic V3 · Làm mịn nhẹ** tại mục 06. [Tổng quan V3 và lệnh huấn luyện lại](models_v3/README.md)
+
 ## 6. Thử nghiệm và tiêu chí chọn model
 
 ### 6.1. Đối sánh danh tính
@@ -249,6 +283,28 @@ Mỗi fold giữ riêng toàn bộ một ngày. Model và scaler được fit tr
 Từ bảng, tỷ lệ phát hiện là `21/32 = 65,6%`, tỷ lệ nhận đúng nhóm âm là `85/109 ≈ 78,0%`, và balanced accuracy là `(21/32 + 85/109) / 2 ≈ 71,8%`. CNN 1D bắt đúng **22/32** nhưng báo dương trên **49/109** lượt nhóm âm. So cả hai tỷ lệ giải thích vì sao Logistic V2 được chọn dù CNN bắt được thêm một lượt dương trên archive.
 
 [Logistic cũ và V2](models_v2/coffee_sensor_report.json) · [Logistic thêm đặc trưng và Extra Trees](models_v2/coffee_v3_report.json) · [SVM và LDA](models_v2/coffee_ml_report.json) · [Kiểm định lồng](models_v2/coffee_logistic_tuned_report.json) · [Học cặp](models_v2/coffee_pairs_report.json) · [CNN và kết hợp](models_v2/coffee_cnn_report.json)
+
+### 6.3. So sánh V3 làm mịn với V2
+
+Để đo riêng ảnh hưởng của làm mịn, cả ba cấu hình `none`, `light3` và `sg5_half` dùng cùng bộ mẫu, kênh và quy trình chia theo ngày. Với người, huấn luyện lại bộ hiệu chỉnh trên 93 lượt ngày 09–20/11 và so Top 1 trung bình theo lớp, dùng MRR khi bằng điểm. Với cà phê, fit lại scaler và Logistic trên các fold của 141 lượt, rồi chọn theo balanced accuracy. Sau khi chọn bộ lọc, mới kiểm tra trên các tập đối chiếu ở bảng dưới.
+
+| Kiểm tra khác ngày trên archive | Đối chứng V2, không lọc | V3 lọc 3 điểm | V3 Savitzky–Golay pha 50% |
+| --- | ---: | ---: | ---: |
+| Người · Top 1 | **50/76** | 47/76 | 47/76 |
+| Người · Top 1 trung bình theo lớp | **66,09%** | 63,27% | 62,33% |
+| Cà phê · balanced accuracy | 71,8% | 71,8% | 71,8% |
+| Cà phê · phát hiện đúng | 21/32 | 21/32 | 21/32 |
+
+Trong hai cách làm mịn, chọn `light3` cho cả hai tác vụ. Bản người có Top 1 trung bình theo lớp cao hơn `sg5_half`. Bản cà phê bằng điểm và dùng cửa sổ ngắn hơn.
+
+| Kiểm tra sau khi chốt bộ lọc | V2 | V3 lọc 3 điểm |
+| --- | ---: | ---: |
+| Người · Top 1 trên hardware khác phiên | 8/13 | 8/13 |
+| Người · MRR trên hardware khác phiên | 0,7333 | 0,7372 |
+| Cà phê · phát hiện ngày 07/11 ngoài khoảng huấn luyện | 1/8 | 1/8 |
+| Cà phê · báo dương trên mẫu hardware mang tên người | 1/13 | 1/13 |
+
+V3 giữ số lượt đúng trên hardware nhưng giảm Top 1 đối sánh người trên archive. Với cà phê, các chỉ số chính giữ nguyên và balanced accuracy vẫn dưới 75%. Vì vậy, dashboard đưa V3 vào mục 04 và mục 06 dưới dạng lựa chọn thử nghiệm. [Số liệu đối sánh V3](models_v3/identity_report.json) · [Số liệu cà phê V3](models_v3/coffee_report.json)
 
 ## 7. Điểm cần nêu khi bảo vệ
 

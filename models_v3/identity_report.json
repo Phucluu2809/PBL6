@@ -1,0 +1,182 @@
+{
+  "train_days": [
+    "2026-11-09",
+    "2026-11-20"
+  ],
+  "train_trials": 93,
+  "excluded_train": 63,
+  "validation": {
+    "none": {
+      "queries": 76,
+      "top1": 50,
+      "macro_top1": 0.660905,
+      "mrr": 0.740911,
+      "by_label": {
+        "Dương": [
+          10,
+          14
+        ],
+        "Phúc": [
+          17,
+          29
+        ],
+        "Tài": [
+          3,
+          5
+        ],
+        "son": [
+          10,
+          10
+        ],
+        "tan": [
+          7,
+          11
+        ],
+        "toan": [
+          3,
+          7
+        ]
+      }
+    },
+    "light3": {
+      "queries": 76,
+      "top1": 47,
+      "macro_top1": 0.632744,
+      "mrr": 0.717635,
+      "by_label": {
+        "Dương": [
+          10,
+          14
+        ],
+        "Phúc": [
+          15,
+          29
+        ],
+        "Tài": [
+          3,
+          5
+        ],
+        "son": [
+          9,
+          10
+        ],
+        "tan": [
+          7,
+          11
+        ],
+        "toan": [
+          3,
+          7
+        ]
+      }
+    },
+    "sg5_half": {
+      "queries": 76,
+      "top1": 47,
+      "macro_top1": 0.623339,
+      "mrr": 0.717162,
+      "by_label": {
+        "Dương": [
+          10,
+          14
+        ],
+        "Phúc": [
+          16,
+          29
+        ],
+        "Tài": [
+          3,
+          5
+        ],
+        "son": [
+          9,
+          10
+        ],
+        "tan": [
+          6,
+          11
+        ],
+        "toan": [
+          3,
+          7
+        ]
+      }
+    }
+  },
+  "selected": "light3",
+  "holdout": {
+    "v2_grouped": {
+      "queries": 13,
+      "top1": 8,
+      "macro_top1": 0.575,
+      "mrr": 0.733333,
+      "by_label": {
+        "Phúc": [
+          6,
+          8
+        ],
+        "Tài": [
+          2,
+          5
+        ]
+      }
+    },
+    "v3_smoothed": {
+      "queries": 13,
+      "top1": 8,
+      "macro_top1": 0.575,
+      "mrr": 0.737179,
+      "by_label": {
+        "Phúc": [
+          6,
+          8
+        ],
+        "Tài": [
+          2,
+          5
+        ]
+      }
+    }
+  },
+  "holdout_sessions": 4,
+  "excluded_holdout": [
+    {
+      "trial_id": "6d5c9fcd-3d59-472d-8f0b-c9bc1c729a32",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "4a4a0b43-0c17-42f1-82d4-9521a26ca360",
+      "reason": "Lượt chưa hoàn chỉnh"
+    },
+    {
+      "trial_id": "81be29c4-075a-4a4a-b0ac-900d92d95a4a",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "31984efe-84d2-4d01-a543-4f604c7ebaf8",
+      "reason": "Lượt chưa hoàn chỉnh"
+    },
+    {
+      "trial_id": "2a64bb73-f321-433a-bf04-a28dcb8a5e99",
+      "reason": "Lượt chưa hoàn chỉnh"
+    },
+    {
+      "trial_id": "d33b4481-b517-43be-ae75-ec6221c5705d",
+      "reason": "Lượt chưa hoàn chỉnh"
+    },
+    {
+      "trial_id": "cab3718d-4a15-4575-8c18-e5ecb9846c9f",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "94344ea9-08c9-43b4-a9bd-2a497a482171",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    },
+    {
+      "trial_id": "d2412c3a-c0ae-48aa-bf65-8786d4e59159",
+      "reason": "Tên không xác nhận nhãn danh tính"
+    }
+  ],
+  "encoder_sha256": "50e0d6ee1c2a3edd3c0b1f2cd794e83adffe6202395789190d7bb5a3c3d2ea4a",
+  "deployment": "optional_experimental"
+}
