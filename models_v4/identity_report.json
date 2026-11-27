@@ -1,0 +1,310 @@
+{
+  "training_dates": [
+    "2026-11-09",
+    "2026-11-20"
+  ],
+  "training_trials": 93,
+  "excluded_train": 63,
+  "validation": {
+    "v1": {
+      "queries": 76,
+      "top1": 48,
+      "macro_top1": 0.607009,
+      "mrr": 0.724332,
+      "by_label": {
+        "Dương": [
+          9,
+          14
+        ],
+        "Phúc": [
+          17,
+          29
+        ],
+        "Tài": [
+          2,
+          5
+        ],
+        "son": [
+          10,
+          10
+        ],
+        "tan": [
+          8,
+          11
+        ],
+        "toan": [
+          2,
+          7
+        ]
+      }
+    },
+    "v2": {
+      "queries": 76,
+      "top1": 50,
+      "macro_top1": 0.660905,
+      "mrr": 0.740911,
+      "by_label": {
+        "Dương": [
+          10,
+          14
+        ],
+        "Phúc": [
+          17,
+          29
+        ],
+        "Tài": [
+          3,
+          5
+        ],
+        "son": [
+          10,
+          10
+        ],
+        "tan": [
+          7,
+          11
+        ],
+        "toan": [
+          3,
+          7
+        ]
+      }
+    },
+    "v3": {
+      "queries": 76,
+      "top1": 47,
+      "macro_top1": 0.632744,
+      "mrr": 0.717635,
+      "by_label": {
+        "Dương": [
+          10,
+          14
+        ],
+        "Phúc": [
+          15,
+          29
+        ],
+        "Tài": [
+          3,
+          5
+        ],
+        "son": [
+          9,
+          10
+        ],
+        "tan": [
+          7,
+          11
+        ],
+        "toan": [
+          3,
+          7
+        ]
+      }
+    },
+    "v4_equal": {
+      "queries": 76,
+      "top1": 52,
+      "macro_top1": 0.672399,
+      "mrr": 0.756416,
+      "by_label": {
+        "Dương": [
+          10,
+          14
+        ],
+        "Phúc": [
+          19,
+          29
+        ],
+        "Tài": [
+          3,
+          5
+        ],
+        "son": [
+          10,
+          10
+        ],
+        "tan": [
+          7,
+          11
+        ],
+        "toan": [
+          3,
+          7
+        ]
+      }
+    },
+    "v4_v2_focus": {
+      "queries": 76,
+      "top1": 49,
+      "macro_top1": 0.655157,
+      "mrr": 0.735073,
+      "by_label": {
+        "Dương": [
+          10,
+          14
+        ],
+        "Phúc": [
+          16,
+          29
+        ],
+        "Tài": [
+          3,
+          5
+        ],
+        "son": [
+          10,
+          10
+        ],
+        "tan": [
+          7,
+          11
+        ],
+        "toan": [
+          3,
+          7
+        ]
+      }
+    },
+    "v4_v3_focus": {
+      "queries": 76,
+      "top1": 48,
+      "macro_top1": 0.64941,
+      "mrr": 0.726744,
+      "by_label": {
+        "Dương": [
+          10,
+          14
+        ],
+        "Phúc": [
+          15,
+          29
+        ],
+        "Tài": [
+          3,
+          5
+        ],
+        "son": [
+          10,
+          10
+        ],
+        "tan": [
+          7,
+          11
+        ],
+        "toan": [
+          3,
+          7
+        ]
+      }
+    },
+    "v4_rescnn_focus": {
+      "queries": 76,
+      "top1": 54,
+      "macro_top1": 0.71136,
+      "mrr": 0.770506,
+      "by_label": {
+        "Dương": [
+          10,
+          14
+        ],
+        "Phúc": [
+          19,
+          29
+        ],
+        "Tài": [
+          3,
+          5
+        ],
+        "son": [
+          10,
+          10
+        ],
+        "tan": [
+          8,
+          11
+        ],
+        "toan": [
+          4,
+          7
+        ]
+      }
+    }
+  },
+  "selected": "v4_rescnn_focus",
+  "fusion_weights": [
+    0.6,
+    0.2,
+    0.2
+  ],
+  "holdout": {
+    "v1": {
+      "queries": 13,
+      "top1": 7,
+      "macro_top1": 0.5125,
+      "mrr": 0.669231,
+      "by_label": {
+        "Phúc": [
+          5,
+          8
+        ],
+        "Tài": [
+          2,
+          5
+        ]
+      }
+    },
+    "v2": {
+      "queries": 13,
+      "top1": 8,
+      "macro_top1": 0.575,
+      "mrr": 0.733333,
+      "by_label": {
+        "Phúc": [
+          6,
+          8
+        ],
+        "Tài": [
+          2,
+          5
+        ]
+      }
+    },
+    "v3": {
+      "queries": 13,
+      "top1": 8,
+      "macro_top1": 0.575,
+      "mrr": 0.737179,
+      "by_label": {
+        "Phúc": [
+          6,
+          8
+        ],
+        "Tài": [
+          2,
+          5
+        ]
+      }
+    },
+    "v4_rescnn_focus": {
+      "queries": 13,
+      "top1": 7,
+      "macro_top1": 0.5125,
+      "mrr": 0.685897,
+      "by_label": {
+        "Phúc": [
+          5,
+          8
+        ],
+        "Tài": [
+          2,
+          5
+        ]
+      }
+    }
+  },
+  "holdout_sessions": 4,
+  "excluded_holdout_by_loader": 9,
+  "excluded_holdout_overlap": 0,
+  "encoder_sha256": "50e0d6ee1c2a3edd3c0b1f2cd794e83adffe6202395789190d7bb5a3c3d2ea4a"
+}

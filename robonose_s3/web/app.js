@@ -94,12 +94,16 @@ function renderModelStatus(model = {}) {
   const backend = model.model_backend || "UNKNOWN";
   const selector = byId("comparison-model");
   for (const option of selector.options) {
-    if (option.value === "smoothed_v3") option.disabled = !model.smoothed_v3?.comparison;
+    if (option.value === "smoothed_v3" || option.value === "fusion_v4") {
+      option.disabled = !model[option.value]?.comparison;
+    }
     else if (option.value !== "default") option.disabled = backend !== "RESCNN64_TORCH";
   }
   if (selector.selectedOptions[0]?.disabled) selector.value = "default";
   const coffeeSelector = byId("coffee-model");
-  coffeeSelector.querySelector('option[value="smoothed_v3"]').disabled = !model.smoothed_v3?.coffee;
+  for (const option of coffeeSelector.options) {
+    if (option.value !== "default") option.disabled = !model[option.value]?.coffee;
+  }
   if (coffeeSelector.selectedOptions[0]?.disabled) coffeeSelector.value = "default";
   const title = mock ? "MODEL GIẢ LẬP" : `MODEL THẬT · ${backend}`;
   const detail = mock
@@ -110,6 +114,11 @@ function renderModelStatus(model = {}) {
   ["identity-model-banner", "comparison-model-banner"].forEach(id => {
     const banner = byId(id);
     if (!banner) return;
+    if (id === "comparison-model-banner" && selector.value === "fusion_v4") {
+      banner.classList.remove("real");
+      banner.innerHTML = "<strong>RESCNN64 V4 · THỬ NGHIỆM</strong><span>Kết hợp điểm cosine của ba nhánh gốc, hiệu chỉnh baseline và làm mịn.</span>";
+      return;
+    }
     if (id === "comparison-model-banner" && selector.value === "smoothed_v3") {
       banner.classList.remove("real");
       banner.innerHTML = "<strong>RESCNN64 V3 · THỬ NGHIỆM</strong><span>Lọc nhẹ exposure rồi chạy bộ hiệu chỉnh đã huấn luyện trên tín hiệu làm mịn.</span>";
@@ -440,10 +449,11 @@ function renderCoffee(sampleId, result) {
   };
   const channels = (result?.signals || []).map(key => channelNames[key] || key).join(", ");
   const filter = result?.smoothing ? ` · Thử nghiệm lọc ${smoothingLabel(result.smoothing)}` : "";
+  const fusion = result?.fusion_weights ? " · Kết hợp các nhánh Logistic V1, V2 và V3" : "";
   const detail = predicted ? `Model ${result.model}${channels ? ` · ${channels}` : ""}${filter}`
     : (result?.reason || "Chưa có kết quả cà phê.");
   target.innerHTML = `<h3>${label}</h3><code>${escapeHtml(sampleId)}</code>
-    <p>${escapeHtml(detail)}</p>`;
+    <p>${escapeHtml(detail + fusion)}</p>`;
 }
 
 async function runIdentity(sampleId) {
@@ -495,7 +505,9 @@ function renderComparison(result) {
     <code>${escapeHtml(item.candidate_id)}</code> · ${escapeHtml(item.reason)}
   </li>`).join("");
   const warnings = (result.reference_warnings || []).length + result.ranking.reduce((total, item) => total + (item.warnings || []).length, 0);
-  const preprocessing = result.preprocessing_mode === "smoothed_v3"
+  const preprocessing = result.preprocessing_mode === "fusion_v4"
+    ? `V4 thử nghiệm · Trọng số cosine V1 / V2 / V3: ${result.fusion_weights.map(weight => formatNumber(weight * 100, 0) + "%").join(" / ")}.`
+    : result.preprocessing_mode === "smoothed_v3"
     ? `V3 thử nghiệm · Làm mịn exposure bằng ${smoothingLabel(result.smoothing)} trước bộ hiệu chỉnh. CNN dùng trọng số gốc.`
     : result.preprocessing_mode === "learned_baseline"
     ? "Bộ hiệu chỉnh đã học dự đoán mức bù và độ dốc cho từng kênh. Trọng số ResCNN64 giữ nguyên."

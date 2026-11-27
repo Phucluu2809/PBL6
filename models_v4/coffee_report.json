@@ -1,0 +1,265 @@
+{
+  "training_dates": [
+    "2026-11-09",
+    "2026-11-20"
+  ],
+  "training_trials": 141,
+  "invalid_archive": [],
+  "validation": {
+    "v1_channels_refit": {
+      "all": {
+        "tp": 15,
+        "fn": 17,
+        "tn": 86,
+        "fp": 23,
+        "balanced_accuracy": 0.6288704128440368
+      },
+      "coffee_and_air": {
+        "tp": 15,
+        "fn": 17,
+        "tn": 16,
+        "fp": 0,
+        "balanced_accuracy": 0.734375
+      }
+    },
+    "v2_refit": {
+      "all": {
+        "tp": 21,
+        "fn": 11,
+        "tn": 85,
+        "fp": 24,
+        "balanced_accuracy": 0.7180332568807339
+      },
+      "coffee_and_air": {
+        "tp": 21,
+        "fn": 11,
+        "tn": 16,
+        "fp": 0,
+        "balanced_accuracy": 0.828125
+      }
+    },
+    "v3_refit": {
+      "all": {
+        "tp": 21,
+        "fn": 11,
+        "tn": 85,
+        "fp": 24,
+        "balanced_accuracy": 0.7180332568807339
+      },
+      "coffee_and_air": {
+        "tp": 21,
+        "fn": 11,
+        "tn": 16,
+        "fp": 0,
+        "balanced_accuracy": 0.828125
+      }
+    },
+    "v4_equal": {
+      "all": {
+        "tp": 16,
+        "fn": 16,
+        "tn": 85,
+        "fp": 24,
+        "balanced_accuracy": 0.6399082568807339
+      },
+      "coffee_and_air": {
+        "tp": 16,
+        "fn": 16,
+        "tn": 16,
+        "fp": 0,
+        "balanced_accuracy": 0.75
+      }
+    },
+    "v4_later_models": {
+      "all": {
+        "tp": 20,
+        "fn": 12,
+        "tn": 84,
+        "fp": 25,
+        "balanced_accuracy": 0.6978211009174312
+      },
+      "coffee_and_air": {
+        "tp": 20,
+        "fn": 12,
+        "tn": 16,
+        "fp": 0,
+        "balanced_accuracy": 0.8125
+      }
+    },
+    "v4_kinetics": {
+      "all": {
+        "tp": 20,
+        "fn": 12,
+        "tn": 84,
+        "fp": 25,
+        "balanced_accuracy": 0.6978211009174312
+      },
+      "coffee_and_air": {
+        "tp": 20,
+        "fn": 12,
+        "tn": 15,
+        "fp": 1,
+        "balanced_accuracy": 0.78125
+      }
+    },
+    "v4_kinetics_light": {
+      "all": {
+        "tp": 19,
+        "fn": 13,
+        "tn": 85,
+        "fp": 24,
+        "balanced_accuracy": 0.6867832568807339
+      },
+      "coffee_and_air": {
+        "tp": 19,
+        "fn": 13,
+        "tn": 16,
+        "fp": 0,
+        "balanced_accuracy": 0.796875
+      }
+    }
+  },
+  "selected": "v4_later_models",
+  "fusion_weights": {
+    "v1_channels": 0.1,
+    "v2_channels": 0.45,
+    "v3_smoothed": 0.45,
+    "v2_kinetics": 0.0
+  },
+  "holdout": {
+    "nov07": {
+      "v1_channels_refit": {
+        "all": {
+          "tp": 1,
+          "fn": 7,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        },
+        "coffee_and_air": {
+          "tp": 1,
+          "fn": 7,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        }
+      },
+      "v2_refit": {
+        "all": {
+          "tp": 1,
+          "fn": 7,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        },
+        "coffee_and_air": {
+          "tp": 1,
+          "fn": 7,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        }
+      },
+      "v3_refit": {
+        "all": {
+          "tp": 1,
+          "fn": 7,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        },
+        "coffee_and_air": {
+          "tp": 1,
+          "fn": 7,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        }
+      },
+      "v4_later_models": {
+        "all": {
+          "tp": 1,
+          "fn": 7,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        },
+        "coffee_and_air": {
+          "tp": 1,
+          "fn": 7,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        }
+      },
+      "invalid": []
+    },
+    "hardware": {
+      "v1_channels_refit": {
+        "all": {
+          "tp": 0,
+          "fn": 0,
+          "tn": 11,
+          "fp": 2,
+          "balanced_accuracy": null
+        },
+        "coffee_and_air": {
+          "tp": 0,
+          "fn": 0,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        }
+      },
+      "v2_refit": {
+        "all": {
+          "tp": 0,
+          "fn": 0,
+          "tn": 12,
+          "fp": 1,
+          "balanced_accuracy": null
+        },
+        "coffee_and_air": {
+          "tp": 0,
+          "fn": 0,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        }
+      },
+      "v3_refit": {
+        "all": {
+          "tp": 0,
+          "fn": 0,
+          "tn": 12,
+          "fp": 1,
+          "balanced_accuracy": null
+        },
+        "coffee_and_air": {
+          "tp": 0,
+          "fn": 0,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        }
+      },
+      "v4_later_models": {
+        "all": {
+          "tp": 0,
+          "fn": 0,
+          "tn": 12,
+          "fp": 1,
+          "balanced_accuracy": null
+        },
+        "coffee_and_air": {
+          "tp": 0,
+          "fn": 0,
+          "tn": 0,
+          "fp": 0,
+          "balanced_accuracy": null
+        }
+      },
+      "invalid": []
+    }
+  }
+}

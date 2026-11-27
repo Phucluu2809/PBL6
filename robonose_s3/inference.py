@@ -16,14 +16,21 @@ import threading
 import uuid
 
 from .coffee_detection import predict_trial
-from models_v3 import COFFEE_ARTIFACT, IDENTITY_ARTIFACT
+from models_v3 import COFFEE_ARTIFACT as COFFEE_V3, IDENTITY_ARTIFACT as IDENTITY_V3
 from models_v3.coffee import predict_trial as predict_smoothed_coffee
+from models_v4 import COFFEE_ARTIFACT as COFFEE_V4, IDENTITY_ARTIFACT as IDENTITY_V4
+from models_v4.coffee import predict_trial as predict_fused_coffee
 
 
 PREDICTION_SCHEMA = "robonose.prediction.v1"
 COMPARISON_METHODS = {"default": "compare", "baseline_v2": "compare_baseline_v2",
                       "learned_baseline_v2": "compare_learned_baseline_v2",
-                      "smoothed_v3": "compare_smoothed_v3"}
+                      "smoothed_v3": "compare_smoothed_v3", "fusion_v4": "compare_fusion_v4"}
+COMPARISON_ARTIFACTS = {"smoothed_v3": IDENTITY_V3, "fusion_v4": IDENTITY_V4}
+COFFEE_EXPERIMENTS = {
+    "smoothed_v3": (COFFEE_V3, predict_smoothed_coffee),
+    "fusion_v4": (COFFEE_V4, predict_fused_coffee),
+}
 
 
 def _timestamp():
@@ -164,7 +171,8 @@ class InferenceCoordinator:
         return self._submit("identity", {"sample_id": sample_id})
 
     def submit_coffee(self, sample_id, raw_path, model="default"):
-        if model not in ("default", "smoothed_v3") or (model == "smoothed_v3" and not COFFEE_ARTIFACT.is_file()):
+        if model != "default" and (not isinstance(model, str) or model not in COFFEE_EXPERIMENTS
+                                   or not COFFEE_EXPERIMENTS[model][0].is_file()):
             raise ValueError("Model cà phê không khả dụng.")
         return self._submit("coffee", {"sample_id": sample_id, "raw_path": str(raw_path), "model": model})
 
@@ -189,7 +197,7 @@ class InferenceCoordinator:
             raise ValueError("Candidate UUIDs must be unique")
         if (not isinstance(model, str) or model not in COMPARISON_METHODS
                 or not hasattr(self.predictor, COMPARISON_METHODS[model])
-                or (model == "smoothed_v3" and not IDENTITY_ARTIFACT.is_file())):
+                or (model in COMPARISON_ARTIFACTS and not COMPARISON_ARTIFACTS[model].is_file())):
             raise ValueError("Model đối sánh không khả dụng.")
         return self._submit("reference_comparison", {
             "reference_id": reference_id, "candidate_ids": candidates, "model": model})
@@ -205,10 +213,11 @@ class InferenceCoordinator:
             "model_backend": getattr(self.predictor, "backend", "UNKNOWN"),
             "synthetic_prediction": None,
         }
-        info["smoothed_v3"] = {
-            "coffee": COFFEE_ARTIFACT.is_file(),
-            "comparison": IDENTITY_ARTIFACT.is_file() and hasattr(self.predictor, "compare_smoothed_v3"),
-        }
+        for name, path in COMPARISON_ARTIFACTS.items():
+            info[name] = {
+                "coffee": COFFEE_EXPERIMENTS[name][0].is_file(),
+                "comparison": path.is_file() and hasattr(self.predictor, COMPARISON_METHODS[name]),
+            }
         return info
 
     def _run(self):
@@ -224,9 +233,9 @@ class InferenceCoordinator:
                     result = self.predictor.predict_identity(job["payload"]["sample_id"])
                 elif job["task"] == "coffee":
                     payload = job["payload"]
-                    smoothed = payload["model"] == "smoothed_v3"
-                    coffee = (self._check_coffee(payload["raw_path"], predict_smoothed_coffee)
-                              if smoothed else self._check_coffee(payload["raw_path"]))
+                    experiment = COFFEE_EXPERIMENTS.get(payload["model"])
+                    coffee = (self._check_coffee(payload["raw_path"], experiment[1])
+                              if experiment else self._check_coffee(payload["raw_path"]))
                     result = {
                         "schema": PREDICTION_SCHEMA, "task": "coffee",
                         "sample_id": payload["sample_id"], "model_backend": "COFFEE_LOGISTIC",

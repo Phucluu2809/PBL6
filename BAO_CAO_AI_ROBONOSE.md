@@ -10,8 +10,8 @@ RoboNose dùng chuỗi đo từ mảng cảm biến để giải quyết hai bà
 
 | Bài toán | Model được chọn | Kết quả trả về | Lý do lựa chọn |
 | --- | --- | --- | --- |
-| Nhận diện và đối sánh người | ResCNN64, một CNN tích chập một chiều với các khối residual. Mục 04 có thêm V2 hiệu chỉnh exposure và V3 thử nghiệm làm mịn exposure trước bộ hiệu chỉnh đã huấn luyện lại. | Mục 03 xếp hạng các nhãn trong kho tham chiếu. Mục 04 xếp hạng các lượt được chọn theo điểm cosine với một lượt tham chiếu. | CNN học được hình dạng đáp ứng theo thời gian của nhiều kênh. Embedding 64 chiều dùng được cho cả nhận diện theo kho mẫu và đối sánh từng lượt. |
-| Phát hiện cà phê | Logistic Regression V2 mặc định trên ba kênh **MQ3 #1 A1, MQ135 #2 A2, MQ3 #2 A3**. V3 dùng cùng ba kênh với bước làm mịn trước khi trích đặc trưng. | Mục 06 báo có mùi cà phê, không có mùi cà phê hoặc chưa đủ dữ liệu để dự đoán. | V2 và V3 đạt cùng balanced accuracy trên tập so sánh 09–20/11. V2 giữ pipeline đơn giản hơn và được dùng làm mặc định. |
+| Nhận diện và đối sánh người | ResCNN64, một CNN tích chập một chiều với các khối residual. Mục 04 có V2 hiệu chỉnh exposure, V3 làm mịn và V4 kết hợp ba nhánh suy luận. | Mục 03 xếp hạng các nhãn trong kho tham chiếu. Mục 04 xếp hạng các lượt được chọn theo điểm cosine với một lượt tham chiếu. | CNN học được hình dạng đáp ứng theo thời gian của nhiều kênh. Embedding 64 chiều dùng được cho cả nhận diện theo kho mẫu và đối sánh từng lượt. |
+| Phát hiện cà phê | Logistic Regression V2 mặc định trên ba kênh **MQ3 #1 A1, MQ135 #2 A2, MQ3 #2 A3**. Mục 06 có thêm V3 làm mịn và V4 kết hợp các nhánh Logistic. | Mục 06 báo có mùi cà phê, không có mùi cà phê hoặc chưa đủ dữ liệu để dự đoán. | V2 và V3 đạt cùng balanced accuracy trên tập 09–20/11. V2 giữ pipeline đơn giản và được dùng làm mặc định. |
 
 Mục 03 và mục 06 dùng API và kết quả riêng. Cà phê có thể được kiểm tra ngay cả khi một job nhận diện người thất bại. [Điểm vào API](robonose_s3/web_server.py) · [Job suy luận](robonose_s3/inference.py)
 
@@ -24,9 +24,9 @@ BME688 (điện trở gas, nhiệt độ, RH, áp suất) ────┘
           → host Python ghi raw.csv và metadata.json theo UUID lượt đo
           → dashboard chọn mẫu đã lưu → hàng đợi inference
                ├─ Mục 03 → ResCNN64 → embedding → kho tham chiếu → xếp hạng nhãn
-               ├─ Mục 04 → ResCNN64 gốc, hiệu chỉnh V2 hoặc làm mịn V3 → cosine giữa các lượt
-               └─ Mục 06 → đặc trưng đáp ứng từ chuỗi gốc hoặc chuỗi làm mịn V3
-                         → Logistic Regression → có/không cà phê
+               ├─ Mục 04 → ResCNN64 gốc, hiệu chỉnh V2, làm mịn V3 hoặc tổ hợp V4 → cosine giữa các lượt
+               └─ Mục 06 → đặc trưng đáp ứng → Logistic V2, Logistic làm mịn V3 hoặc tổ hợp V4
+                         → có/không cà phê
 ```
 
 | Lớp | Công nghệ và vai trò |
@@ -103,6 +103,7 @@ Nhiệt độ, áp suất và recovery nằm ngoài tensor nhận diện ngườ
 | Tạo cặp cà phê và tên người cùng ngày | Tạo hiệu vector đặc trưng giữa các lượt cùng ngày. Dùng các hiệu và hiệu đảo dấu khi fit, rồi hiệu chỉnh intercept bằng lượt train. | Thử nghiệm Logistic, chưa được chọn. |
 | Tăng cường đầu vào CNN cà phê | Nén exposure thành 12 cửa sổ 10 giây. Trong train, nhân hệ số biên độ theo lượt/kênh và cộng nhiễu nhẹ. Cả scaler và tăng cường chỉ dựa trên fold train. | Thử nghiệm CNN, chưa được chọn. |
 | Làm mịn nhẹ ở V3 | Dùng cửa sổ đối xứng 3 hoặc 5 điểm để giảm dao động ngắn trước bộ hiệu chỉnh danh tính hoặc bước rút đặc trưng cà phê. Huấn luyện lại phần dùng tín hiệu đã lọc. | Tùy chọn thử nghiệm riêng ở mục 04 và mục 06. |
+| Kết hợp nhiều đường xử lý ở V4 | Cùng một lượt được xử lý theo nhiều nhánh. Đối sánh gộp điểm cosine. Phát hiện cà phê gộp logit của các nhánh Logistic dùng bộ kênh hoặc phép lọc khác nhau. | Tùy chọn thử nghiệm riêng ở mục 04 và mục 06. |
 
 Các đặc trưng và biến thể tăng cường được tính cho model. CSV gốc chỉ được đọc. [Tiền xử lý ResCNN64](robonose_s3/rescnn64.py#L117) · [Tiền xử lý cà phê](robonose_s3/coffee_detection/__init__.py) · [CNN cà phê thử nghiệm](models_v2/benchmark_coffee_cnn.py)
 
@@ -224,6 +225,30 @@ flowchart TD
 
 Phần mới của V3 là bộ lọc và các tham số được huấn luyện lại trên dữ liệu đã lọc. Artifact V3 lưu trong `models_v3`. Dashboard cung cấp **ResCNN64 V3 · Làm mịn nhẹ** tại mục 04 và **Logistic V3 · Làm mịn nhẹ** tại mục 06. [Tổng quan V3 và lệnh huấn luyện lại](models_v3/README.md)
 
+### 5.6. Kiến trúc kết hợp ba nhánh V4
+
+```mermaid
+flowchart TD
+    R["Lượt đo đã kiểm tra chất lượng"] --> A["Người V1 · Exposure chuẩn hóa"]
+    R --> B["Người V2 · Hiệu chỉnh bằng baseline"]
+    R --> C["Người V3 · Lọc 3 điểm và hiệu chỉnh"]
+    A --> I["Cùng checkpoint ResCNN64 · mỗi nhánh tạo embedding 64 chiều"]
+    B --> I
+    C --> I
+    I --> O["Xếp hạng cosine · 60% V1 + 20% V2 + 20% V3"]
+    R --> D["Cà phê V1 · BME688 gas và A1"]
+    R --> E["Cà phê V2 · A1–A3"]
+    R --> F["Cà phê V3 · A1–A3 làm mịn"]
+    D --> J["Ba nhánh Logistic được fit lại · mỗi nhánh tạo một logit"]
+    E --> J
+    F --> J
+    J --> P["Logit tổng · 10% V1 + 45% V2 + 45% V3"]
+```
+
+Ở tác vụ người, V4 dùng cùng một ResCNN64 với trọng số cố định. Bộ hiệu chỉnh V2 và V3 được fit riêng với dữ liệu đầu vào tương ứng. Ba embedding chuẩn L2 được nhân với căn bậc hai của trọng số, rồi nối thành 192 chiều. Tích vô hướng giữa hai vector nối bằng tổng cosine có trọng số của từng nhánh.
+
+Ở tác vụ cà phê, mỗi nhánh học scaler và Logistic Regression riêng. Công thức cuối là `s = 0,10 × logit_V1 + 0,45 × logit_V2 + 0,45 × logit_V3`. Nếu `s > 0`, model trả có cà phê. Nhánh bổ sung đặc trưng đầu và cuối exposure cũng được thử nhưng có trọng số 0 ở cấu hình được chọn. [Kiến trúc và cách chạy V4](models_v4/README.md)
+
 ## 6. Thử nghiệm và tiêu chí chọn model
 
 ### 6.1. Đối sánh danh tính
@@ -305,6 +330,30 @@ Trong hai cách làm mịn, chọn `light3` cho cả hai tác vụ. Bản ngư�
 | Cà phê · báo dương trên mẫu hardware mang tên người | 1/13 | 1/13 |
 
 V3 giữ số lượt đúng trên hardware nhưng giảm Top 1 đối sánh người trên archive. Với cà phê, các chỉ số chính giữ nguyên và balanced accuracy vẫn dưới 75%. Vì vậy, dashboard đưa V3 vào mục 04 và mục 06 dưới dạng lựa chọn thử nghiệm. [Số liệu đối sánh V3](models_v3/identity_report.json) · [Số liệu cà phê V3](models_v3/coffee_report.json)
+
+### 6.4. So sánh V4 với từng nhánh
+
+Dùng archive **09–20/11/2026** để fit các nhánh và chọn trọng số. Mỗi lần giữ riêng một ngày. Với người, dùng 93 lượt và chọn theo Top 1 trung bình theo lớp, dùng MRR khi bằng điểm. Với cà phê, dùng 141 lượt và chọn theo balanced accuracy, dùng điểm trên mẫu cà phê và không khí để phân xử. Sau khi chốt các trọng số, fit lại trên archive rồi chấm trên tập đối chiếu.
+
+| Đối sánh người | Top 1 khác ngày trên archive | Top 1 trung bình theo lớp trên archive | Top 1 khác phiên trên hardware | MRR hardware |
+| --- | ---: | ---: | ---: | ---: |
+| V1 · ResCNN64 gốc | 48/76 | 60,70% | 7/13 | 0,6692 |
+| V2 · Hiệu chỉnh baseline | 50/76 | 66,09% | **8/13** | 0,7333 |
+| V3 · Làm mịn và hiệu chỉnh | 47/76 | 63,27% | **8/13** | **0,7372** |
+| V4 · Kết hợp 60% V1, 20% V2, 20% V3 | **54/76** | **71,14%** | 7/13 | 0,6859 |
+
+V4 tốt nhất trong vòng chọn trọng số trên archive. Trên 13 lượt từ 4 phiên hardware, V4 hụt một lượt đúng so với V2 và V3. [Kết quả theo nhãn và tổ hợp trọng số](models_v4/identity_report.json)
+
+| Phát hiện cà phê | Balanced accuracy khác ngày | Bắt đúng cà phê khác ngày | Bắt đúng ngày 07/11 | Báo dương trên mẫu hardware mang tên người |
+| --- | ---: | ---: | ---: | ---: |
+| V1 · Bộ kênh gốc được fit lại | 62,9% | 15/32 | 1/8 | 2/13 |
+| V2 · Logistic ba kênh được fit lại | **71,8%** | **21/32** | 1/8 | 1/13 |
+| V3 · Logistic làm mịn được fit lại | **71,8%** | **21/32** | 1/8 | 1/13 |
+| V4 · Kết hợp 10% V1, 45% V2, 45% V3 | 69,8% | 20/32 | 1/8 | 1/13 |
+
+Các nhánh cà phê trong bảng được fit trên cùng dữ liệu, nên dòng V1 là đối chứng về bộ kênh. V4 thấp hơn V2 và V3 về balanced accuracy. Cột hardware dùng nhãn âm quy ước theo tên người. Kết quả trên archive dùng để chọn trọng số và cần phiên đo mới để kiểm chứng. [Ma trận nhầm lẫn và kết quả từng cấu hình](models_v4/coffee_report.json)
+
+V4 được triển khai trong dashboard cục bộ dưới dạng tùy chọn thử nghiệm. Vào **04 · Đối sánh → ResCNN64 V4 · Kết hợp ba nhánh** hoặc **06 · Phát hiện cà phê → Logistic V4 · Kết hợp ba nhánh**. Các lựa chọn mặc định vẫn theo kết quả đánh giá của các bản trước.
 
 ## 7. Điểm cần nêu khi bảo vệ
 
