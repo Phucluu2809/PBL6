@@ -229,7 +229,10 @@
               <option value="COMPLETE">COMPLETE</option>
               <option value="ABORTED">ABORTED</option>
             </select>
-            <button class="primary" type="button" id="save-comparison-selection" disabled>Lưu lựa chọn</button>
+            <div class="library-selection-actions">
+              <button type="button" id="toggle-comparison-selection" title="Áp dụng cho toàn bộ mẫu đã lưu hoàn chỉnh, kể cả mẫu ngoài bộ lọc" disabled>Chọn tất cả</button>
+              <button class="primary" type="button" id="save-comparison-selection" disabled>Lưu lựa chọn</button>
+            </div>
             <small id="library-selection-status" role="status">Chưa có mẫu được lưu.</small>
           </div>
         </article>
@@ -267,23 +270,16 @@
       <section class="page" id="page-coffee" aria-labelledby="page-title" hidden>
         <div class="inference-layout">
           <article class="panel inference-form">
-            <h2>Mẫu cần kiểm tra</h2>
-            <label>Model cà phê
-              <select id="coffee-model">
-                <option value="default">Model mặc định</option>
-                <option value="smoothed_v3" disabled>Logistic V3 · Làm mịn nhẹ (thử nghiệm)</option>
-                <option value="fusion_v4" disabled>Logistic V4 · Kết hợp ba nhánh (thử nghiệm)</option>
-              </select>
-            </label>
-            <label>Mẫu hardware
-              <input id="coffee-sample" list="coffee-options" placeholder="Chọn hoặc nhập trial_id">
-            </label>
-            <datalist id="coffee-options"></datalist>
-            <button class="primary" type="button" id="coffee-button">Kiểm tra cà phê</button>
+            <h2>Kiểm tra các mẫu đã chọn</h2>
+            <p>Chạy cùng bộ mẫu với Logistic Regression, Random Forest và SVM.</p>
+            <p id="coffee-selection-status" role="status">Chọn và lưu mẫu trong mục 05 · Danh sách mẫu.</p>
+            <button class="primary" type="button" id="coffee-button" disabled>Chạy cả 3 model</button>
           </article>
           <article class="panel result-panel">
             <h2>Kết quả kiểm tra</h2>
-            <div id="coffee-result" aria-live="polite"><div class="empty-state">Chưa kiểm tra mẫu.</div></div>
+            <p id="coffee-progress" role="status"></p>
+            <div id="coffee-metrics" aria-live="polite"></div>
+            <div id="coffee-result"><div class="empty-state">Chưa kiểm tra mẫu.</div></div>
           </article>
         </div>
       </section>

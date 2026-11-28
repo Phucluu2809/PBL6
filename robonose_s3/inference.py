@@ -7,6 +7,7 @@ without changing the web API or acquisition owner.
 """
 from collections import deque
 from copy import deepcopy
+from functools import partial
 import csv
 from datetime import datetime, timezone
 import hashlib
@@ -16,6 +17,7 @@ import threading
 import uuid
 
 from .coffee_detection import predict_trial
+from .coffee_detection.ml import MODEL_IDS, artifact_path, predict_trial as predict_ml_coffee
 from models_v3 import COFFEE_ARTIFACT as COFFEE_V3, IDENTITY_ARTIFACT as IDENTITY_V3
 from models_v3.coffee import predict_trial as predict_smoothed_coffee
 from models_v4 import COFFEE_ARTIFACT as COFFEE_V4, IDENTITY_ARTIFACT as IDENTITY_V4
@@ -28,6 +30,7 @@ COMPARISON_METHODS = {"default": "compare", "baseline_v2": "compare_baseline_v2"
                       "smoothed_v3": "compare_smoothed_v3", "fusion_v4": "compare_fusion_v4"}
 COMPARISON_ARTIFACTS = {"smoothed_v3": IDENTITY_V3, "fusion_v4": IDENTITY_V4}
 COFFEE_EXPERIMENTS = {
+    **{name: (artifact_path(name), partial(predict_ml_coffee, model=name)) for name in MODEL_IDS},
     "smoothed_v3": (COFFEE_V3, predict_smoothed_coffee),
     "fusion_v4": (COFFEE_V4, predict_fused_coffee),
 }

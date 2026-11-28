@@ -165,6 +165,16 @@ h2 { font-size: 1.15rem; letter-spacing: -.015em; }
 .inference-form { display: flex; flex-direction: column; gap: .9rem; }
 .inference-form > p:not(.eyebrow) { color: var(--muted); line-height: 1.5; }
 .result-panel { min-height: 320px; }
+#coffee-result { overflow-x: auto; margin-top: .8rem; }
+#coffee-metrics { margin-top: .8rem; }
+.coffee-metrics-table { overflow-x: auto; }
+#coffee-metrics .sample-table { min-width: 560px; }
+#coffee-result .sample-table { min-width: 650px; }
+.coffee-verdict { font-weight: 700; white-space: nowrap; }
+.coffee-verdict.correct { color: var(--teal); }
+.coffee-verdict.incorrect { color: var(--red); }
+.coffee-verdict.pending, .coffee-expected { color: var(--muted); }
+.coffee-expected { display: block; margin-top: .3rem; }
 .empty-state { color: var(--muted); min-height: 230px; display: grid; place-items: center; text-align: center; }
 .identity-answer { min-height: 250px; display: grid; place-content: center; text-align: center; }
 .identity-answer strong { font-size: 3rem; color: var(--teal); }
@@ -215,7 +225,8 @@ h2 { font-size: 1.15rem; letter-spacing: -.015em; }
 .result-trace li + li { margin-top: .45rem; }
 .library-head { display: flex; flex-shrink: 0; align-items: center; justify-content: space-between; gap: 1rem; }
 .library-head small { margin-top: .35rem; }
-.library-tools { display: grid; grid-template-columns: minmax(150px,1fr) auto auto; gap: .45rem .6rem; width: min(650px,100%); }
+.library-tools { display: grid; grid-template-columns: minmax(120px,1fr) auto auto; gap: .45rem .6rem; width: min(740px,100%); }
+.library-selection-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .45rem; }
 .library-tools button { white-space: nowrap; }
 #library-selection-status { grid-column: 1 / -1; text-align: right; margin: 0; }
 #library-selection-status.error { color: var(--red); }
@@ -277,8 +288,7 @@ footer { display: flex; justify-content: space-between; gap: 1rem; color: #60757
   .countdown { text-align: left; }
   .compact-field { grid-template-columns: 1fr; }
   .detail-list div { grid-template-columns: 1fr; gap: .25rem; }
-  .library-tools { grid-template-columns: minmax(0,1fr) auto; }
-  .library-tools input { grid-column: 1 / -1; }
+  .library-tools { grid-template-columns: minmax(0,1fr); }
   .contained-page .sidebar { padding: .4rem; }
   .contained-page .nav { grid-template-columns: repeat(3,minmax(0,1fr)); gap: .2rem; }
   .contained-page .nav-item { padding: .35rem .2rem; line-height: 1.2; }

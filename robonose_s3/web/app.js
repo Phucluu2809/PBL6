@@ -3,8 +3,12 @@
 const state = { snapshot: null, messageAfter: 0, renderedJobs: new Set(), trials: [], connected: false, pendingSavedTrial: null, savedTrial: null, sessionRequestPending: false };
 let identityRequest = 0;
 let identityJob;
-let coffeeRequest = 0;
-let coffeeJob;
+let coffeeBusy = false;
+const coffeeModels = [
+  {id: "logistic", name: "Logistic Regression"},
+  {id: "random_forest", name: "Random Forest"},
+  {id: "svm", name: "SVM (RBF)"}
+];
 let autoPredictedTrial;
 let comparisonJob;
 let comparisonBusy = false;
@@ -100,11 +104,6 @@ function renderModelStatus(model = {}) {
     else if (option.value !== "default") option.disabled = backend !== "RESCNN64_TORCH";
   }
   if (selector.selectedOptions[0]?.disabled) selector.value = "default";
-  const coffeeSelector = byId("coffee-model");
-  for (const option of coffeeSelector.options) {
-    if (option.value !== "default") option.disabled = !model[option.value]?.coffee;
-  }
-  if (coffeeSelector.selectedOptions[0]?.disabled) coffeeSelector.value = "default";
   const title = mock ? "MODEL GIẢ LẬP" : `MODEL THẬT · ${backend}`;
   const detail = mock
     ? "Chỉ kiểm tra UI/API; kết quả không có giá trị nhận diện."
@@ -438,22 +437,40 @@ function smoothingLabel(method) {
   return ({light3: "trung bình có trọng số 3 điểm", sg5_half: "Savitzky–Golay 5 điểm, pha 50%"})[method] || method;
 }
 
-function renderCoffee(sampleId, result) {
-  const target = byId("coffee-result");
-  const predicted = result?.status === "PREDICTED";
-  const label = predicted ? (result.has_coffee ? "Có mùi cà phê" : "Không có mùi cà phê")
-    : "Không thể kiểm tra mẫu";
-  const channelNames = {
-    gas_resistance_ohm: "BME688 gas", tgs2602_voltage_v: "TGS2602 A0",
-    mq3_1_voltage_v: "MQ3 #1 A1", mq135_2_voltage_v: "MQ135 #2 A2", mq3_2_voltage_v: "MQ3 #2 A3"
-  };
-  const channels = (result?.signals || []).map(key => channelNames[key] || key).join(", ");
-  const filter = result?.smoothing ? ` · Thử nghiệm lọc ${smoothingLabel(result.smoothing)}` : "";
-  const fusion = result?.fusion_weights ? " · Kết hợp các nhánh Logistic V1, V2 và V3" : "";
-  const detail = predicted ? `Model ${result.model}${channels ? ` · ${channels}` : ""}${filter}`
-    : (result?.reason || "Chưa có kết quả cà phê.");
-  target.innerHTML = `<h3>${label}</h3><code>${escapeHtml(sampleId)}</code>
-    <p>${escapeHtml(detail + fusion)}</p>`;
+function coffeeSamples() {
+  return state.trials.filter(item => canCompare(item) && item.mode === "HARDWARE" && savedSelection.has(item.trial_id));
+}
+
+function renderCoffeeSelection() {
+  const samples = coffeeSamples();
+  const skipped = eligibleSelection(savedSelection).length - samples.length;
+  byId("coffee-selection-status").textContent = samples.length
+    ? `${samples.length} mẫu hardware đã lưu lựa chọn${skipped ? ` · Bỏ qua ${skipped} mẫu mô phỏng` : ""}`
+    : "Chọn và lưu mẫu hardware trong mục 05 · Danh sách mẫu.";
+  byId("coffee-button").disabled = coffeeBusy || !samples.length;
+}
+
+function renderCoffeeBatch(rows) {
+  byId("coffee-result").innerHTML = `<div class="table-wrap"><table class="sample-table">
+    <thead><tr><th>Model</th><th>Tên mẫu</th><th>Trial ID</th><th>Kết quả</th><th>Đối chiếu tên mẫu</th><th>Chi tiết</th></tr></thead>
+    <tbody>${rows.map(row => {
+      const result = row.result;
+      const label = result?.status === "PREDICTED"
+        ? (result.has_coffee ? "Có mùi cà phê" : "Không có mùi cà phê")
+        : result ? "Không thể kiểm tra" : row.running ? "Đang kiểm tra…" : "Chờ kiểm tra";
+      const detail = result?.status === "PREDICTED"
+        ? `${result.model || ""}${Number.isFinite(result.logit) ? ` · Logit ${formatNumber(result.logit, 4)}` : ""}`
+        : result?.reason || "";
+      const expected = /cf/i.test(row.name || "");
+      const correct = result?.status === "PREDICTED" && result.has_coffee === expected;
+      const verdict = result?.status === "PREDICTED"
+        ? `<span class="coffee-verdict ${correct ? "correct" : "incorrect"}">${correct ? "✓ Đúng" : "✕ Sai"}</span>`
+        : '<span class="coffee-verdict pending">— Chưa đánh giá</span>';
+      return `<tr><td>${escapeHtml(row.modelName)}</td><td><strong>${escapeHtml(row.name || "Chưa đặt tên")}</strong></td>
+        <td><code>${escapeHtml(row.trial_id)}</code></td><td>${label}</td>
+        <td>${verdict}<small class="coffee-expected">${expected ? "Có CF · Có cà phê" : "Không có CF · Không cà phê"}</small></td>
+        <td>${escapeHtml(detail)}</td></tr>`;
+    }).join("")}</tbody></table></div>`;
 }
 
 async function runIdentity(sampleId) {
@@ -469,18 +486,79 @@ async function runIdentity(sampleId) {
   }
 }
 
+function coffeeMetrics(rows) {
+  const predicted = rows.filter(row => row.result?.status === "PREDICTED");
+  const positives = predicted.filter(row => /cf/i.test(row.name || ""));
+  const correct = predicted.filter(row => row.result.has_coffee === /cf/i.test(row.name || "")).length;
+  const tp = positives.filter(row => row.result.has_coffee).length;
+  return {predicted: predicted.length, correct, tp, positives: positives.length,
+    failed: rows.filter(row => row.result && row.result.status !== "PREDICTED").length};
+}
+
+function renderCoffeeMetrics(groups) {
+  byId("coffee-metrics").innerHTML = `<div class="coffee-metrics-table"><table class="sample-table">
+    <thead><tr><th>Model</th><th>Accuracy</th><th>Recall cà phê</th><th>Đã dự đoán</th><th>Lỗi</th></tr></thead>
+    <tbody>${groups.map(group => {
+      const m = coffeeMetrics(group.rows);
+      const accuracy = m.predicted ? `${formatNumber(100 * m.correct / m.predicted, 1)}% (${m.correct}/${m.predicted})` : "—";
+      const recall = m.positives ? `${formatNumber(100 * m.tp / m.positives, 1)}% (${m.tp}/${m.positives})` : "—";
+      return `<tr><td>${escapeHtml(group.name)}</td><td>${accuracy}</td><td>${recall}</td>
+        <td>${m.predicted}/${group.rows.length}</td><td>${m.failed}</td></tr>`;
+    }).join("")}</tbody></table></div>
+    <p class="result-trace">Nhãn có cà phê khi tên chứa CF, không phân biệt hoa thường.
+      Accuracy = số dự đoán đúng / số mẫu dự đoán thành công.
+      Recall = số mẫu CF được phát hiện / số mẫu CF dự đoán thành công.
+      Mẫu lỗi được đếm riêng. Dấu — khi chưa có mẫu để tính.</p>`;
+}
+
 async function runCoffee() {
-  const request = ++coffeeRequest;
-  coffeeJob = null;
-  const sampleId = byId("coffee-sample").value.trim();
-  byId("coffee-result").textContent = "Đang kiểm tra mùi cà phê…";
+  if (coffeeBusy) return;
+  const samples = coffeeSamples();
+  if (!samples.length) return;
+  const groups = coffeeModels.map(model => ({
+    ...model, rows: samples.map(item => ({
+      trial_id: item.trial_id, name: item.name, modelName: model.name, result: null
+    }))
+  }));
+  const rows = groups.flatMap(group => group.rows);
+  coffeeBusy = true;
+  renderCoffeeSelection();
+  renderCoffeeMetrics(groups);
   try {
-    const job = await api("/api/inference/coffee", {method: "POST", body: JSON.stringify({
-      sample_id: sampleId, model: byId("coffee-model").value
-    })});
-    if (request === coffeeRequest) coffeeJob = job.job_id;
-  } catch (error) {
-    if (request === coffeeRequest) renderCoffee(sampleId, {reason: error.message});
+    let completed = 0;
+    for (const group of groups) {
+      for (const row of group.rows) {
+        row.running = true;
+        byId("coffee-progress").textContent = `${group.name} · Đang kiểm tra ${completed + 1}/${rows.length} lượt`;
+        renderCoffeeBatch(rows);
+        try {
+          const submitted = await api("/api/inference/coffee", {method: "POST", body: JSON.stringify({
+            sample_id: row.trial_id, model: group.id
+          })});
+          const deadline = Date.now() + 120000;
+          while (!row.result) {
+            const payload = await api("/api/inference/results?after=0");
+            const job = payload.jobs.find(item => item.job_id === submitted.job_id);
+            if (job && ["SUCCEEDED", "FAILED"].includes(job.state)) {
+              row.result = job.result || {reason: job.error || "Kiểm tra thất bại."};
+            } else {
+              if (Date.now() >= deadline) throw new Error("Quá thời gian chờ kết quả.");
+              await new Promise(resolve => setTimeout(resolve, 700));
+            }
+          }
+        } catch (error) {
+          row.result = {reason: error.message};
+        }
+        row.running = false;
+        completed++;
+        renderCoffeeBatch(rows);
+        renderCoffeeMetrics(groups);
+      }
+    }
+    byId("coffee-progress").textContent = `Hoàn tất cả 3 model trên ${samples.length} mẫu đã chọn.`;
+  } finally {
+    coffeeBusy = false;
+    renderCoffeeSelection();
   }
 }
 
@@ -537,7 +615,7 @@ async function pollInference() {
     payload.jobs.forEach(job => {
       if (state.renderedJobs.has(job.job_id) || !["SUCCEEDED", "FAILED"].includes(job.state)) return;
       if (job.task === "identity" && identityJob !== undefined && job.job_id !== identityJob) return;
-      if (job.task === "coffee" && job.job_id !== coffeeJob) return;
+      if (job.task === "coffee") return;
       if (job.task === "reference_comparison" && job.job_id !== comparisonJob) return;
       state.renderedJobs.add(job.job_id);
       if (job.task === "reference_comparison") {
@@ -546,9 +624,7 @@ async function pollInference() {
         byId("comparison-model").disabled = false;
         renderComparisonSelection();
       }
-      if (job.task === "coffee") {
-        renderCoffee(job.payload.sample_id, job.result || {reason: job.error});
-      } else if (job.state === "FAILED") {
+      if (job.state === "FAILED") {
         const target = job.task === "identity" ? byId("identity-result") : byId("comparison-result");
         target.innerHTML = `<div class="empty-state">${escapeHtml(job.error || "Inference failed")}</div>`;
       } else if (job.result.task === "identity") renderIdentity(job.result);
@@ -577,7 +653,6 @@ async function loadTrials() {
       const options = eligible => eligible.map(item => `<option value="${escapeHtml(item.trial_id)}">${escapeHtml(item.name || "Chưa đặt tên")} · COMPLETE · QC ${escapeHtml(item.quality || "NOT_EVALUATED")}</option>`).join("");
       const complete = state.trials.filter(canCompare);
       byId("trial-options").innerHTML = options(complete);
-      byId("coffee-options").innerHTML = options(complete.filter(item => item.mode === "HARDWARE"));
       renderLibrary();
       renderComparisonSelection();
     }
@@ -612,6 +687,10 @@ function renderComparisonSelection() {
   const saved = eligibleSelection(savedSelection);
   const unsaved = draft.length !== savedSelection.size || draft.some(id => !savedSelection.has(id));
   byId("save-comparison-selection").disabled = trialCatalogJson === undefined || !unsaved;
+  const eligibleCount = state.trials.filter(canCompare).length;
+  const toggle = byId("toggle-comparison-selection");
+  toggle.disabled = trialCatalogJson === undefined || eligibleCount === 0;
+  toggle.textContent = eligibleCount > 0 && draft.length === eligibleCount ? "Bỏ chọn tất cả" : "Chọn tất cả";
   const libraryStatus = unsaved ? `Đang chọn ${draft.length} mẫu · Chưa lưu thay đổi` : `Đã lưu ${saved.length} mẫu`;
   feedback("library-selection-status", libraryStatus);
 
@@ -623,6 +702,7 @@ function renderComparisonSelection() {
   if (trialCatalogJson !== undefined && unavailable) notes.push(`${unavailable} mẫu đã lưu hiện không khả dụng`);
   byId("comparison-selection-status").textContent = notes.join(" · ");
   byId("comparison-button").disabled = comparisonBusy || candidateCount === 0;
+  renderCoffeeSelection();
 }
 
 function saveComparisonSelection() {
@@ -635,6 +715,15 @@ function saveComparisonSelection() {
   } catch {
     feedback("library-selection-status", "Trình duyệt không lưu được lựa chọn. Hãy thử lại.", true);
   }
+}
+
+function toggleComparisonSelection() {
+  const eligible = state.trials.filter(canCompare).map(item => item.trial_id);
+  draftSelection = new Set(eligible.every(id => draftSelection.has(id)) ? [] : eligible);
+  byId("sample-library-body").querySelectorAll("[data-select-trial]").forEach(checkbox => {
+    checkbox.checked = !checkbox.disabled && draftSelection.has(checkbox.dataset.selectTrial);
+  });
+  renderComparisonSelection();
 }
 
 function renderLibrary() {
@@ -785,6 +874,7 @@ function initControls() {
   });
   byId("library-search").addEventListener("input", renderLibrary);
   byId("library-status").addEventListener("change", renderLibrary);
+  byId("toggle-comparison-selection").addEventListener("click", toggleComparisonSelection);
   byId("save-comparison-selection").addEventListener("click", saveComparisonSelection);
   byId("sample-library-body").addEventListener("change", event => {
     const checkbox = event.target.closest("[data-select-trial]");
